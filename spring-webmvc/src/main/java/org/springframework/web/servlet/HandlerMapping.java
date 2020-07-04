@@ -21,9 +21,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 用来查找 handler的，在spring mvc中会有很多请求，每个请求都需要一个handler去处理，具体接受到一个请求之后使用哪个handler进行处理呢？其实就是handlerMapping要做的事情
+ *  	它负责映射用户的url和对应的处理类handler, handlerMapping并没有规定这个url与应用的处理类如何映射，所以在handlerMapping接口中仅仅定义了根据一个url必须返回一个handlerExecutionChain代表的处理链，我们可以在这个处理链中添加任意的handlerAdapter
+ *      实例来处理这个URL对应的请求， 该接口仅仅提供了一个方法 getHandler
  * Interface to be implemented by objects that define a mapping between
  * requests and handler objects.
- *
+ *˙
  * <p>This class can be implemented by application developers, although this is not
  * necessary, as {@link org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping}
  * and {@link org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping}

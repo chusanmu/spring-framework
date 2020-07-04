@@ -197,6 +197,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	public void afterPropertiesSet() {
+		// TODO: 初始化所有的handlerMethod
 		initHandlerMethods();
 	}
 

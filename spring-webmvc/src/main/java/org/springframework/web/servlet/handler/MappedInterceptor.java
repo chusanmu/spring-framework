@@ -44,14 +44,22 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public final class MappedInterceptor implements HandlerInterceptor {
 
+	/* ---------------- 这俩可以为空 -------------- */
+
 	@Nullable
 	private final String[] includePatterns;
 
 	@Nullable
 	private final String[] excludePatterns;
 
+	/**
+	 * 保存了一个interceptor的引用，类似于目标类
+	 */
 	private final HandlerInterceptor interceptor;
 
+	/**
+	 * 该类允许 我们自己指定路径的匹配规则，但是spring里，不管哪个上层服务，默认使用的都是Ant风格的匹配，并不是正则的匹配，所以效率上还是挺高的
+	 */
 	@Nullable
 	private PathMatcher pathMatcher;
 
@@ -81,6 +89,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 
 	/**
+	 * 还可以接受一个webRequestInterceptor
 	 * Create a new MappedInterceptor instance.
 	 * @param includePatterns the path patterns to map (empty for matching to all paths)
 	 * @param interceptor the WebRequestInterceptor instance to map to the given patterns
@@ -97,7 +106,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 	 */
 	public MappedInterceptor(@Nullable String[] includePatterns, @Nullable String[] excludePatterns,
 			WebRequestInterceptor interceptor) {
-
+		// TODO: 注意这里使用了一个 WebRequestHandlerInterceptorAdapter 适配器
 		this(includePatterns, excludePatterns, new WebRequestHandlerInterceptorAdapter(interceptor));
 	}
 
@@ -138,6 +147,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 
 	/**
+	 * TODO: excludePatterns先执行，includePatterns后执行，如果exclude执行完都没有匹配的，并且includePatterns是空的，那就返回true
 	 * Determine a match for the given lookup path.
 	 * @param lookupPath the current request path
 	 * @param pathMatcher a path matcher for path pattern matching

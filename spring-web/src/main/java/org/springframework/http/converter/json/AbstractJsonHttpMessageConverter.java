@@ -36,6 +36,9 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 通用的json格式转换器基类
+ * 		1.它规定了只处理json格式的消息  content-type是application/json 或者 application/*+json
+ * 	    2. 但并没有确定去使用哪种json库去处理，spring内置了GSON和JSON-B继承此基类去实现，当然也可以是自定义的json库去处理
  * Common base class for plain JSON converters, e.g. Gson and JSON-B.
  *
  * <p>Note that the Jackson converters have a dedicated class hierarchy
@@ -58,7 +61,9 @@ public abstract class AbstractJsonHttpMessageConverter extends AbstractGenericHt
 	@Nullable
 	private String jsonPrefix;
 
-
+	/**
+	 * TODO: 它规定了只能处理JSON格式，但并没有规定使用JSON库技术，底层调用的其实是setDefaultCharset方法设值的
+	 */
 	public AbstractJsonHttpMessageConverter() {
 		super(MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
 		setDefaultCharset(DEFAULT_CHARSET);

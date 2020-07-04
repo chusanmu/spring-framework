@@ -37,7 +37,7 @@ import org.springframework.lang.Nullable;
  * <p>The default constructor uses the default configuration provided by {@link Jackson2ObjectMapperBuilder}.
  *
  * <p>Compatible with Jackson 2.9 and higher, as of Spring 5.0.
- *
+ * TODO: 用于处理JSON格式的消息体，因为大部分功能在父类已有实现，所以实现类源码其实非常简单
  * @author Arjen Poutsma
  * @author Keith Donald
  * @author Rossen Stoyanchev
@@ -56,15 +56,18 @@ public class MappingJackson2HttpMessageConverter extends AbstractJackson2HttpMes
 	 * provided by {@link Jackson2ObjectMapperBuilder}.
 	 */
 	public MappingJackson2HttpMessageConverter() {
+		// TODO: 默认情况下，就给你构建一个默认的ObjectMapper
 		this(Jackson2ObjectMapperBuilder.json().build());
 	}
 
 	/**
+	 * TODO: 自己指定一个ObjectMapper实例，并且写死了，只处理json格式的消息
 	 * Construct a new {@link MappingJackson2HttpMessageConverter} with a custom {@link ObjectMapper}.
 	 * You can use {@link Jackson2ObjectMapperBuilder} to build it easily.
 	 * @see Jackson2ObjectMapperBuilder#json()
 	 */
 	public MappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
+		// TODO: 告诉父类你能处理啥类型的MediaType即可，其他子类分别使用了ObjectMapper处理xml，cbor等等
 		super(objectMapper, MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
 	}
 

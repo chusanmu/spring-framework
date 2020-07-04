@@ -136,6 +136,7 @@ import org.springframework.lang.Nullable;
  * </pre>
  *
  * <p>Compatible with Jackson 2.6 and higher, as of Spring 4.3.
+ * TODO: 它是一个factoryBean, 用于构建一个ObjectMapper的实例并且放进spring容器，它内部的构建逻辑依赖于Jackson2ObjectMapperBuilder去实现
  *
  * @author <a href="mailto:dmitry.katsubo@gmail.com">Dmitry Katsubo</a>
  * @author Rossen Stoyanchev
@@ -155,6 +156,7 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
 
 
 	/**
+	 * TODO: 我们可以自己set一个ObjectMappern
 	 * Set the {@link ObjectMapper} instance to use. If not set, the {@link ObjectMapper}
 	 * will be created using its default constructor.
 	 */
@@ -459,6 +461,8 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
 
 	@Override
 	public void afterPropertiesSet() {
+		// TODO: 若开发者传入了自己构建好的objectMapper，那就只对它执行configure配置动作即可
+		// TODO: 否则交由builder完成创建
 		if (this.objectMapper != null) {
 			this.builder.configure(this.objectMapper);
 		}

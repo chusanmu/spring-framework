@@ -54,6 +54,7 @@ import org.springframework.lang.Nullable;
 public interface LocaleResolver {
 
 	/**
+	 * TODO: 根据request对象根据指定的方式获取一个Locale, 如果没有获取到，则使用用户指定的默认的Locale
 	 * Resolve the current locale via the given request.
 	 * Can return a default locale as fallback in any case.
 	 * @param request the request to resolve the locale for
@@ -62,6 +63,7 @@ public interface LocaleResolver {
 	Locale resolveLocale(HttpServletRequest request);
 
 	/**
+	 * TODO: 用于实现Locale的切换，比如SessionLocalResolver获取Locale的方式是从session中读取，但如果用户想要切换其展示的样式，这里就可以用setLocale
 	 * Set the current locale to the given one.
 	 * @param request the request to be used for locale modification
 	 * @param response the response to be used for locale modification

@@ -58,6 +58,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.TypeUtils;
 
 /**
+ * TODO: 1.它使用的JSON库确定了是Jackson ,也就是说确定使用ObjectMapper以及其他jackson api来完成操作
+ * 		2.但它并没有规定只处理JSON格式的消息体
  * Abstract base class for Jackson based and content type independent
  * {@link HttpMessageConverter} implementations.
  *
@@ -80,16 +82,25 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
 	 */
 	public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-
+	/**
+	 * objectMapper上没有@Nullable，表示是必传的
+	 */
 	protected ObjectMapper objectMapper;
 
+	/**
+	 * 是否使用格式化输出，默认是紧凑输出，不格式化的
+	 */
 	@Nullable
 	private Boolean prettyPrint;
 
 	@Nullable
 	private PrettyPrinter ssePrettyPrinter;
 
-
+	/**
+	 * 构造器，默认使用DefaultPrettyPrinter()来用于输出
+	 * 默认处理所有的content-type, 当然子类可以自己指定它能够处理的媒体类型
+	 * @param objectMapper
+	 */
 	protected AbstractJackson2HttpMessageConverter(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
 		setDefaultCharset(DEFAULT_CHARSET);
@@ -181,12 +192,19 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
 		return checkEncoding(mediaType);
 	}
 
+	/**
+	 * TODO: canWrite() 原自父类方法，也就是通过MediaType去匹配
+	 * @param clazz
+	 * @param mediaType
+	 * @return
+	 */
 	@Override
 	public boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType) {
 		if (!canWrite(mediaType)) {
 			return false;
 		}
 		AtomicReference<Throwable> causeRef = new AtomicReference<>();
+		// TODO: ObjectMapper能够序列化，顺便给处理掉
 		if (this.objectMapper.canSerialize(clazz, causeRef)) {
 			return true;
 		}
@@ -259,6 +277,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
 
 	private Object readJavaType(JavaType javaType, HttpInputMessage inputMessage) throws IOException {
 		try {
+			// TODO: @JsonView 和 @JsonFilter等注解功能
 			if (inputMessage instanceof MappingJacksonInputMessage) {
 				Class<?> deserializationView = ((MappingJacksonInputMessage) inputMessage).getDeserializationView();
 				if (deserializationView != null) {
@@ -266,6 +285,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
 							readValue(inputMessage.getBody());
 				}
 			}
+			// TODO: 直接利用objectMapper高层api进行读
 			return this.objectMapper.readValue(inputMessage.getBody(), javaType);
 		}
 		catch (InvalidDefinitionException ex) {
@@ -282,6 +302,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
 
 		MediaType contentType = outputMessage.getHeaders().getContentType();
 		JsonEncoding encoding = getJsonEncoding(contentType);
+		// TODO: 通过objectMapper 拿到流式底层API JsonGenerator
 		JsonGenerator generator = this.objectMapper.getFactory().createGenerator(outputMessage.getBody(), encoding);
 		try {
 			writePrefix(generator, object);
@@ -290,30 +311,35 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
 			Class<?> serializationView = null;
 			FilterProvider filters = null;
 			JavaType javaType = null;
-
+			// TODO: 支持@JsonValue注解，此处给value重新赋值，并不是原值
 			if (object instanceof MappingJacksonValue) {
 				MappingJacksonValue container = (MappingJacksonValue) object;
 				value = container.getValue();
 				serializationView = container.getSerializationView();
 				filters = container.getFilters();
 			}
+			// TODO: 根据type拿到javaType类型
 			if (type != null && TypeUtils.isAssignable(type, value.getClass())) {
 				javaType = getJavaType(type, null);
 			}
 
+			// TODO: 支持jsonView
 			ObjectWriter objectWriter = (serializationView != null ?
 					this.objectMapper.writerWithView(serializationView) : this.objectMapper.writer());
+			// TODO: 支持@JsonFilter
 			if (filters != null) {
 				objectWriter = objectWriter.with(filters);
 			}
 			if (javaType != null && javaType.isContainerType()) {
 				objectWriter = objectWriter.forType(javaType);
 			}
+			// TODO: 支持格式化输出
 			SerializationConfig config = objectWriter.getConfig();
 			if (contentType != null && contentType.isCompatibleWith(MediaType.TEXT_EVENT_STREAM) &&
 					config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
 				objectWriter = objectWriter.with(this.ssePrettyPrinter);
 			}
+			// TODO: 最终的写
 			objectWriter.writeValue(generator, value);
 
 			writeSuffix(generator, object);

@@ -53,6 +53,9 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	/** Logger available to subclasses. */
 	protected final Log logger = HttpLogging.forLogName(getClass());
 
+	/**
+	 * TODO: 负责content-type的匹配 canRead / canWrite
+	 */
 	private List<MediaType> supportedMediaTypes = Collections.emptyList();
 
 	@Nullable
@@ -169,6 +172,9 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	}
 
 	/**
+	 * TODO: 这里最重要的一个成员属性是: supportedMediaTypes canRead方法也一样
+	 *        1. mediaType为null, 或者为all效果一样 -》匹配所有
+	 *        2. 否则，就使用supportedMediaTypes集合去进行匹配，所以如果没此集合为空，那将啥格式都不处理
 	 * Returns {@code true} if the given media type includes any of the
 	 * {@linkplain #setSupportedMediaTypes(List) supported media types}.
 	 * @param mediaType the media type to write, can be {@code null} if not specified.
@@ -185,6 +191,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 				return true;
 			}
 		}
+		// TODO: 若MediaType没匹配上，直接返回false, 表示不处理
 		return false;
 	}
 

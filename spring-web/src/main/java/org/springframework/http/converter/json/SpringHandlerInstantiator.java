@@ -38,6 +38,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 它是HandlerInstantiator的实现类，能够允许jackson从spring容器ApplicationContext里拿到一些组件
  * Allows for creating Jackson ({@link JsonSerializer}, {@link JsonDeserializer},
  * {@link KeyDeserializer}, {@link TypeResolverBuilder}, {@link TypeIdResolver})
  * beans with autowiring against a Spring {@link ApplicationContext}.
@@ -60,6 +61,7 @@ public class SpringHandlerInstantiator extends HandlerInstantiator {
 
 
 	/**
+	 * TODO: 唯一构造器，必须把不为null的BeanFactory注入进来
 	 * Create a new SpringHandlerInstantiator for the given BeanFactory.
 	 * @param beanFactory the target BeanFactory
 	 */
@@ -67,6 +69,12 @@ public class SpringHandlerInstantiator extends HandlerInstantiator {
 		Assert.notNull(beanFactory, "BeanFactory must not be null");
 		this.beanFactory = beanFactory;
 	}
+
+	/**
+	 * TODO:
+	 * 		beanFactory.createBean()方法，他帮你创建class类型的实例，该实例内可以随意使用spring容器内的bean，但它自己并不放进容器内
+	 *
+	 */
 
 
 	@Override

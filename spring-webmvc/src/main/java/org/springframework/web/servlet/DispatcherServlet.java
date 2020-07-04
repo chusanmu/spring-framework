@@ -492,22 +492,34 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@Override
 	protected void onRefresh(ApplicationContext context) {
+		// TODO: 初始化spring mvc9大组件
 		initStrategies(context);
 	}
 
 	/**
+	 * TODO: 初始化核心 初始化策略
 	 * Initialize the strategy objects that this servlet uses.
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		// TODO: 初始化文件上传解析器
 		initMultipartResolver(context);
+		// TODO: 初始化本地视图解析，根据不同的用户展示不同的视图，可以实现一种国际化的目的
 		initLocaleResolver(context);
+		// TODO: 初始化主题，主题就是系统的整体样式或风格，可通过spring mvc框架提供的主题设置应用的整体样式风格
 		initThemeResolver(context);
+		// TODO: 初始化handlerMapping, 非常重要，用来查找handler的，在spring mvc中会有很多请求，每个请求都需要一个handler去处理，具体接收到一个请求之后使用哪个handler进行处理呢？这就是handlerMapping需要做的事
 		initHandlerMappings(context);
+		// TODO: 因为spring mvc中的handler可以是任意的形式，只要能处理请求就ok，但是Servlet需要的处理方法的结构是固定的，都是以request和response为参数的方法，如何让固定的servlet处理方法调用灵活的handler来进行处理呢？这就是HadnlerAdapter要做的事情
 		initHandlerAdapters(context);
+		// TODO: 其他组件都是用来干活的，在干活的时候难免会出现问题，出现问题之后，就需要一个专门的角色对异常情况进行处理，在spring mvc中就是handlerExceptionResolver
+		// TODO: 根据异常设置modelAndView,之后再交给render方法进行渲染
 		initHandlerExceptionResolvers(context);
+		// TODO: Spring mvc通过viewName来找到对应的视图的，而此接口的作用就是从request中获取viewName
 		initRequestToViewNameTranslator(context);
+		// TODO: viewResolver用来将string类型的视图名和Locale解析为View类型的视图，view是用来渲染页面的，也就是将程序返回的参数填入模板里
 		initViewResolvers(context);
+		// TODO: 用来管理flashMap的，flashMap主要用在redirect中传递参数
 		initFlashMapManager(context);
 	}
 

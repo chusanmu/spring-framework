@@ -108,15 +108,24 @@ public class Jackson2ObjectMapperBuilder {
 	private final Log logger = HttpLogging.forLogName(getClass());
 
 	private final Map<Class<?>, Class<?>> mixIns = new LinkedHashMap<>();
-
+	/**
+	 * TODO: class类型对应的序列化器/ 反序列化器
+	 */
 	private final Map<Class<?>, JsonSerializer<?>> serializers = new LinkedHashMap<>();
 
 	private final Map<Class<?>, JsonDeserializer<?>> deserializers = new LinkedHashMap<>();
 
 	private final Map<PropertyAccessor, JsonAutoDetect.Visibility> visibilities = new LinkedHashMap<>();
 
+	/**
+	 * TODO: 所有的特征Features
+	 */
 	private final Map<Object, Boolean> features = new LinkedHashMap<>();
 
+	/**
+	 * TODO: 默认是不开启XML支持的
+	 * 其实XmlMapper也仅是一个含有JacksonXmlModule模块的ObjectMapper而已
+	 */
 	private boolean createXmlMapper = false;
 
 	@Nullable
@@ -131,6 +140,9 @@ public class Jackson2ObjectMapperBuilder {
 	@Nullable
 	private TimeZone timeZone;
 
+	/**
+	 * 可自定义注解解析器
+	 */
 	@Nullable
 	private AnnotationIntrospector annotationIntrospector;
 
@@ -146,18 +158,32 @@ public class Jackson2ObjectMapperBuilder {
 	@Nullable
 	private FilterProvider filters;
 
+	/**
+	 * 所有的模块们
+	 */
 	@Nullable
 	private List<Module> modules;
 
 	@Nullable
 	private Class<? extends Module>[] moduleClasses;
 
+	/**
+	 * TODO: 该类默认并不会通过ServiceLoader方式去找到模块们
+	 * 若是true, 便会调用ObjectMapper.findModules 这个方法通过SPI的方式自动去找
+	 * 手动控制比较好，所以这里默认值是false是很合理的
+	 */
 	private boolean findModulesViaServiceLoader = false;
 
+	/**
+	 * 默认会注册通用的4种
+	 */
 	private boolean findWellKnownModules = true;
 
 	private ClassLoader moduleClassLoader = getClass().getClassLoader();
 
+	/**
+	 * 整合spring的重点
+	 */
 	@Nullable
 	private HandlerInstantiator handlerInstantiator;
 
@@ -613,6 +639,11 @@ public class Jackson2ObjectMapperBuilder {
 
 
 	/**
+	 * TODO:
+	 *    1.注册Module们，包括WellKnownModules以及通过Builder配置进来的Modules们
+	 *    2. 注册所有的自定义的序列化器 反序列化器，通过一个simpleModule完成注册
+	 *    3. 让自定义的特征值生效，含有spring的默认处理逻
+	 * 	 *    4. 使用SpringHandlerInstantiator和spring容器进行深度整合辑
 	 * Build a new {@link ObjectMapper} instance.
 	 * <p>Each build operation produces an independent {@link ObjectMapper} instance.
 	 * The builder's settings can get modified, with a subsequent build operation
@@ -628,8 +659,10 @@ public class Jackson2ObjectMapperBuilder {
 					new XmlObjectMapperInitializer().create(this.factory));
 		}
 		else {
+			// TODO: 若指定了JsonFactory那就根据你的工厂来创建，否则调用空构造器，空构造器使用的工厂是MappingJsonFactory
 			mapper = (this.factory != null ? new ObjectMapper(this.factory) : new ObjectMapper());
 		}
+		// TODO: public方法 配置Mapper, Spring对Jackson处理的核心
 		configure(mapper);
 		return (T) mapper;
 	}
@@ -641,24 +674,27 @@ public class Jackson2ObjectMapperBuilder {
 	 */
 	public void configure(ObjectMapper objectMapper) {
 		Assert.notNull(objectMapper, "ObjectMapper must not be null");
-
+		// TODO: modulesToRegister用于存储所有的module实例们
 		MultiValueMap<Object, Module> modulesToRegister = new LinkedMultiValueMap<>();
+		// TODO: findModulesViaServiceLoader和findWellKnownModules是互斥的，不能同时生效
 		if (this.findModulesViaServiceLoader) {
 			ObjectMapper.findModules(this.moduleClassLoader).forEach(module -> registerModule(module, modulesToRegister));
 		}
 		else if (this.findWellKnownModules) {
 			registerWellKnownModulesIfAvailable(modulesToRegister);
 		}
-
+		// TODO: 配置在当前Builder里的也放进来
 		if (this.modules != null) {
 			this.modules.forEach(module -> registerModule(module, modulesToRegister));
 		}
 		if (this.moduleClasses != null) {
 			for (Class<? extends Module> moduleClass : this.moduleClasses) {
+				// TODO: 完成注册
 				registerModule(BeanUtils.instantiateClass(moduleClass), modulesToRegister);
 			}
 		}
 		List<Module> modules = new ArrayList<>();
+		// TODO: 自己配置的序列化器 反序列化器 最终都是通过模块的方式注册进去的，所有的序列化器一次通过一个SimpleModule注册进去
 		for (List<Module> nestedModules : modulesToRegister.values()) {
 			modules.addAll(nestedModules);
 		}
@@ -701,10 +737,12 @@ public class Jackson2ObjectMapperBuilder {
 		}
 
 		this.visibilities.forEach(objectMapper::setVisibility);
-
+		// TODO: 定制默认的特征们 Spring内置动作，此方法为private, 子类无法复写
 		customizeDefaultFeatures(objectMapper);
+		// TODO: 让你自定义的特征值生效
 		this.features.forEach((feature, enabled) -> configureFeature(objectMapper, feature, enabled));
-
+		// TODO: 使用springHandlerInstantiator就够了，它的特点是：能够使用Spring容器里面的bean，从而达到和spring深度整合的目的
+		// TODO: 该api是理解jackson整合进spring容器的切入点
 		if (this.handlerInstantiator != null) {
 			objectMapper.setHandlerInstantiator(this.handlerInstantiator);
 		}
