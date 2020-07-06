@@ -27,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.WebContentGenerator;
 
 /**
+ * TODO: 主要支持org.springframework.web.method.HandlerMethod这种处理器，显然这种处理器也是最为常用的
  * Abstract base class for {@link HandlerAdapter} implementations that support
  * handlers of type {@link HandlerMethod}.
  *
@@ -38,6 +39,9 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
 
+	/**
+	 * 传的false, 表示忽略掉supportedMethods这个属性， 默认它的值是GET, POST, HEAD
+	 */
 	public AbstractHandlerMethodAdapter() {
 		// no restriction of HTTP methods by default
 		super(false);
@@ -60,6 +64,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 
 
 	/**
+	 * TODO: 只处理handlerMethod这种类型的处理器，抽象方法supportsInternal默认返回true supportsInternal钩子
 	 * This implementation expects the handler to be an {@link HandlerMethod}.
 	 * @param handler the handler instance to check
 	 * @return whether or not this adapter can adapt the given handler
@@ -77,6 +82,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 	protected abstract boolean supportsInternal(HandlerMethod handlerMethod);
 
 	/**
+	 * 	TODO: 留给子类去实现
 	 * This implementation expects the handler to be an {@link HandlerMethod}.
 	 */
 	@Override
@@ -88,6 +94,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 	}
 
 	/**
+	 * TODO: 留给子类去实现
 	 * Use the given handler method to handle the request.
 	 * @param request current HTTP request
 	 * @param response current HTTP response

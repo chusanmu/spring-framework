@@ -25,6 +25,8 @@ import org.springframework.web.servlet.HandlerAdapter;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
+ * TODO: 适配javax.servlet.Servlet这种handler, 都是对源生请求进行处理，spring mvc默认不向容器中注册这种handlerAdapter,若需要使用是需要调用者手动注册这个bean的
+ *  	servlet这种handler才能处理
  * Adapter to use the Servlet interface with the generic DispatcherServlet.
  * Calls the Servlet's {@code service} method to handle a request.
  *

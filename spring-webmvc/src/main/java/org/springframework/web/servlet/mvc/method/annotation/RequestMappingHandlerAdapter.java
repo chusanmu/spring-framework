@@ -99,6 +99,8 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.WebUtils;
 
 /**
+ * TODO: 非常重要的一个spring mvc组件，用于适配@RequestMapping注解标注的handler (handler 类型为 org.springframework.web.method.HandlerMethod)
+ *  继承自父类AbstractHandlerMethodAdapter, 拥有数据绑定，数据转换，数据校验，内容协商等一系列非常高级的功能
  * Extension of {@link AbstractHandlerMethodAdapter} that supports
  * {@link RequestMapping @RequestMapping} annotated {@link HandlerMethod HandlerMethods}.
  *
@@ -117,12 +119,14 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		implements BeanFactoryAware, InitializingBean {
 
 	/**
+	 * TODO: 标注了注解@InitBinder的方法
 	 * MethodFilter that matches {@link InitBinder @InitBinder} methods.
 	 */
 	public static final MethodFilter INIT_BINDER_METHODS = method ->
 			AnnotatedElementUtils.hasAnnotation(method, InitBinder.class);
 
 	/**
+	 * TODO: 含有@ModelAttribute，但是但是不含有@RequestMapping注解的方法
 	 * MethodFilter that matches {@link ModelAttribute @ModelAttribute} methods.
 	 */
 	public static final MethodFilter MODEL_ATTRIBUTE_METHODS = method ->
@@ -145,20 +149,43 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	@Nullable
 	private HandlerMethodReturnValueHandlerComposite returnValueHandlers;
 
+	/**
+	 * 自定义modelAndView解析器
+	 */
 	@Nullable
 	private List<ModelAndViewResolver> modelAndViewResolvers;
 
+	/**
+	 * TODO: 默认的内容协商管理器，使用的协商策略是HeaderContentNegotiationStrategy
+	 */
 	private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
 
+	/**
+	 * TODO: 消息转换器，使用@Bean定义的时候，别忘了set进来，否则只有默认的4个(不支持json) 若@EnableWebMvc后默认是有8个，够用了
+	 */
 	private List<HttpMessageConverter<?>> messageConverters;
 
+	/**
+	 * TODO: 装载RequestBodyAdvice和ResponseBodyAdvice的实现类们
+	 */
 	private List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
+	/**
+	 * TODO: 在数据绑定初始化的时候会被使用，调用其initBinder方法 只不过现在一般用@InitBinder注解了
+	 */
 	@Nullable
 	private WebBindingInitializer webBindingInitializer;
 
+	/**
+	 * TODO: 默认使用SimpleAsyncTaskExecutor, 每次执行客户提交给它的任务时，它会启动新的线程
+	 * TODO: 并允许开发者控制并发线程的上限，从而起到一定的资源节流作用
+	 * TODO: @EnableWebMVC时可通过复写接口webMvcConfigurer.getTaskExecutor()自定义提供一个线程池，超时时间可自定义
+	 */
 	private AsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor("MvcAsync");
 
+	/**
+	 * TODO: invokeHandlerMethod()执行目标方法时，若需要异步执行，超时时间可自定义，默认无限制，使用上面的taskExecutor，callableInterceptors 参与异步的执行
+	 */
 	@Nullable
 	private Long asyncRequestTimeout;
 
@@ -169,9 +196,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	private ReactiveAdapterRegistry reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
 	private boolean ignoreDefaultModelOnRedirect = false;
-
+	/**
+	 * 返回内容返回多久，默认不缓存
+	 */
 	private int cacheSecondsForSessionAttributeHandlers = 0;
-
+	/**
+	 * TODO: 执行目标方法时handlerMethod时，是否要在同一个session内同步执行，也就是同一个会话时，控制器方法全部同步执行，加互斥锁，对同一用户同一session的所有访问，必须串行化
+	 */
 	private boolean synchronizeOnSession = false;
 
 	private SessionAttributeStore sessionAttributeStore = new DefaultSessionAttributeStore();
@@ -186,13 +217,23 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 	private final Map<Class<?>, Set<Method>> initBinderCache = new ConcurrentHashMap<>(64);
 
+	/**
+	 * 存储标注了@InitBinder注解的方法的缓存
+	 */
 	private final Map<ControllerAdviceBean, Set<Method>> initBinderAdviceCache = new LinkedHashMap<>();
 
 	private final Map<Class<?>, Set<Method>> modelAttributeCache = new ConcurrentHashMap<>(64);
 
+	/**
+	 * TODO: 存储标注了@ModelAttribute注解的方法的缓存
+	 */
 	private final Map<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
 
 
+	/**
+	 * TODO: 唯一的构造方法，默认注册一些消息转换器
+	 * TODO: 开启@EnableWebMvc后此默认行为会被setMessageConverters()方法覆盖啊
+	 */
 	public RequestMappingHandlerAdapter() {
 		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
 		stringHttpMessageConverter.setWriteAcceptCharset(false);  // see SPR-7316
@@ -557,33 +598,51 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	}
 
 
+	/**
+	 * 此方法在bean初始化的时候会执行，扫描容器内的ControllerAdvice, 方法体看起来代码不多，但其实每个方法内部，都挺复杂的
+	 */
 	@Override
 	public void afterPropertiesSet() {
 		// Do this first, it may add ResponseBody advice beans
+		// TODO: 此方法用于初始化@ControllerAdvice标注的bean, 并解析此bean内部的各个部分
+		// TODO: @InitBinder, @RequestBodyAdvice @ResponseBodyAdvice接口，然后缓存起来
 		initControllerAdviceCache();
 
+		// TODO: 参数自动组装器 相关的组件，每一份都很重要
+		// TODO: 初始化参数解析器，@InitBinder参数解析器，返回值解析器等等
+		// TODO: 初始化参数解析器
 		if (this.argumentResolvers == null) {
+			// TODO: 初始化HandlerMethodArgumentResolver,提供对方法参数的支持，也就是@RequestMapping的handler上能写哪些注解自动封装参数，是由这里决定的
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();
 			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
+		// TODO: 初始化@InitBinder的参数解析器
 		if (this.initBinderArgumentResolvers == null) {
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultInitBinderArgumentResolvers();
 			this.initBinderArgumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
+		// TODO: 初始化返回值解析器
 		if (this.returnValueHandlers == null) {
+			// TODO: 它是提供了对handlerMethod的返回值的支持，比如@ResponseBody DeferredResult等返回值类型，多个返回值处理器最终使用的是HandlerMethodReturnValueHandlerComposite模式管理和使用
 			List<HandlerMethodReturnValueHandler> handlers = getDefaultReturnValueHandlers();
 			this.returnValueHandlers = new HandlerMethodReturnValueHandlerComposite().addHandlers(handlers);
 		}
 	}
 
+	/**
+	 * TODO: 此处代码主要进行查找@ControllerAdvice注解的bean们 然后缓存起来，然后一个个的去解析它，找到该advice bean内标注有@ModelAttribute但没标注@RequestMapping的方法
+	 *      缓存到modelAttributeAdviceCache里面去
+	 *      还有@InitBinder和@RequestBodyAdvice以及@ResponseBodyAdvice也做一个缓存
+	 */
 	private void initControllerAdviceCache() {
 		if (getApplicationContext() == null) {
 			return;
 		}
-
+		// TODO: 拿到容器内所有标注有@ControllerAdvice的组件们,@RestControllerAdvice注解是@ControllerAdvice和@ResponseBody的结合体，所以这里也会找出来
 		List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
+		// TODO: order进行排序
 		AnnotationAwareOrderComparator.sort(adviceBeans);
-
+		// TODO: 进行存储@RequestBodyAdvice和@ResponseBodyAdvice的实现类，它俩必须要配合@ControllerAdvice使用
 		List<Object> requestResponseBodyAdviceBeans = new ArrayList<>();
 
 		for (ControllerAdviceBean adviceBean : adviceBeans) {
@@ -591,19 +650,26 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			if (beanType == null) {
 				throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
 			}
+			// TODO: 查找方法，含有@ModelAndAttribute，但是但是不含有@RequestMapping注解的方法，找到之后放在全局变量缓存起来
+			// TODO: 其实就是找到@ControllerAdvice里面所有的ModelAndAttribute方法们
 			Set<Method> attrMethods = MethodIntrospector.selectMethods(beanType, MODEL_ATTRIBUTE_METHODS);
 			if (!attrMethods.isEmpty()) {
 				this.modelAttributeAdviceCache.put(adviceBean, attrMethods);
 			}
+			// TODO: 找标注了注解@InitBinder的方法，和有没有@RequestMaping没有关系
+			// TODO: 找到@ControllerAdvice里面所有的InitBinder方法
 			Set<Method> binderMethods = MethodIntrospector.selectMethods(beanType, INIT_BINDER_METHODS);
 			if (!binderMethods.isEmpty()) {
 				this.initBinderAdviceCache.put(adviceBean, binderMethods);
 			}
+			// TODO: z这两个接口是spring 4.1之后提供的，实现了这两个接口的
+			// TODO: 此处先放在requestResponseAdviceBeans里面装着，最后放进全局缓存requestResponseBodyAdvice里面去
 			if (RequestBodyAdvice.class.isAssignableFrom(beanType) || ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
 				requestResponseBodyAdviceBeans.add(adviceBean);
 			}
 		}
-
+		// TODO: 放在该list的头部
+		// TODO: 因为requestResponseBodyAdvice有可能通过set方法进来已经有值了，所以此处放在头部
 		if (!requestResponseBodyAdviceBeans.isEmpty()) {
 			this.requestResponseBodyAdvice.addAll(0, requestResponseBodyAdviceBeans);
 		}
@@ -633,13 +699,16 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	}
 
 	/**
+	 * TODO: 返回内建支持的参数处理器们，以及用户自定义的一些参数处理器
 	 * Return the list of argument resolvers to use including built-in resolvers
 	 * and custom resolvers provided via {@link #setCustomArgumentResolvers}.
 	 */
 	private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
+		// TODO: 这里使用的是ArrayList保存的，所以处理器都是有序的，最终会放进HandlerMethodArgumentResolverComposite使用Composite模式统一管理和使用
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
 
 		// Annotation-based argument resolution
+		// TODO: 基于注解的
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
 		resolvers.add(new RequestParamMapMethodArgumentResolver());
 		resolvers.add(new PathVariableMethodArgumentResolver());
@@ -657,6 +726,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		resolvers.add(new RequestAttributeMethodArgumentResolver());
 
 		// Type-based argument resolution
+		// TODO: 基于type类型的
 		resolvers.add(new ServletRequestMethodArgumentResolver());
 		resolvers.add(new ServletResponseMethodArgumentResolver());
 		resolvers.add(new HttpEntityMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
@@ -668,11 +738,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		resolvers.add(new UriComponentsBuilderMethodArgumentResolver());
 
 		// Custom arguments
+		// TODO: 用户自定义的
 		if (getCustomArgumentResolvers() != null) {
 			resolvers.addAll(getCustomArgumentResolvers());
 		}
 
 		// Catch-all
+		// TODO: 进行兜底，这就是为何很多时候，不写注解参数也能够被自动封装的原因
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), true));
 		resolvers.add(new ServletModelAttributeMethodProcessor(true));
 
@@ -680,6 +752,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	}
 
 	/**
+	 * TODO: 也是对方法参数的处理，不过它针对的是@InitBinder这个注解标注的方法， 明显类型没有那么多了，可以看到它具体支持哪些参数，比如@RequestParam @PathVariable @ServletRequest
 	 * Return the list of argument resolvers to use for {@code @InitBinder}
 	 * methods including built-in and custom resolvers.
 	 */
@@ -723,9 +796,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		handlers.add(new ModelAndViewMethodReturnValueHandler());
 		handlers.add(new ModelMethodProcessor());
 		handlers.add(new ViewMethodReturnValueHandler());
+		// TODO: 返回值是ResponseBodyEmitter的时候，使用reactiveAdapterRegistry看看是Reactive模式还是普通模式
+		// TODO: taskExecutor：异步时使用的线程池，使用当前类的contentNegotiationManager内容协商管理器
 		handlers.add(new ResponseBodyEmitterReturnValueHandler(getMessageConverters(),
 				this.reactiveAdapterRegistry, this.taskExecutor, this.contentNegotiationManager));
 		handlers.add(new StreamingResponseBodyReturnValueHandler());
+		// TODO: getMessageConverters默认情况下spring mvc会有8个，包括jackson的，此处requestResponseBodyAdvice会介入到请求和响应的body里面
 		handlers.add(new HttpEntityMethodProcessor(getMessageConverters(),
 				this.contentNegotiationManager, this.requestResponseBodyAdvice));
 		handlers.add(new HttpHeadersReturnValueHandler());
@@ -734,20 +810,24 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		handlers.add(new AsyncTaskMethodReturnValueHandler(this.beanFactory));
 
 		// Annotation-based return value types
+		// TODO: 当标注有@ModelAttribute或者@ResponseBody的时候 这里来处理，也用到了消息转换器
 		handlers.add(new ModelAttributeMethodProcessor(false));
 		handlers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(),
 				this.contentNegotiationManager, this.requestResponseBodyAdvice));
 
 		// Multi-purpose return value types
+		// TODO: 返回的是一个字符串/Map的时候，这时候可能有多个目的了
 		handlers.add(new ViewNameMethodReturnValueHandler());
 		handlers.add(new MapMethodProcessor());
 
 		// Custom return value types
+		// TODO: 自定义的返回值处理器
 		if (getCustomReturnValueHandlers() != null) {
 			handlers.addAll(getCustomReturnValueHandlers());
 		}
 
 		// Catch-all
+		// TODO: 兜底，modelAndViewResolver是需要自己实现然后set进来的，一般不会自定义，绝大部分都会放到modelAttributeMethodProcessor，但是非简单类型 比如对象类型，返回值都会放到model里面
 		if (!CollectionUtils.isEmpty(getModelAndViewResolvers())) {
 			handlers.add(new ModelAndViewResolverMethodReturnValueHandler(getModelAndViewResolvers()));
 		}
@@ -760,6 +840,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 
 	/**
+	 * TODO: 默认返回true
 	 * Always return {@code true} since any method argument and return value
 	 * type will be processed in some way. A method argument not recognized
 	 * by any HandlerMethodArgumentResolver is interpreted as a request parameter
@@ -772,14 +853,25 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		return true;
 	}
 
+	/**
+	 * TODO: handlerAdapter的接口方法，是处理请求的入口，最终返回一个modelAndView
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @param handlerMethod handler method to use. This object must have previously been passed to the
+	 * {@link #supportsInternal(HandlerMethod)} this interface, which must have returned {@code true}.
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	protected ModelAndView handleInternal(HttpServletRequest request,
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
 
 		ModelAndView mav;
+		// TODO: 检查方法
 		checkRequest(request);
 
 		// Execute invokeHandlerMethod in synchronized block if required.
+		// TODO: 同一个session下是否要串行，显然一般都是不需要的
 		if (this.synchronizeOnSession) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
@@ -797,7 +889,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			// No synchronization on session demanded at all...
 			mav = invokeHandlerMethod(request, response, handlerMethod);
 		}
-
+		// TODO: 处理cache-control这个请求头
 		if (!response.containsHeader(HEADER_CACHE_CONTROL)) {
 			if (getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {
 				applyCacheSeconds(response, this.cacheSecondsForSessionAttributeHandlers);
@@ -841,6 +933,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	}
 
 	/**
+	 * TODO: 进行调用目标方法啊，在这里会进行组织各个组件进行数据绑定，数据校验，内容协商等等操作控制, 最后返回了一个ModelAndView
 	 * Invoke the {@link RequestMapping} handler method preparing a {@link ModelAndView}
 	 * if view resolution is required.
 	 * @since 4.2
@@ -852,9 +945,11 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		try {
+			// TODO: 最终创建的是一个ServletRequestDataBinderFactory, 持有所有@InitBinder的method方法们
 			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
+			// TODO: 创建一个modelFactory, @ModelAttribute啥的方法就会被引用进来
 			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
-
+			// TODO: 把handlerMethod包装为ServletInvocableHandlerMethod,具有Invoke执行的能力，下面给invocableMethod属性赋值
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
 			if (this.argumentResolvers != null) {
 				invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
@@ -866,7 +961,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
 
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
+			// TODO: 把上个request里的值放进来到本request里
 			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
+			// TODO: model工厂，把它里面的Model值放进mavContainer容器内，此处@ModelAttribute
 			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
 
@@ -878,7 +975,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			asyncManager.setAsyncWebRequest(asyncWebRequest);
 			asyncManager.registerCallableInterceptors(this.callableInterceptors);
 			asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
-
+			// TODO: 它不管是不是异步请求，都先用AsyncWebRequest包装了一下，但是若是同步请求 asyncManager.hasConcurrentResult()为false
 			if (asyncManager.hasConcurrentResult()) {
 				Object result = asyncManager.getConcurrentResult();
 				mavContainer = (ModelAndViewContainer) asyncManager.getConcurrentResultContext()[0];
@@ -889,12 +986,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				});
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
-
+			// TODO: 此处可能会抛出异常的， 只有try -finally ,交给全局异常处理器处理
+			// TODO: 此处其实就是调用ServletInvocableHandlerMethod#invokeAndHandler()方法，结果放在了mavContainer
 			invocableMethod.invokeAndHandle(webRequest, mavContainer);
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;
 			}
-
+			// TODO: 任何处理器执行完成后，最终返回的都是一个ModelAndView对象保持了很好的统一性，得到的modelAndView可能为null, 最终会交给disPatcherServlet处理渲染
 			return getModelAndView(mavContainer, modelFactory, webRequest);
 		}
 		finally {
@@ -995,19 +1093,30 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		return new ServletRequestDataBinderFactory(binderMethods, getWebBindingInitializer());
 	}
 
+	/**
+	 * TODO: 表示它返回的可以是个null
+	 * @param mavContainer
+	 * @param modelFactory
+	 * @param webRequest
+	 * @return
+	 * @throws Exception
+	 */
 	@Nullable
 	private ModelAndView getModelAndView(ModelAndViewContainer mavContainer,
 			ModelFactory modelFactory, NativeWebRequest webRequest) throws Exception {
-
+		// TODO: 把session里面的内容写入
 		modelFactory.updateModel(webRequest, mavContainer);
+		// TODO: 若已经被处理过了，那就返回null
 		if (mavContainer.isRequestHandled()) {
 			return null;
 		}
 		ModelMap model = mavContainer.getModel();
+		// TODO: 通过view model status构造出一个modelAndView，最终就可以完成渲染了
 		ModelAndView mav = new ModelAndView(mavContainer.getViewName(), model, mavContainer.getStatus());
 		if (!mavContainer.isViewReference()) {
 			mav.setView((View) mavContainer.getView());
 		}
+		// TODO: 对重定向RedirectAttributes参数的支持，两个请求之间传递参数
 		if (model instanceof RedirectAttributes) {
 			Map<String, ?> flashAttributes = ((RedirectAttributes) model).getFlashAttributes();
 			HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);

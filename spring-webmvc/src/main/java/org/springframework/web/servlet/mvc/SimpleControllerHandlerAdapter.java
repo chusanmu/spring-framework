@@ -24,6 +24,10 @@ import org.springframework.web.servlet.HandlerAdapter;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
+ * TODO: 适配org.springframework.web.servlet.mvc.Controller 这种Handler, 它是一个非常古老的适配器，现在几乎已经启用
+ * 它没有对参数的自动封装，校验等一系列高级功能，但是它保留有对ModelAndView的处理能力，这是区别于servlet这种处理器的地方
+ *
+ * @Controller("/test")
  * Adapter to use the plain {@link Controller} workflow interface with
  * the generic {@link org.springframework.web.servlet.DispatcherServlet}.
  * Supports handlers that implement the {@link LastModified} interface.
@@ -39,11 +43,26 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public class SimpleControllerHandlerAdapter implements HandlerAdapter {
 
+	/**
+	 * TODO: 支持实现了controller接口的这种handler
+	 * @param handler handler object to check
+	 * @return
+	 */
 	@Override
 	public boolean supports(Object handler) {
 		return (handler instanceof Controller);
 	}
 
+	/**
+	 * TODO: dispatcherServlet会调用的，直接就调用我们实现了的那个方法. 这里可以看出来，直接就是操作的原生的httpServletRequest, 和 httpServletResponse.
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @param handler handler to use. This object must have previously been passed
+	 * to the {@code supports} method of this interface, which must have
+	 * returned {@code true}.
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	@Nullable
 	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -52,6 +71,12 @@ public class SimpleControllerHandlerAdapter implements HandlerAdapter {
 		return ((Controller) handler).handleRequest(request, response);
 	}
 
+	/**
+	 * 如果实现了LastModified接口，就调用，否则返回-1
+	 * @param request current HTTP request
+	 * @param handler handler to use
+	 * @return
+	 */
 	@Override
 	public long getLastModified(HttpServletRequest request, Object handler) {
 		if (handler instanceof LastModified) {

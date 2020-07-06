@@ -191,6 +191,7 @@ public class ControllerAdviceBean implements Ordered {
 		return Arrays.stream(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, Object.class))
 				.filter(name -> !ScopedProxyUtils.isScopedTarget(name))
 				.filter(name -> context.findAnnotationOnBean(name, ControllerAdvice.class) != null)
+				// TODO: 使用ControllerAdviceBean进行包装
 				.map(name -> new ControllerAdviceBean(name, context))
 				.collect(Collectors.toList());
 	}

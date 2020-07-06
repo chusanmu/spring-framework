@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: Spring mvc的handler 有四种表现形式，在handler不确定是什么方式的时候，可能是方法，也可能是类，适配器这种设计模式就能模糊调具体的实现，从而能够统一的访问接口
+ * TODO: handlerAdapter的作用在于将request中的各个属性，如request, param适配为handler能够处理的形式-参数绑定，数据校验，内容协商，几乎所有的web层问题都在这里完成!
  * MVC framework SPI, allowing parameterization of the core MVC workflow.
  *
  * <p>Interface that must be implemented for each handler type to handle a request.
@@ -50,7 +52,7 @@ import org.springframework.lang.Nullable;
 public interface HandlerAdapter {
 
 	/**
-	 * TODO: 当前handlerAdapter是否支持这个handler
+	 * TODO: 当前handlerAdapter是否支持这个handler，一般来说，每个适配器只能作用于一种处理器，判断当前的HandlerAdapter是否能够支持当前的handler的适配
 	 * Given a handler instance, return whether or not this {@code HandlerAdapter}
 	 * can support it. Typical HandlerAdapters will base the decision on the handler
 	 * type. HandlerAdapters will usually only support one handler type each.
