@@ -43,6 +43,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
+ * TODO: handlerMethod不是一个接口，也不是一个抽象类 存了handlerMethod的一些描述信息，不具备invoke功能
  * Encapsulates information about a handler method consisting of a
  * {@linkplain #getMethod() method} and a {@linkplain #getBean() bean}.
  * Provides convenient access to method parameters, the method return value,
@@ -64,28 +65,52 @@ public class HandlerMethod {
 	/** Logger that is available to subclasses. */
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * object类型，既可以是个bean，也可以是个beanName
+	 */
 	private final Object bean;
 
+	/**
+	 * 如果是个bean，就用beanFactory来拿出来这个bean
+	 */
 	@Nullable
 	private final BeanFactory beanFactory;
-
+	/**
+	 * 该方法所属的类
+	 */
 	private final Class<?> beanType;
-
+	/**
+	 * 该方法本身
+	 */
 	private final Method method;
-
+	/**
+	 * TODO: 被桥接的方法, 如果method是原生的，它的值同method
+	 */
 	private final Method bridgedMethod;
 
+	/**
+	 * TODO: 封装方法参数的类实例，一个methodParameter就是一个入参
+	 */
 	private final MethodParameter[] parameters;
-
+	/**
+	 * http状态码
+	 */
 	@Nullable
 	private HttpStatus responseStatus;
 
+	/**
+	 * 如果状态码里面有原因 就是这个字段
+	 */
 	@Nullable
 	private String responseStatusReason;
-
+	/**
+	 * 通过createWithResolvedBean()解析此handlerMethod实例的handlerMethod
+	 */
 	@Nullable
 	private HandlerMethod resolvedFromHandlerMethod;
-
+	/**
+	 * 标注在接口入参上的注解们
+	 */
 	@Nullable
 	private volatile List<Annotation[][]> interfaceParameterAnnotations;
 
@@ -101,7 +126,10 @@ public class HandlerMethod {
 		this.beanType = ClassUtils.getUserClass(bean);
 		this.method = method;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
+		// TODO: 初始化该方法的所有入参
 		this.parameters = initMethodParameters();
+		// TODO: 看看方法上是否标注了@ResponseStatus注解，接口上或者父类，组合注解上都行，若方法上没有，还会去所在的类上去看看有没有标注此注解
+		// TODO: 主要只解析此注解
 		evaluateResponseStatus();
 	}
 
@@ -187,6 +215,9 @@ public class HandlerMethod {
 		return result;
 	}
 
+	/**
+	 * TODO: 解析ResponseStatues注解，把它的两个属性code和reason拿到，最后就是返回了，@ResponseStatus注解在执行目标处理方法的时候回去计算此注解，所以建议少用，一般用在advice的全局异常处理上
+	 */
 	private void evaluateResponseStatus() {
 		ResponseStatus annotation = getMethodAnnotation(ResponseStatus.class);
 		if (annotation == null) {
@@ -258,6 +289,7 @@ public class HandlerMethod {
 	}
 
 	/**
+	 * TODO: 返回方法的返回值类型，此处也使用的MethodParameter
 	 * Return the HandlerMethod return type.
 	 */
 	public MethodParameter getReturnType() {
@@ -265,6 +297,7 @@ public class HandlerMethod {
 	}
 
 	/**
+	 * TODO: 拿到返回值的实际类型，比如返回值上标的是Object, 但是实际返回的是 chusen字符串，则返回实际类型，不会返回object.class
 	 * Return the actual return value type.
 	 */
 	public MethodParameter getReturnValueType(@Nullable Object returnValue) {
@@ -272,6 +305,7 @@ public class HandlerMethod {
 	}
 
 	/**
+	 * TODO: 该方法的返回值是否是void
 	 * Return {@code true} if the method return type is void, {@code false} otherwise.
 	 */
 	public boolean isVoid() {
@@ -279,6 +313,7 @@ public class HandlerMethod {
 	}
 
 	/**
+	 * TODO: 返回标注在方法上的指定类型的注解
 	 * Return a single annotation on the underlying method traversing its super methods
 	 * if no annotation can be found on the given method itself.
 	 * <p>Also supports <em>merged</em> composed annotations with attribute
@@ -303,6 +338,7 @@ public class HandlerMethod {
 	}
 
 	/**
+	 * TODO: 实际调用这里赋值
 	 * Return the HandlerMethod from which this HandlerMethod instance was
 	 * resolved via {@link #createWithResolvedBean()}.
 	 */
@@ -312,6 +348,7 @@ public class HandlerMethod {
 	}
 
 	/**
+	 * TODO: 根据string类型的beanName把bean取出来，再new一个handlerMethod
 	 * If the provided instance contains a bean name rather than an object instance,
 	 * the bean name is resolved before a {@link HandlerMethod} is created and returned.
 	 */
@@ -334,14 +371,20 @@ public class HandlerMethod {
 				"[" + this.method.getParameterCount() + " args]";
 	}
 
-
+	/**
+	 * 拿到接口参数注解，二维数组
+	 * @return
+	 */
 	private List<Annotation[][]> getInterfaceParameterAnnotations() {
 		List<Annotation[][]> parameterAnnotations = this.interfaceParameterAnnotations;
 		if (parameterAnnotations == null) {
 			parameterAnnotations = new ArrayList<>();
+			// TODO: 拿到该方法所在类实现的接口们
 			for (Class<?> ifc : ClassUtils.getAllInterfacesForClassAsSet(this.method.getDeclaringClass())) {
 				for (Method candidate : ifc.getMethods()) {
+					// TODO: 判断这个接口方法是否正好是当前method复写的那个，刚好是复写的方法，那就添加进来，标记为接口上的注解们
 					if (isOverrideFor(candidate)) {
+						// TODO: 参数有多个，同时每个参数可以添加多个注解，返回一个二维数组
 						parameterAnnotations.add(candidate.getParameterAnnotations());
 					}
 				}
@@ -352,20 +395,25 @@ public class HandlerMethod {
 	}
 
 	private boolean isOverrideFor(Method candidate) {
+		// TODO: 该方法名是否和handlerMethod方法名一样，不一样，并且参数也不一样 返回false
 		if (!candidate.getName().equals(this.method.getName()) ||
 				candidate.getParameterCount() != this.method.getParameterCount()) {
 			return false;
 		}
+		// TODO: 方法名一样，然后进行检查参数，获得参数类型
 		Class<?>[] paramTypes = this.method.getParameterTypes();
+		// TODO: 看参数类型是否都一样，如果都一样返回true
 		if (Arrays.equals(candidate.getParameterTypes(), paramTypes)) {
 			return true;
 		}
+		// TODO: 如果参数类型不一样,与它声明类的方法不同返回false
 		for (int i = 0; i < paramTypes.length; i++) {
 			if (paramTypes[i] !=
 					ResolvableType.forMethodParameter(candidate, i, this.method.getDeclaringClass()).resolve()) {
 				return false;
 			}
 		}
+		// TODO: 最后返回true
 		return true;
 	}
 
@@ -518,6 +566,7 @@ public class HandlerMethod {
 
 
 	/**
+	 * 返回值的真正类型
 	 * A MethodParameter for a HandlerMethod return type based on an actual return value.
 	 */
 	private class ReturnValueMethodParameter extends HandlerMethodParameter {

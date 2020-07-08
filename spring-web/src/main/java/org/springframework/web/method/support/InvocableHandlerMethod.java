@@ -33,6 +33,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.HandlerMethod;
 
 /**
+ * TODO: 它是对handlerMethod的扩展，增加了调用能力，它能够在调用的时候，把方法入参的参数都封装进来，从Http request中，当然借助的是HandlerMethodArgumentResolver
+ * TODO: 这个子类主要是提供的能力就是提供了invoke调用目标bean的能力，此类虽然提供了调用能力，但是并没有和servlet的api进行绑定
  * Extension of {@link HandlerMethod} that invokes the underlying method with
  * argument values resolved from the current HTTP request through a list of
  * {@link HandlerMethodArgumentResolver}.
@@ -46,11 +48,19 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	private static final Object[] EMPTY_ARGS = new Object[0];
 
 
+	/**
+	 * TODO: 用于产生数据绑定器，校验器
+	 */
 	@Nullable
 	private WebDataBinderFactory dataBinderFactory;
-
+	/**
+	 * 用于入参的解析
+	 */
 	private HandlerMethodArgumentResolverComposite resolvers = new HandlerMethodArgumentResolverComposite();
 
+	/**
+	 * 用于获取形参名
+	 */
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
 
@@ -109,6 +119,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
 
 	/**
+	 * TODO: 方法调用，在给定请求的上下文解析方法的参数后调用该方法，也就是说方法入参里能够自动使用请求域，包括path里，requestParam里的，以及常规对象如HttpSession这种
 	 * Invoke the method after resolving its argument values in the context of the given request.
 	 * <p>Argument values are commonly resolved through
 	 * {@link HandlerMethodArgumentResolver HandlerMethodArgumentResolvers}.
@@ -130,7 +141,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	@Nullable
 	public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		// TODO: 把解析好的值 放到对应的位置上去，这里传入了parameterNameDiscoverer, 它是能够匹配到形参名的，这就是为何我们不写value值，通过形参名字来匹配也是ok的
 		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Arguments: " + Arrays.toString(args));
@@ -146,7 +157,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		// TODO: 拿到方法入参
 		MethodParameter[] parameters = getMethodParameters();
 		if (ObjectUtils.isEmpty(parameters)) {
 			return EMPTY_ARGS;
@@ -164,6 +175,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
 			}
 			try {
+				// TODO: 解析参数
 				args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
 			}
 			catch (Exception ex) {
@@ -181,12 +193,14 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	}
 
 	/**
+	 * TODO: 就是一个方法调用，利用反射的方式
 	 * Invoke the handler method with the given argument values.
 	 */
 	@Nullable
 	protected Object doInvoke(Object... args) throws Exception {
 		ReflectionUtils.makeAccessible(getBridgedMethod());
 		try {
+			// TODO: invoke执行 getBean是目标对象
 			return getBridgedMethod().invoke(getBean(), args);
 		}
 		catch (IllegalArgumentException ex) {

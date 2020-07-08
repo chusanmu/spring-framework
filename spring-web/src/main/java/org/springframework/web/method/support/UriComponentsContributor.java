@@ -24,6 +24,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
+ * TODO: 通过查看方法参数和参数值并决定更新url的哪部分内容，为构建uriComponents的策略接口
  * Strategy for contributing to the building of a {@link UriComponents} by
  * looking at a method parameter and an argument value and deciding what
  * part of the target URL should be updated.
@@ -35,11 +36,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 public interface UriComponentsContributor {
 
 	/**
+	 * TODO: 这个方法完全同handlerMethodArgumentResolver的这个方法
 	 * Whether this contributor supports the given method parameter.
 	 */
 	boolean supportsParameter(MethodParameter parameter);
 
 	/**
+	 * TODO: 处理给定的方法参数，然后更新uriComponentbuilder，或者使用uri变量添加到映射中，以便在处理完所有参数后用于扩展uri
 	 * Process the given method argument and either update the
 	 * {@link UriComponentsBuilder} or add to the map with URI variables
 	 * to use to expand the URI after all arguments are processed.

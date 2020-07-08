@@ -42,6 +42,8 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
+ * TODO: 专门用于解析@PathVariable注解啊，它帮助spring mvc实现restful风格的url，它用于处理标注有@PathVariable注解的方法参数，用于从url中获取值
+ * 		它还可以解析@PathVariable注解的value值不为空的map
  * Resolves method arguments annotated with an @{@link PathVariable}.
  *
  * <p>An @{@link PathVariable} is a named value that gets resolved from a URI template variable.
@@ -67,12 +69,17 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 
 	private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
-
+	/**
+	 * TODO: 支持的参数，显然支持PathVariable
+	 * @param parameter the method parameter to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		if (!parameter.hasParameterAnnotation(PathVariable.class)) {
 			return false;
 		}
+		// TODO: 标注了注解且是map类型的
 		if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
 			PathVariable pathVariable = parameter.getParameterAnnotation(PathVariable.class);
 			return (pathVariable != null && StringUtils.hasText(pathVariable.value()));
@@ -87,6 +94,15 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 		return new PathVariableNamedValueInfo(ann);
 	}
 
+	/**
+	 * TODO: 根据name去拿值的过程很简单， 直接从 URI_TEMPLATE_VARIABLES_ATTRIBUTE 中取
+	 * @param name the name of the value being resolved
+	 * @param parameter the method parameter to resolve to an argument value
+	 * (pre-nested in case of a {@link java.util.Optional} declaration)
+	 * @param request the current request
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	@Nullable
@@ -101,6 +117,14 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 		throw new MissingPathVariableException(name, parameter);
 	}
 
+	/**
+	 * 值完全处理结束后，把处理好的值放进请求域中，方便view里渲染时候使用
+	 * @param arg the resolved argument value
+	 * @param name the argument name
+	 * @param parameter the argument parameter type
+	 * @param mavContainer the {@link ModelAndViewContainer} (may be {@code null})
+	 * @param request
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void handleResolvedValue(@Nullable Object arg, String name, MethodParameter parameter,
@@ -145,7 +169,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 
 
 	private static class PathVariableNamedValueInfo extends NamedValueInfo {
-
+		// TODO: 默认值使用的default_none
 		public PathVariableNamedValueInfo(PathVariable annotation) {
 			super(annotation.name(), annotation.required(), ValueConstants.DEFAULT_NONE);
 		}

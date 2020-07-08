@@ -49,6 +49,8 @@ import org.springframework.web.multipart.support.MultipartResolutionDelegate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
+ * TODO: 它是解析标注有@RequestParam的方法入参解析器，这个注解比上面的注解强大很多，它用于从请求参数?后面的中获取值完成一个封装，它还支持MultipartFile,也就是说能够从multipartHttpServletRequest获取数据
+ * 		还兜底处理没有标注任何注解的简单类型
  * Resolves method arguments annotated with @{@link RequestParam}, arguments of
  * type {@link MultipartFile} in conjunction with Spring's {@link MultipartResolver}
  * abstraction, and arguments of type {@code javax.servlet.http.Part} in conjunction
@@ -79,6 +81,9 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 
 	private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
+	/**
+	 * TODO: true表示参数类型是基本类型, BeanUtils中的方法
+	 */
 	private final boolean useDefaultResolution;
 
 
@@ -112,6 +117,12 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 
 
 	/**
+	 * TODO: 支持参数，可以处理如下case:
+	 *  	1. 所有标注有@RequestParam注解的类型，注解指定了value值的map类型
+	 *  没标注requestParam的情况:
+	 *  	1. 不能标注有@RequestPart注解，否则直接不处理了
+	 *  	2. 是上传的request, isMultipartArgument = true,
+	 *      3. useDefaultResolution=true情况下，基本类型也会处理
 	 * Supports the following:
 	 * <ul>
 	 * <li>@RequestParam-annotated method arguments.
@@ -141,6 +152,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 			if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
 				return true;
 			}
+			// TODO: 查看基本类型
 			else if (this.useDefaultResolution) {
 				return BeanUtils.isSimpleProperty(parameter.getNestedParameterType());
 			}
@@ -150,17 +162,31 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 		}
 	}
 
+	/**
+	 * 即使没有requestParam注解，也是可以创建一个NamedValueInfo的
+	 * @param parameter the method parameter
+	 * @return
+	 */
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
 		RequestParam ann = parameter.getParameterAnnotation(RequestParam.class);
 		return (ann != null ? new RequestParamNamedValueInfo(ann) : new RequestParamNamedValueInfo());
 	}
 
+	/**
+	 * 根据Name获取值，普通/文件上传，并且还有集合，数组等情况
+	 * @param name the name of the value being resolved
+	 * @param parameter the method parameter to resolve to an argument value
+	 * (pre-nested in case of a {@link java.util.Optional} declaration)
+	 * @param request the current request
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	@Nullable
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
 		HttpServletRequest servletRequest = request.getNativeRequest(HttpServletRequest.class);
-
+		// TODO: 这块解析出来的是个multipartFile或者其集合 数组
 		if (servletRequest != null) {
 			Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, servletRequest);
 			if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {
@@ -176,6 +202,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 				arg = (files.size() == 1 ? files.get(0) : files);
 			}
 		}
+		// TODO: 若解析出来仍是null, 就去参数里取，文件上传的优先级是高于请求参数的
 		if (arg == null) {
 			String[] paramValues = request.getParameterValues(name);
 			if (paramValues != null) {
@@ -256,7 +283,9 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 
 
 	private static class RequestParamNamedValueInfo extends NamedValueInfo {
-
+		/**
+		 * 如果没有@RequestParam，那就会用这个默认值，
+		 */
 		public RequestParamNamedValueInfo() {
 			super("", false, ValueConstants.DEFAULT_NONE);
 		}

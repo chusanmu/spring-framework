@@ -45,6 +45,8 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.util.NestedServletException;
 
 /**
+ * TODO: 对InvocableHandlerMethod的扩展， 它增加了返回值和响应状态码的处理，另外有个内部类继承了它，支持异常调用结果处理，Servlet容器下Controller在查找适配器发起调用
+ * 		的最终就是ServletInvocableHandlerMethod.
  * Extends {@link InvocableHandlerMethod} with the ability to handle return
  * values through a registered {@link HandlerMethodReturnValueHandler} and
  * also supports setting the response status based on a method-level
@@ -64,6 +66,9 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 	private static final Method CALLABLE_METHOD = ClassUtils.getMethod(Callable.class, "call");
 
+	/**
+	 * TODO: 处理方法返回值
+	 */
 	@Nullable
 	private HandlerMethodReturnValueHandlerComposite returnValueHandlers;
 
@@ -84,6 +89,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 
 	/**
+	 * TODO: 设置处理返回值的handlerMethodReturnValueHandler
 	 * Register {@link HandlerMethodReturnValueHandler} instances to use to
 	 * handle return values.
 	 */
@@ -93,6 +99,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 
 	/**
+	 * TODO: 是对invokeForRequest方法的进一步增强，因为调用目标方法还是靠invokeForRequest，本处是把方法的返回值拿来进一步处理，比如状态码
 	 * Invoke the method and handle the return value through one of the
 	 * configured {@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers}.
 	 * @param webRequest the current request
@@ -103,23 +110,27 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 			Object... providedArgs) throws Exception {
 
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
+		// TODO: 设置httpServletResponse返回状态码， @ResponseStatus#code在父类已经解析过了，但是子类才用
 		setResponseStatus(webRequest);
-
+		// TODO: 注意 mavContainer.setRequestHandled(true), 表示该请求已经被处理过了
 		if (returnValue == null) {
+			// TODO: Request的NotModified为true, 有@ResponseStatus注解标注，RequestHandled=true，三个条件有一个成立，则设置请求处理完成并返回
 			if (isRequestNotModified(webRequest) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
 				disableContentCachingIfNecessary(webRequest);
 				mavContainer.setRequestHandled(true);
 				return;
 			}
 		}
+		// TODO: 返回值不为null, @ResponseStatus存在reason通用设置请求处理完成并返回
 		else if (StringUtils.hasText(getResponseStatusReason())) {
 			mavContainer.setRequestHandled(true);
 			return;
 		}
-
+		// TODO: 前边都不成立， 这设置requestHandled=false即请求未完成，继续交给handlerMethodReturnValueHandlerComposite处理，可见@ResponseStatus的优先级还是比较高的
 		mavContainer.setRequestHandled(false);
 		Assert.state(this.returnValueHandlers != null, "No return value handlers");
 		try {
+			// TODO: 对方法返回值的处理
 			this.returnValueHandlers.handleReturnValue(
 					returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
 		}
@@ -132,16 +143,19 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	}
 
 	/**
+	 * TODO: 设置返回的状态码到HttpServletResponse里面去
 	 * Set the response status according to the {@link ResponseStatus} annotation.
 	 */
 	private void setResponseStatus(ServletWebRequest webRequest) throws IOException {
 		HttpStatus status = getResponseStatus();
+		// TODO: 如果调用者没有标注responseStatus.code此注解，此处就忽略它
 		if (status == null) {
 			return;
 		}
 
 		HttpServletResponse response = webRequest.getResponse();
 		if (response != null) {
+			// TODO: 此处务必注意
 			String reason = getResponseStatusReason();
 			if (StringUtils.hasText(reason)) {
 				response.sendError(status.value(), reason);
@@ -152,6 +166,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 		}
 
 		// To be picked up by RedirectView
+		// TODO: 设置到request的属性，把响应码给过去
 		webRequest.getRequest().setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
 	}
 
@@ -200,9 +215,16 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 * "resumes" processing with the asynchronously produced return value.
 	 */
 	private class ConcurrentResultHandlerMethod extends ServletInvocableHandlerMethod {
-
+		/**
+		 * 返回值
+		 */
 		private final MethodParameter returnType;
 
+		/**
+		 * 此构造最终传入的handler是个callable, result方法返回值
+		 * @param result
+		 * @param returnType
+		 */
 		public ConcurrentResultHandlerMethod(final Object result, ConcurrentResultMethodParameter returnType) {
 			super((Callable<Object>) () -> {
 				if (result instanceof Exception) {

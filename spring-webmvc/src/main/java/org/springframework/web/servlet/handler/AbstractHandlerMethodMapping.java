@@ -50,6 +50,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 
 /**
+ * TODO: AbstractHandlerMethodMaping是将method作为handler来使用，比如@RequestMapping所注释的方法就是这种handler
  * Abstract base class for {@link HandlerMapping} implementations that define
  * a mapping between a request and a {@link HandlerMethod}.
  *
@@ -89,12 +90,22 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		ALLOW_CORS_CONFIG.setAllowCredentials(true);
 	}
 
-
+	/**
+	 * TODO: 默认不会去祖先容器里面找Handlers
+	 */
 	private boolean detectHandlerMethodsInAncestorContexts = false;
 
+	/**
+	 * TODO: 为handlerMethod映射分配名称的策略接口，只有一个方法getName()
+	 *  唯一实现为RequestMappingInfoHandlerMethodMappingNamingStrategy
+	 *  策略为@RequestMaping指定了name属性，则以指定的为准，否则策略为取出controller所有的大写字母 + # + method.getName
+	 *  如AppoloController#metch方法，最终的name为AC#match，也可以自己实现接口，然后set进来
+	 */
 	@Nullable
 	private HandlerMethodMappingNamingStrategy<T> namingStrategy;
-
+	/**
+	 * 内部类，负责去注册
+	 */
 	private final MappingRegistry mappingRegistry = new MappingRegistry();
 
 
@@ -131,6 +142,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	}
 
 	/**
+	 * TODO: 细节，使用的是读写锁，此处使用的是读锁，获得所有的注册进去的Handler的Map
 	 * Return a (read-only) map with all mappings and HandlerMethod's.
 	 */
 	public Map<T, HandlerMethod> getHandlerMethods() {
@@ -144,6 +156,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	}
 
 	/**
+	 * TODO: 此处是根据mappingName来获取一个handler
 	 * Return the handler methods for the given mapping name.
 	 * @param mappingName the mapping name
 	 * @return a list of matching HandlerMethod's or {@code null}; the returned
@@ -163,6 +176,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	}
 
 	/**
+	 * TODO:都是委托给mappingRegister去做了注册的工作
 	 * Register the given mapping.
 	 * <p>This method may be invoked at runtime after initialization has completed.
 	 * @param mapping the mapping for the handler method
@@ -208,8 +222,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @see #handlerMethodsInitialized
 	 */
 	protected void initHandlerMethods() {
+		// TODO: 拿到当前容器中的所有的bean定义信息，如果容器隔离的话，这里只会拿到@Controller标注的web组件，以及其他相关的web组件的，不会非常的多
 		for (String beanName : getCandidateBeanNames()) {
+			// TODO: 必须不是这个打头的，才会去处理
 			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
+				// TODO: 会在每个bean里面找处理方法，handlerMethod, 然后进行一个注册
 				processCandidateBean(beanName);
 			}
 		}
@@ -229,6 +246,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	}
 
 	/**
+	 * TODO: 确定指定的候选bean的类型，如果标识位handler类型，则调用DetectHandlerMethods
 	 * Determine the type of the specified candidate bean and call
 	 * {@link #detectHandlerMethods} if identified as a handler type.
 	 * <p>This implementation avoids bean creation through checking
@@ -250,12 +268,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 		}
+		// TODO: isHandler判断这个type是否是handler类型，它是个抽象方法，由子类去决定啥才是Handler
 		if (beanType != null && isHandler(beanType)) {
 			detectHandlerMethods(beanName);
 		}
 	}
 
 	/**
+	 * TODO: 探测handlerMethod方法
 	 * Look for handler methods in the specified handler bean.
 	 * @param handler either a bean name or an actual handler instance
 	 * @see #getMappingForMethod
@@ -266,6 +286,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 		if (handlerType != null) {
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
+			// TODO: 又见selectMethod方法，getMappingForMethod是一个抽象方法，由子类去实现具体的规则
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> {
 						try {
@@ -279,6 +300,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			if (logger.isTraceEnabled()) {
 				logger.trace(formatMappings(userType, methods));
 			}
+			// TODO: 把找到的method遍历 进行注册
 			methods.forEach((method, mapping) -> {
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
 				registerHandlerMethod(handler, invocableMethod, mapping);
@@ -517,6 +539,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 
 	/**
+	 * 内部的注册器
 	 * A registry that maintains all mappings to handler methods, exposing methods
 	 * to perform lookups and providing concurrent access.
 	 * <p>Package-private for testing purposes.

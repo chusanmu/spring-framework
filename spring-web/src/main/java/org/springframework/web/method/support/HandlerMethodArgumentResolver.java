@@ -23,6 +23,8 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * TODO: 参数解析器
+ * 		将HttpServletRequest(head+body中的内容)解析为handlerMethod
  * Strategy interface for resolving method parameters into argument values in
  * the context of a given request.
  *
@@ -33,6 +35,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 public interface HandlerMethodArgumentResolver {
 
 	/**
+	 * TODO: 是否支持methodParameter
 	 * Whether the given {@linkplain MethodParameter method parameter} is
 	 * supported by this resolver.
 	 * @param parameter the method parameter to check
@@ -42,6 +45,7 @@ public interface HandlerMethodArgumentResolver {
 	boolean supportsParameter(MethodParameter parameter);
 
 	/**
+	 * TODO: 从NativeWebRequest中获取数据，ModelAndViewContainer用来提供访问Model,MethodParameter 请求参数， binderFactory 参数绑定
 	 * Resolves a method parameter into an argument value from a given request.
 	 * A {@link ModelAndViewContainer} provides access to the model for the
 	 * request. A {@link WebDataBinderFactory} provides a way to create
