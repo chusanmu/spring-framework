@@ -58,6 +58,9 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	@Nullable
 	private final String name;
 
+	/* ---------------- TODO: 下面这些匹配器都继承自AbstractRequestCondition，会进行各自的匹配工作 -------------- */
+
+
 	private final PatternsRequestCondition patternsCondition;
 
 	private final RequestMethodsRequestCondition methodsCondition;
@@ -174,6 +177,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
 
 	/**
+	 * TODO: 因为类上和方法上，都可能会有@RequestMapping的注解，所以这里是把语义合并
 	 * Combine "this" request mapping info (i.e. the current instance) with another request mapping info instance.
 	 * <p>Example: combine type- and method-level request mappings.
 	 * @return a new request mapping info instance; never {@code null}
@@ -208,6 +212,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	}
 
 	/**
+	 * TODO: 合并后，开始发挥作用
 	 * Checks if all conditions in this request mapping info match the provided request and returns
 	 * a potentially new request mapping info with conditions tailored to the current request.
 	 * <p>For example the returned instance may contain the subset of URL patterns that match to

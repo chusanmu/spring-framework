@@ -48,6 +48,7 @@ import org.springframework.web.servlet.mvc.condition.NameValueExpression;
 import org.springframework.web.util.WebUtils;
 
 /**
+ * TODO: 此处泛型RequestMappingInfo，用这个类来表示mapping的映射关系，参数，条件等
  * Abstract base class for classes for which {@link RequestMappingInfo} defines
  * the mapping between a request and a handler method.
  *
@@ -57,6 +58,9 @@ import org.springframework.web.util.WebUtils;
  */
 public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> {
 
+	/**
+	 * 专门处理http的Options方法的handlerMethod
+	 */
 	private static final Method HTTP_OPTIONS_HANDLE_METHOD;
 
 	static {
@@ -69,13 +73,16 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 		}
 	}
 
-
+	/**
+	 * 给set了一个handlerMethodMappingNamingStrategy
+	 */
 	protected RequestMappingInfoHandlerMapping() {
 		setHandlerMethodMappingNamingStrategy(new RequestMappingInfoHandlerMethodMappingNamingStrategy());
 	}
 
 
 	/**
+	 * 复写父类的抽象方法，获取mappings里面的patterns
 	 * Get the URL path patterns associated with this {@link RequestMappingInfo}.
 	 */
 	@Override
@@ -84,6 +91,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	}
 
 	/**
+	 * TODO: 校验看看这个mapping是否能匹配上这个request, 若能匹配上就返回一个requestMappingInfo
 	 * Check if the given RequestMappingInfo matches the current request and
 	 * return a (potentially new) instance with conditions that match the
 	 * current request -- for example with a subset of URL patterns.

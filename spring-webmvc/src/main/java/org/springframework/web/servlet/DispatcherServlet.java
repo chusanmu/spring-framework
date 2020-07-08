@@ -285,6 +285,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		// This is currently strictly internal and not meant to be customized
 		// by application developers.
 		try {
+			// TODO: 加载了dispatcherServlet.properties，里面配置了兜底的组件
 			ClassPathResource resource = new ClassPathResource(DEFAULT_STRATEGIES_PATH, DispatcherServlet.class);
 			defaultStrategies = PropertiesLoaderUtils.loadProperties(resource);
 		}
@@ -598,25 +599,30 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * TODO: 初始化handlerMappings
 	 * Initialize the HandlerMappings used by this class.
 	 * <p>If no HandlerMapping beans are defined in the BeanFactory for this namespace,
 	 * we default to BeanNameUrlHandlerMapping.
 	 */
 	private void initHandlerMappings(ApplicationContext context) {
 		this.handlerMappings = null;
-
+		// TODO: 默认为true
 		if (this.detectAllHandlerMappings) {
+			// TODO: 自动去容器里面找 HandlerMapping 类型的bean
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
 			Map<String, HandlerMapping> matchingBeans =
 					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
+			// TODO: 如果找到了，不等于空，则直接放进去就ok了
 			if (!matchingBeans.isEmpty()) {
 				this.handlerMappings = new ArrayList<>(matchingBeans.values());
 				// We keep HandlerMappings in sorted order.
+				// TODO: 进行排个序
 				AnnotationAwareOrderComparator.sort(this.handlerMappings);
 			}
 		}
 		else {
 			try {
+				// TODO: 否则，直接去容器中找 名字为 handlerMapping 的mapping
 				HandlerMapping hm = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
 				this.handlerMappings = Collections.singletonList(hm);
 			}
@@ -627,7 +633,10 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Ensure we have at least one HandlerMapping, by registering
 		// a default HandlerMapping if no other mappings are found.
+		// TODO: 最后一个都没有找到，则进行兜底,会向容器中添加两个默认的org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping,\
+		//	org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
 		if (this.handlerMappings == null) {
+			// TODO: 从配置文件中读取兜底的
 			this.handlerMappings = getDefaultStrategies(context, HandlerMapping.class);
 			if (logger.isTraceEnabled()) {
 				logger.trace("No HandlerMappings declared for servlet '" + getServletName() +
@@ -872,11 +881,13 @@ public class DispatcherServlet extends FrameworkServlet {
 	protected <T> List<T> getDefaultStrategies(ApplicationContext context, Class<T> strategyInterface) {
 		String key = strategyInterface.getName();
 		String value = defaultStrategies.getProperty(key);
+		// TODO: 存在兜底的配置
 		if (value != null) {
 			String[] classNames = StringUtils.commaDelimitedListToStringArray(value);
 			List<T> strategies = new ArrayList<>(classNames.length);
 			for (String className : classNames) {
 				try {
+					// TODO: 把相关的类加载进来
 					Class<?> clazz = ClassUtils.forName(className, DispatcherServlet.class.getClassLoader());
 					Object strategy = createDefaultStrategy(context, clazz);
 					strategies.add((T) strategy);

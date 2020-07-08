@@ -199,11 +199,15 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 	@Override
 	@Nullable
 	public PatternsRequestCondition getMatchingCondition(HttpServletRequest request) {
+		// TODO: patterns表示此mappingInfo可以匹配的值们
 		if (this.patterns.isEmpty()) {
 			return this;
 		}
+		// TODO: 拿到待匹配的值，比如此处为 /hello.json
 		String lookupPath = this.pathHelper.getLookupPathForRequest(request);
+		// TODO: 最主要的就是这个方法了，它拿着这个lookupPath去匹配
 		List<String> matches = getMatchingPatterns(lookupPath);
+		// TODO: 如果此处为empty, 就返回null
 		return (!matches.isEmpty() ?
 				new PatternsRequestCondition(matches, this.pathHelper, this.pathMatcher,
 						this.useSuffixPatternMatch, this.useTrailingSlashMatch, this.fileExtensions) : null);
@@ -221,23 +225,34 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 	public List<String> getMatchingPatterns(String lookupPath) {
 		List<String> matches = new ArrayList<>();
 		for (String pattern : this.patterns) {
+			// TODO: 拿着lookupPath和pattern看看他俩是否满足
 			String match = getMatchingPattern(pattern, lookupPath);
 			if (match != null) {
 				matches.add(match);
 			}
 		}
+		// TODO: 这里为何匹配的是多个呢？因为url匹配上了，但是还有可能@RequestMapping的其余属性匹配不上啊，所以此处需要注意，是可能匹配多个的，最终是唯一匹配的就成
 		if (matches.size() > 1) {
 			matches.sort(this.pathMatcher.getPatternComparator(lookupPath));
 		}
 		return matches;
 	}
 
+	/**
+	 * TODO: url的真正匹配规则
+	 * @param pattern
+	 * @param lookupPath
+	 * @return
+	 */
 	@Nullable
 	private String getMatchingPattern(String pattern, String lookupPath) {
+		// TODO: 完全相等，直接返回吧
 		if (pattern.equals(lookupPath)) {
 			return pattern;
 		}
+		// TODO: useSuffixPatternMatch 这个属性就是我们可以关闭后缀匹配的关键
 		if (this.useSuffixPatternMatch) {
+			// TODO: 若useSuffixPatternMatch=true，就支持后缀匹配，还可以配置fileExtensions让只支持我们自定义的指定的后缀匹配，而不是下面的最终的.*全部支持
 			if (!this.fileExtensions.isEmpty() && lookupPath.indexOf('.') != -1) {
 				for (String extension : this.fileExtensions) {
 					if (this.pathMatcher.match(pattern + extension, lookupPath)) {
@@ -245,6 +260,7 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 					}
 				}
 			}
+			// TODO: 若果没有配置指定后缀匹配，并且你的handler也没有.*这样匹配的 那就默认你的pattern就给你添加上后缀.*，表示匹配所有的请求的url后缀
 			else {
 				boolean hasSuffix = pattern.indexOf('.') != -1;
 				if (!hasSuffix && this.pathMatcher.match(pattern + ".*", lookupPath)) {
@@ -252,9 +268,12 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 				}
 			}
 		}
+		// TODO: 若匹配上了，直接返回此pattern
 		if (this.pathMatcher.match(pattern, lookupPath)) {
 			return pattern;
 		}
+		// TODO: 这也是它支持的匹配规则，默认useTrailingSlashMatch它也是true
+		// TODO: 这就是为何我们的/hello/也能匹配上/hello的原因
 		if (this.useTrailingSlashMatch) {
 			if (!pattern.endsWith("/") && this.pathMatcher.match(pattern + "/", lookupPath)) {
 				return pattern + "/";

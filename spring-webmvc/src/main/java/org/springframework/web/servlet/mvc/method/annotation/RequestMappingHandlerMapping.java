@@ -110,6 +110,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	}
 
 	/**
+	 * 配置要应用于控制器方法的路径前缀
 	 * Configure path prefixes to apply to controller methods.
 	 * <p>Prefixes are used to enrich the mappings of every {@code @RequestMapping}
 	 * method whose controller type is matched by the corresponding
@@ -154,14 +155,21 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
 	@Override
 	public void afterPropertiesSet() {
+		// TODO: 对requestMappingInfo的配置进行初始化 赋值
 		this.config = new RequestMappingInfo.BuilderConfiguration();
+		// TODO: 设置默认的urlPathHelper默认为urlPathHelper.class
 		this.config.setUrlPathHelper(getUrlPathHelper());
+		// TODO: 默认为antPathMatcher, 路径匹配校验器
 		this.config.setPathMatcher(getPathMatcher());
+		// TODO: 是否支持后缀补充
 		this.config.setSuffixPatternMatch(this.useSuffixPatternMatch);
+		// TODO: 是否添加/ 后缀
 		this.config.setTrailingSlashMatch(this.useTrailingSlashMatch);
+		// TODO: 是否采用mediaType匹配模式，比如.json/.xml模式的匹配，默认为false
 		this.config.setRegisteredSuffixPatternMatch(this.useRegisteredSuffixPatternMatch);
+		// TODO: media
 		this.config.setContentNegotiationManager(getContentNegotiationManager());
-
+		// TODO: 此处，必须要调用父类的方法的
 		super.afterPropertiesSet();
 	}
 
@@ -209,6 +217,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	}
 
 	/**
+	 * TODO: 比较重要的一个方法啊，回去该类里面找所有的指定的方法
 	 * Uses method and type-level @{@link RequestMapping} annotations to create
 	 * the RequestMappingInfo.
 	 * @return the created RequestMappingInfo, or {@code null} if the method
@@ -219,14 +228,24 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	@Override
 	@Nullable
 	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+		// TODO: 第一步，先拿到方法上的info
 		RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
+			// TODO: 方法上有，第二步，拿到类上的info
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
+				// TODO: 倘若类上面也有，那就combine，把两者结合
+				// TODO: combine的逻辑如下: names : name1 + # name2
+				// TODO: path: 路径拼接起来作为全路径，容错了方法里面没有/的情况
+				// TODO: method, params, headers取并集
+				// TODO: consumes, produces: 以方法的为准，没有指定再取类上的
+				// TODO: custom：谁有取谁的，若都有，那就看custom具体实现的.combine方法去决定吧
 				info = typeInfo.combine(info);
 			}
+			// TODO: 也支持${os.name}这样的语法去拿值，可以把前缀也写在专门的配置文件里面
 			String prefix = getPathPrefix(handlerType);
 			if (prefix != null) {
+				// TODO: 统一在前面加上这个前缀
 				info = RequestMappingInfo.paths(prefix).options(this.config).build().combine(info);
 			}
 		}
@@ -248,6 +267,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	}
 
 	/**
+	 * TODO: 根据此方法/类去创建一个RequestMappingInfo
 	 * Delegates to {@link #createRequestMappingInfo(RequestMapping, RequestCondition)},
 	 * supplying the appropriate custom {@link RequestCondition} depending on whether
 	 * the supplied {@code annotatedElement} is a class or method.
@@ -256,12 +276,15 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 */
 	@Nullable
 	private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
+		// TODO: 注意findMergedAnnotation 此处使用的是mergedAnnotation, 具有继承的效果
 		RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
 		RequestCondition<?> condition = (element instanceof Class ?
 				getCustomTypeCondition((Class<?>) element) : getCustomMethodCondition((Method) element));
+		// TODO：显然如果没有找到此注解，这里就返回null了，表明这个方法啥的就不是一个info
 		return (requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null);
 	}
 
+	/* ---------------- 下面两个方法都是返回null, protected方法留给子类去复写，子类可以根据此自定义一套匹配规则来限制匹配 -------------- */
 	/**
 	 * Provide a custom type-level request condition.
 	 * The custom {@link RequestCondition} can be of any type so long as the
@@ -295,6 +318,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	}
 
 	/**
+	 * TODO: 根据RequestMapping创建一个RequestMappingInfo
 	 * Create a {@link RequestMappingInfo} from the supplied
 	 * {@link RequestMapping @RequestMapping} annotation, which is either
 	 * a directly declared annotation, a meta-annotation, or the synthesized
@@ -304,6 +328,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 			RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
 
 		RequestMappingInfo.Builder builder = RequestMappingInfo
+				// TODO: 这里可以看到 path里竟然也支持 ${path.value} 这样形式动态的获取值
 				.paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
 				.methods(requestMapping.method())
 				.params(requestMapping.params())
@@ -311,9 +336,11 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 				.consumes(requestMapping.consumes())
 				.produces(requestMapping.produces())
 				.mappingName(requestMapping.name());
+		// TODO: 调用者自定义的条件
 		if (customCondition != null) {
 			builder.customCondition(customCondition);
 		}
+		// TODO: 把当前的config设置进去了
 		return builder.options(this.config).build();
 	}
 

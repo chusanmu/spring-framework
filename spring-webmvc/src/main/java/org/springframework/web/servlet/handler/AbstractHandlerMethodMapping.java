@@ -230,6 +230,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				processCandidateBean(beanName);
 			}
 		}
+		// TODO: 打印日志
 		handlerMethodsInitialized(getHandlerMethods());
 	}
 
@@ -379,13 +380,17 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	// Handler method lookup
 
 	/**
+	 * TODO: 对父类抽象的实现啊
 	 * Look up a handler method for the given request.
 	 */
 	@Override
 	protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
+		// TODO: 要进行匹配的请求的uri Path
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
+		// TODO: 加读锁
 		this.mappingRegistry.acquireReadLock();
 		try {
+			// TODO: 委托给lookupHandlerMethod()方法去找到一个HandlerMethod去最终处理
 			HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, request);
 			return (handlerMethod != null ? handlerMethod.createWithResolvedBean() : null);
 		}
@@ -406,19 +411,27 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	@Nullable
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
 		List<Match> matches = new ArrayList<>();
+		// TODO: 根据lookupPath去找MappingInfo，一个lookupPath可能会识别出来多个MappingInfo，原因是相同的url 请求方式可能不同，例如可能有个get, post, put, 所以list的size可能是3个
 		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
+		// TODO: 不为空，表示找到了
 		if (directPathMatches != null) {
+			// TODO: 依赖于子类实现的抽象方法，getMatchingMapping，看看到底匹不匹配，而不仅仅是url匹配就行， 比如还有method, headers, consumers等等这些不同都代表着不同的mappingInfo
+			// TODO: 最终匹配上的，会new Match()放进matches里面去
 			addMatchingMappings(directPathMatches, matches, request);
 		}
+		// TODO: 当还没有匹配上的时候，别无选择，只能浏览所有映射
 		if (matches.isEmpty()) {
 			// No choice but to go through all mappings...
 			addMatchingMappings(this.mappingRegistry.getMappings().keySet(), matches, request);
 		}
-
+		// TODO: 但凡只要找到了一个匹配上的，就进来这里
 		if (!matches.isEmpty()) {
+			// TODO: getMappingComparator也是交由子类去实现，RequestMappingInfoHandlerMapping的实现是先比较method, patterns, params
 			Comparator<Match> comparator = new MatchComparator(getMappingComparator(request));
+			// TODO: 然后进行排个序，拿最佳匹配get(0)
 			matches.sort(comparator);
 			Match bestMatch = matches.get(0);
+			// TODO: 如果总的个数大于1
 			if (matches.size() > 1) {
 				if (logger.isTraceEnabled()) {
 					logger.trace(matches.size() + " matching mappings: " + matches);
@@ -426,7 +439,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				if (CorsUtils.isPreFlightRequest(request)) {
 					return PREFLIGHT_AMBIGUOUS_MATCH;
 				}
+				// TODO: 次最佳匹配
 				Match secondBestMatch = matches.get(1);
+				// TODO: 如果发现次最佳匹配和最佳匹配，比较是相等的，那就直接报错吧
 				if (comparator.compare(bestMatch, secondBestMatch) == 0) {
 					Method m1 = bestMatch.handlerMethod.getMethod();
 					Method m2 = secondBestMatch.handlerMethod.getMethod();
@@ -435,17 +450,28 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 							"Ambiguous handler methods mapped for '" + uri + "': {" + m1 + ", " + m2 + "}");
 				}
 			}
+			// TODO: 把次最佳匹配的方法 放进request的属性里面去
 			request.setAttribute(BEST_MATCHING_HANDLER_ATTRIBUTE, bestMatch.handlerMethod);
+			// TODO: 也是设置一个属性 request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, lookupPath);
 			handleMatch(bestMatch.mapping, lookupPath, request);
+			// TODO: 最终返回一个handlerMethod
 			return bestMatch.handlerMethod;
 		}
 		else {
+			// TODO: 如果一个都没匹配上，
 			return handleNoMatch(this.mappingRegistry.getMappings().keySet(), lookupPath, request);
 		}
 	}
 
+	/**
+	 * TODO: 添加匹配的mapping. mapping可能有多个，比如get post put的都算，这里就要进行筛选出所有match上的
+	 * @param mappings
+	 * @param matches
+	 * @param request
+	 */
 	private void addMatchingMappings(Collection<T> mappings, List<Match> matches, HttpServletRequest request) {
 		for (T mapping : mappings) {
+			// TODO: 只有requestMappingInfoHandlerMapping实现了，它可以进行根据method params headers进行匹配，一旦匹配不上的就返回null
 			T match = getMatchingMapping(mapping, request);
 			if (match != null) {
 				matches.add(new Match(match, this.mappingRegistry.getMappings().get(mapping)));
@@ -545,17 +571,29 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * <p>Package-private for testing purposes.
 	 */
 	class MappingRegistry {
-
+		/**
+		 * TODO: Mapping对应的其MappingRegistration对象
+		 */
 		private final Map<T, MappingRegistration<T>> registry = new HashMap<>();
-
+		/**
+		 * TODO: 保存着mapping和handlerMethod的对应关系
+		 */
 		private final Map<T, HandlerMethod> mappingLookup = new LinkedHashMap<>();
-
+		/**
+		 * TODO：保存着url与匹配条件(mapping)的对应关系，这里的url是pattern式的, 可以使用通配符, 这里的Map是个多值Map
+		 * 		而是一个多值Map, value其实是一个List类型的值，比如多值情况 url都是 /hello/world, 但是有的是get post put方法，所以可能会匹配到多个MappingInfo
+		 */
 		private final MultiValueMap<String, T> urlLookup = new LinkedMultiValueMap<>();
-
+		/**
+		 * TODO: 保存着name和handlerMethod的映射，一个name可以有多个handlerMethod
+		 */
 		private final Map<String, List<HandlerMethod>> nameLookup = new ConcurrentHashMap<>();
 
 		private final Map<HandlerMethod, CorsConfiguration> corsLookup = new ConcurrentHashMap<>();
 
+		/**
+		 * 读写锁
+		 */
 		private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
 		/**
@@ -591,6 +629,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		}
 
 		/**
+		 * TODO: 读锁提供给外部使用
 		 * Acquire the read lock when using getMappings and getMappingsByUrl.
 		 */
 		public void acquireReadLock() {
@@ -598,24 +637,35 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		}
 
 		/**
+		 * TODO:释放读锁
 		 * Release the read lock after using getMappings and getMappingsByUrl.
 		 */
 		public void releaseReadLock() {
 			this.readWriteLock.readLock().unlock();
 		}
 
+		/**
+		 * 注册mapping和handler, 以及method，此处上写锁，保证线程安全
+		 * @param mapping
+		 * @param handler
+		 * @param method
+		 */
 		public void register(T mapping, Object handler, Method method) {
 			this.readWriteLock.writeLock().lock();
 			try {
+				// TODO: 注意这里都是new了一个新的HandlerMethod
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
+				// TODO: 注意这里保证一个mapping只能对应一个新的handlerMethod， 这里如果有重复的会进行抛出异常
 				assertUniqueMethodMapping(handlerMethod, mapping);
+				// TODO: 缓存mapping和HandlerMethod的对应关系
 				this.mappingLookup.put(mapping, handlerMethod);
-
+				// TODO: 保存url和requestMappingInfo的对应关系，多个url可能对应同一个mapping
 				List<String> directUrls = getDirectUrls(mapping);
 				for (String url : directUrls) {
 					this.urlLookup.add(url, mapping);
 				}
 
+				// TODO: 保存name和handlerMethod的关系
 				String name = null;
 				if (getNamingStrategy() != null) {
 					name = getNamingStrategy().getName(handlerMethod, mapping);
@@ -626,10 +676,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				if (corsConfig != null) {
 					this.corsLookup.put(handlerMethod, corsConfig);
 				}
-
+				// TODO: 注册mapping和MappingRegistration的关系
 				this.registry.put(mapping, new MappingRegistration<>(mapping, handlerMethod, directUrls, name));
 			}
 			finally {
+				// TODO: 释放锁
 				this.readWriteLock.writeLock().unlock();
 			}
 		}
