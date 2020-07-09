@@ -24,6 +24,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
+ * TODO: 作用于服务器类型是handlerMethod类型的抛出的异常，它并不规定实现方式是@ExceptionHandler, 它复写了抽象父类的shouldApplyTo()方法
  * Abstract base class for
  * {@link org.springframework.web.servlet.HandlerExceptionResolver HandlerExceptionResolver}
  * implementations that support handling exceptions from handlers of type {@link HandlerMethod}.
@@ -34,6 +35,7 @@ import org.springframework.web.servlet.ModelAndView;
 public abstract class AbstractHandlerMethodExceptionResolver extends AbstractHandlerExceptionResolver {
 
 	/**
+	 * TODO: 只处理handlerMethod这种类型的处理器抛出的异常
 	 * Checks if the handler is a {@link HandlerMethod} and then delegates to the
 	 * base class implementation of {@code #shouldApplyTo(HttpServletRequest, Object)}
 	 * passing the bean of the {@code HandlerMethod}. Otherwise returns {@code false}.
@@ -43,8 +45,10 @@ public abstract class AbstractHandlerMethodExceptionResolver extends AbstractHan
 		if (handler == null) {
 			return super.shouldApplyTo(request, null);
 		}
+		// TODO: 是否是handlerMethod
 		else if (handler instanceof HandlerMethod) {
 			HandlerMethod handlerMethod = (HandlerMethod) handler;
+			// TODO: 可以看到最终getBean表示最终验证的是它的bean类，而不是方法本身，所以异常的控制是针对于controller这个类的
 			handler = handlerMethod.getBean();
 			return super.shouldApplyTo(request, handler);
 		}

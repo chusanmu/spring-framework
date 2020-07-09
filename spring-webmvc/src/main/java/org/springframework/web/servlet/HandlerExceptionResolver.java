@@ -36,6 +36,7 @@ import org.springframework.lang.Nullable;
 public interface HandlerExceptionResolver {
 
 	/**
+	 * TODO: 处理结果返回一个modelAndView
 	 * Try to resolve the given exception that got thrown during handler execution,
 	 * returning a {@link ModelAndView} that represents a specific error page if appropriate.
 	 * <p>The returned {@code ModelAndView} may be {@linkplain ModelAndView#isEmpty() empty}

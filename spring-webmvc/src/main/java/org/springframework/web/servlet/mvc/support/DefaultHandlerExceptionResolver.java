@@ -54,6 +54,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
 
 /**
+ * TODO: 进行兜底 处理异常
  * The default implementation of the {@link org.springframework.web.servlet.HandlerExceptionResolver}
  * interface, resolving standard Spring MVC exceptions and translating them to corresponding
  * HTTP status codes.
@@ -164,12 +165,22 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 	}
 
 
+	/**
+	 * TODO: 去处理各种异常，进行兜底嘛
+	 * @param request current HTTP request
+	 * @param response current HTTP response
+	 * @param handler the executed handler, or {@code null} if none chosen at the time
+	 * of the exception (for example, if multipart resolution failed)
+	 * @param ex the exception that got thrown during handler execution
+	 * @return
+	 */
 	@Override
 	@Nullable
 	protected ModelAndView doResolveException(
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler, Exception ex) {
 
 		try {
+			// TODO: 基本上都是 response.sendError
 			if (ex instanceof HttpRequestMethodNotSupportedException) {
 				return handleHttpRequestMethodNotSupported(
 						(HttpRequestMethodNotSupportedException) ex, request, response, handler);

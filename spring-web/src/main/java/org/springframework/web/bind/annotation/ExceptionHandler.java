@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * TODO: 只能标注在方法上，可以使得整个方法成为一个异常处理器，处理指定的异常类型
  * Annotation for handling exceptions in specific handler classes and/or
  * handler methods.
  *
@@ -105,6 +106,7 @@ import java.lang.annotation.Target;
 public @interface ExceptionHandler {
 
 	/**
+	 * TODO: 指定异常类型，可以有多个
 	 * Exceptions handled by the annotated method. If empty, will default to any
 	 * exceptions listed in the method argument list.
 	 */

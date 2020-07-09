@@ -685,12 +685,19 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * TODO: 初始化异常处理器
 	 * Initialize the HandlerExceptionResolver used by this class.
 	 * <p>If no bean is defined with the given name in the BeanFactory for this namespace,
 	 * we default to no exception resolver.
 	 */
 	private void initHandlerExceptionResolvers(ApplicationContext context) {
 		this.handlerExceptionResolvers = null;
+
+		/**
+		 * 1. detectAllHandlerExceptionResolvers为true，则去容器里面找出所有的HandlerExceptionResolver, 类型的bean们，找到后排序
+		 * 2. 若detectAllHandlerExceptionResolvers为false，那就拿名称为handlerExceptionResolver这单独的一个bean
+		 * 3. 如果一个都没有找到，那就走默认策略getDefaultStrategies()
+		 */
 
 		if (this.detectAllHandlerExceptionResolvers) {
 			// Find all HandlerExceptionResolvers in the ApplicationContext, including ancestor contexts.
@@ -715,6 +722,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Ensure we have at least some HandlerExceptionResolvers, by registering
 		// default HandlerExceptionResolvers if no other resolvers are found.
+		// TODO: 一个都没有找到，则去找默认配置文件里面的 dispatcherServlet.properties里面配置了的
 		if (this.handlerExceptionResolvers == null) {
 			this.handlerExceptionResolvers = getDefaultStrategies(context, HandlerExceptionResolver.class);
 			if (logger.isTraceEnabled()) {
@@ -1077,6 +1085,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
+			// TODO: 结果处理器
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1123,13 +1132,15 @@ public class DispatcherServlet extends FrameworkServlet {
 			@Nullable Exception exception) throws Exception {
 
 		boolean errorView = false;
-
+		// TODO: exception不等于空，则说明有异常，那就处理异常呗
 		if (exception != null) {
+			// TODO: 这种异常属于spring mvc内部的异常
 			if (exception instanceof ModelAndViewDefiningException) {
 				logger.debug("ModelAndViewDefiningException encountered", exception);
 				mv = ((ModelAndViewDefiningException) exception).getModelAndView();
 			}
 			else {
+				// TODO: 若是普通异常，就交给processHandlerException去处理，从而得到一个异常视图，ModelAndView，并且标注errorView=true
 				Object handler = (mappedHandler != null ? mappedHandler.getHandler() : null);
 				mv = processHandlerException(request, response, handler, exception);
 				errorView = (mv != null);
@@ -1138,6 +1149,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
+			// TODO: 渲染错误视图
 			render(mv, request, response);
 			if (errorView) {
 				WebUtils.clearErrorRequestAttributes(request);
@@ -1317,6 +1329,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Check registered HandlerExceptionResolvers...
 		ModelAndView exMv = null;
+		// TODO: 核心的处理方法在此处，只要有一个视图返回了，就立马停止，短路效果
 		if (this.handlerExceptionResolvers != null) {
 			for (HandlerExceptionResolver resolver : this.handlerExceptionResolvers) {
 				exMv = resolver.resolveException(request, response, handler, ex);

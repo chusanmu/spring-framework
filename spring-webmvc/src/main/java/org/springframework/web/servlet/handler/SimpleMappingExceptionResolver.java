@@ -60,7 +60,9 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 
 	@Nullable
 	private Integer defaultStatusCode;
-
+	/**
+	 * TODO: 可以通过状态码去匹配， key是view name, value是 http状态码
+	 */
 	private Map<String, Integer> statusCodes = new HashMap<>();
 
 	@Nullable
@@ -186,14 +188,18 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler, Exception ex) {
 
 		// Expose ModelAndView for chosen error view.
+		// TODO: 根据异常类型去exceptionMapping匹配到一个viewName, 实在没有匹配到，就用defaultErrorView， defaultErrorView也可能为空，建议配置
 		String viewName = determineViewName(ex, request);
 		if (viewName != null) {
 			// Apply HTTP status code for error views, if specified.
 			// Only apply it if we're processing a top-level request.
+			// TODO: 如果匹配上一个视图后，再去使用视图匹配一个statusCode
 			Integer statusCode = determineStatusCode(request, viewName);
 			if (statusCode != null) {
+				// TODO: 执行response.setStatus(statusCode);
 				applyStatusCodeIfPossible(request, response, statusCode);
 			}
+			// TODO: 把异常信息添加进去
 			return getModelAndView(viewName, ex, request);
 		}
 		else {

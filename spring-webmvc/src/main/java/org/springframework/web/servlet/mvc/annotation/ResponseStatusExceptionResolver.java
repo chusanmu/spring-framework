@@ -33,6 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
 
 /**
+ * TODO: 若抛出的异常类型上面有@ResponseStatus, 那么此处理器会去处理，并且状态码会返回给response，@ResponseStatus标注在异常类上，此处理器才会去处理，而不是标注在处理方法上
  * A {@link org.springframework.web.servlet.HandlerExceptionResolver
  * HandlerExceptionResolver} that uses the {@link ResponseStatus @ResponseStatus}
  * annotation to map exceptions to HTTP status codes.
@@ -46,7 +47,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  * attribute overrides for {@code @ResponseStatus} in custom composed annotations.
  *
  * <p>As of 5.0 this resolver also supports {@link ResponseStatusException}.
- *
+ * TODO: 实现messageSourceAware 方便拿到国际化信息
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Sam Brannen
@@ -72,19 +73,21 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler, Exception ex) {
 
 		try {
+			// TODO: 若异常类型是ResponseStatusException 那就去处理这个异常，处理很简单 response.setError()
 			if (ex instanceof ResponseStatusException) {
 				return resolveResponseStatusException((ResponseStatusException) ex, request, response, handler);
 			}
-
+			// TODO: 若异常类型所在的类上有这个注解，那就去处理这个状态码
 			ResponseStatus status = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
 			if (status != null) {
 				return resolveResponseStatus(status, request, response, handler, ex);
 			}
-
+			// TODO: 这里有个递归，如果异常类型是Cause里面的，会继续处理，所以需要助理这里的递归处理
 			if (ex.getCause() instanceof Exception) {
 				return doResolveException(request, response, handler, (Exception) ex.getCause());
 			}
 		}
+		// TODO: 处理失败，就去记录日志
 		catch (Exception resolveEx) {
 			if (logger.isWarnEnabled()) {
 				logger.warn("Failure while trying to resolve exception [" + ex.getClass().getName() + "]", resolveEx);

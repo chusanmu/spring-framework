@@ -52,9 +52,15 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
+	/**
+	 * 可以设置任何的handler, 表示只作用于这些Handler们
+	 */
 	@Nullable
 	private Set<?> mappedHandlers;
 
+	/**
+	 * 表示只作用于这些class类型的handler们
+	 */
 	@Nullable
 	private Class<?>[] mappedHandlerClasses;
 
@@ -135,9 +141,12 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	@Nullable
 	public ModelAndView resolveException(
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler, Exception ex) {
-
+		// TODO: 注意若mappedHandlers和mappedHandlerClass都为null 永远返回true
+		// TODO: 但凡配置了一个就需要精确匹配
 		if (shouldApplyTo(request, handler)) {
+			// TODO: 是否执行response.addHeader(HEADER_CACHE_CONTROL, "no-store") 默认是不执行的
 			prepareResponse(ex, response);
+			// TODO: 此抽象方法留给子类去完成
 			ModelAndView result = doResolveException(request, response, handler, ex);
 			if (result != null) {
 				// Print debug message when warn logger is not enabled.
@@ -150,6 +159,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 			return result;
 		}
 		else {
+			// TODO: 若此处理器不处理，那就返回null呗
 			return null;
 		}
 	}
