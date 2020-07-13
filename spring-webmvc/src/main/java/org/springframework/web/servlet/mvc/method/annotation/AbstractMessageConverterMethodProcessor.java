@@ -169,6 +169,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 	}
 
 	/**
+	 * TODO: @ResponseBody核心处理源码，其实就是把返回值写进Output message
 	 * Writes the given return type to the given output message.
 	 * @param value the value to write to the output message
 	 * @param returnType the type of the value
@@ -186,18 +187,20 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		Object body;
 		Class<?> valueType;
 		Type targetType;
-
+		// TODO: 特殊处理 相当于把CharSequence 类型的 全当做String类型的来处理
 		if (value instanceof CharSequence) {
 			body = value.toString();
 			valueType = String.class;
 			targetType = String.class;
 		}
 		else {
+			// TODO: body即返回值
 			body = value;
 			valueType = getReturnValueType(body, returnType);
+			// TODO: 兼容了泛型类型的处理
 			targetType = GenericTypeResolver.resolveType(getGenericType(returnType), returnType.getContainingClass());
 		}
-
+		// TODO: 若返回值是个org.springframework.core.io.Resource 就走到这里
 		if (isResourceType(value, returnType)) {
 			outputMessage.getHeaders().set(HttpHeaders.ACCEPT_RANGES, "bytes");
 			if (value != null && inputMessage.getHeaders().getFirst(HttpHeaders.RANGE) != null &&
@@ -216,8 +219,10 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 				}
 			}
 		}
-
+		// TODO: selectedMediaType表示最终被选中的MediaType, 毕竟请求方可能是接受N多种MediaType的
 		MediaType selectedMediaType = null;
+		// TODO: 一般请求方很少指定contentType, 如果请求方指定了，那就以它的为准，就相当于selectedMediaType里面就被找到了
+		// TODO: 否则就靠系统去自动匹配寻找
 		MediaType contentType = outputMessage.getHeaders().getContentType();
 		if (contentType != null && contentType.isConcrete()) {
 			if (logger.isDebugEnabled()) {
@@ -227,21 +232,29 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 		else {
 			HttpServletRequest request = inputMessage.getServletRequest();
+			// TODO: 解析请求方可以接受的MediaType
 			List<MediaType> acceptableTypes = getAcceptableMediaTypes(request);
+			// TODO: 这个方法就是从所有已经注册的转换器里面去找，看看哪些转换器.canWrite, 然后把它们所支持得到MediaType都加入进来，其实这地方，就是根据return value的类型去用消息转换器去写
+			// TODO: 如果写成功了表示可写，然后把消息转换器支持的mediaType,拿过来
 			List<MediaType> producibleTypes = getProducibleMediaTypes(request, valueType, targetType);
-
+			// TODO: 这个异常经常见，有返回体，但是没有可用的消息转换器去处理
 			if (body != null && producibleTypes.isEmpty()) {
 				throw new HttpMessageNotWritableException(
 						"No converter found for return value of type: " + valueType);
 			}
+			// TODO: 有消息转换器可以去处理，这里就进行抉择出n个来
+			// TODO: 原理非常简单，能接受的isCompatibleWith上了我能处理的，那就处理就完了
 			List<MediaType> mediaTypesToUse = new ArrayList<>();
 			for (MediaType requestedType : acceptableTypes) {
 				for (MediaType producibleType : producibleTypes) {
 					if (requestedType.isCompatibleWith(producibleType)) {
+						// TODO: 进行选择一个最为匹配的，主要是根据q值来比较，排序
 						mediaTypesToUse.add(getMostSpecificMediaType(requestedType, producibleType));
 					}
 				}
 			}
+			// TODO: 这个异常有时候也会见到，比如此处如果没有导入Jackson相关的jar包，那就会抛出异常
+			// TODO: 比如，你前端想要.json数据，我这边有个convert可以把返回值转换写出去，但是我这个转换器支持的是xml，就是只会写出xml, 这时候就会报错
 			if (mediaTypesToUse.isEmpty()) {
 				if (body != null) {
 					throw new HttpMediaTypeNotAcceptableException(producibleTypes);
@@ -251,9 +264,9 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 				}
 				return;
 			}
-
+			// TODO: 根据Q值进行排序
 			MediaType.sortBySpecificityAndQuality(mediaTypesToUse);
-
+			// TODO: 已经排过序了
 			for (MediaType mediaType : mediaTypesToUse) {
 				if (mediaType.isConcrete()) {
 					selectedMediaType = mediaType;
@@ -270,15 +283,18 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 						acceptableTypes + " and supported " + producibleTypes);
 			}
 		}
-
+		// TODO: 最终的最终，找到一个决定write的类型，因为最终会决策出来一个mediaType, 所以此处就是根据mediaType找到一个合适的消息转换器，把body向outputStream写进去
 		if (selectedMediaType != null) {
 			selectedMediaType = selectedMediaType.removeQualityValue();
+			// TODO: 遍历消息转换器
 			for (HttpMessageConverter<?> converter : this.messageConverters) {
+				// TODO: 从这个条件可以看出，处理body里面的内容，GenericHttpMessageConverter类型的转换器是优先级更高的，优先去处理
 				GenericHttpMessageConverter genericConverter = (converter instanceof GenericHttpMessageConverter ?
 						(GenericHttpMessageConverter<?>) converter : null);
 				if (genericConverter != null ?
 						((GenericHttpMessageConverter) converter).canWrite(targetType, valueType, selectedMediaType) :
 						converter.canWrite(valueType, selectedMediaType)) {
+					// TODO: 前置处理啊，调用所有的合适的ResponseBodyAdvice#beforeBodyWrite方法，相当于在写之前，可以介入对body体进行处理
 					body = getAdvice().beforeBodyWrite(body, returnType, selectedMediaType,
 							(Class<? extends HttpMessageConverter<?>>) converter.getClass(),
 							inputMessage, outputMessage);
@@ -286,6 +302,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 						Object theBody = body;
 						LogFormatUtils.traceDebug(logger, traceOn ->
 								"Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
+						// TODO:如果需要的话 给response设置一个content-Disposition的请求头，若之前设置过了，这里就不处理了
 						addContentDispositionHeader(inputMessage, outputMessage);
 						if (genericConverter != null) {
 							genericConverter.write(body, targetType, selectedMediaType, outputMessage);
@@ -294,6 +311,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 							((HttpMessageConverter) converter).write(body, selectedMediaType, outputMessage);
 						}
 					}
+					// TODO: 如果body里面是null, 就啥事都不做
 					else {
 						if (logger.isDebugEnabled()) {
 							logger.debug("Nothing to write: null body");

@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.annotation.ModelAndViewResolver;
 
 /**
+ * TODO: 此处理器默认没有被加进来，而是由用户自定义添加进来
  * This return value handler is intended to be ordered after all others as it
  * attempts to handle _any_ return value type (i.e. returns {@code true} for
  * all return types).
@@ -55,6 +56,9 @@ import org.springframework.web.servlet.mvc.annotation.ModelAndViewResolver;
  */
 public class ModelAndViewResolverMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
+	/**
+	 *TODO: 我们自己配置的解析器
+	 */
 	@Nullable
 	private final List<ModelAndViewResolver> mavResolvers;
 
@@ -70,6 +74,7 @@ public class ModelAndViewResolverMethodReturnValueHandler implements HandlerMeth
 
 
 	/**
+	 * TODO: 永远返回true 厉害了，表示什么类型都支持的
 	 * Always returns {@code true}. See class-level note.
 	 */
 	@Override
@@ -80,14 +85,16 @@ public class ModelAndViewResolverMethodReturnValueHandler implements HandlerMeth
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// TODO: 如果我们配置了 解析器，那就一个个的去做处理吧，当然真正处理的可能就只有一个，这里也是责任链的设计模式
 		if (this.mavResolvers != null) {
 			for (ModelAndViewResolver mavResolver : this.mavResolvers) {
 				Class<?> handlerType = returnType.getContainingClass();
 				Method method = returnType.getMethod();
 				Assert.state(method != null, "No handler method");
 				ExtendedModelMap model = (ExtendedModelMap) mavContainer.getModel();
+				// TODO: 处理modelAndView， 若返回的不是UNRESOLVED，那就说明它处理了，那就return掉，逻辑还是比较简单的
 				ModelAndView mav = mavResolver.resolveModelAndView(method, handlerType, returnValue, model, webRequest);
+				// TODO: 如果我们自定义了model， 会把它的属性合并进来，也可以不指定view, 写成同@ResponseBody一样的效果也是可以的
 				if (mav != ModelAndViewResolver.UNRESOLVED) {
 					mavContainer.addAllAttributes(mav.getModel());
 					mavContainer.setViewName(mav.getViewName());

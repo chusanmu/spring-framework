@@ -25,6 +25,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.RequestToViewNameTranslator;
 
 /**
+ * TODO: 它处理的是viewName, 所以大概率处理的都是字符串类型的返回值
  * Handles return values of types {@code void} and {@code String} interpreting them
  * as view name reference. As of 4.2, it also handles general {@code CharSequence}
  * types, e.g. {@code StringBuilder} or Groovy's {@code GString}, as view names.
@@ -68,23 +69,40 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 	}
 
 
+	/**
+	 * TODO: 支持处理的类型为void类型和CharSequence类型
+	 * @param returnType the method return type to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
 		Class<?> paramType = returnType.getParameterType();
 		return (void.class == paramType || CharSequence.class.isAssignableFrom(paramType));
 	}
 
+	/**
+	 * TODO: 注意如果返回值是void, 此方法都不会进来
+	 * @param returnValue the value returned from the handler method
+	 * @param returnType the type of the return value. This type must have
+	 * previously been passed to {@link #supportsReturnType} which must
+	 * have returned {@code true}.
+	 * @param mavContainer the ModelAndViewContainer for the current request
+	 * @param webRequest the current request
+	 * @throws Exception
+	 */
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// TODO: 如果是void, returnValue为null, 不会走这里，也就是说viewName设置不了
 		if (returnValue instanceof CharSequence) {
 			String viewName = returnValue.toString();
 			mavContainer.setViewName(viewName);
+			// TODO: 如果是重定向的view那就进行重定向
 			if (isRedirectViewName(viewName)) {
 				mavContainer.setRedirectModelScenario(true);
 			}
 		}
+		// TODO: 下面这都是不可达的，setRedirectModelScenario(true)标记一下
 		else if (returnValue != null) {
 			// should not happen
 			throw new UnsupportedOperationException("Unexpected return type: " +

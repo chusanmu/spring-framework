@@ -27,6 +27,7 @@ import org.springframework.web.servlet.SmartView;
 import org.springframework.web.servlet.View;
 
 /**
+ * 专门用来处理modelAndView类型的
  * Handles return values of type {@link ModelAndView} copying view and model
  * information to the {@link ModelAndViewContainer}.
  *
@@ -69,6 +70,11 @@ public class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturn
 	}
 
 
+	/**
+	 * 专门处理modelAndView类型的
+	 * @param returnType the method return type to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
 		return ModelAndView.class.isAssignableFrom(returnType.getParameterType());
@@ -77,13 +83,14 @@ public class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturn
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// TODO: 如果调用者返回null, 那就标注此请求被处理过了，不需要再渲染了， 浏览器的效果就是 一片空白
 		if (returnValue == null) {
 			mavContainer.setRequestHandled(true);
 			return;
 		}
 
 		ModelAndView mav = (ModelAndView) returnValue;
+		// TODO: 这里专门处理视图是一个字符串的情况，else是处理视图是个view对象的情况
 		if (mav.isReference()) {
 			String viewName = mav.getViewName();
 			mavContainer.setViewName(viewName);
@@ -91,13 +98,16 @@ public class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturn
 				mavContainer.setRedirectModelScenario(true);
 			}
 		}
+		// TODO: 处理view
 		else {
 			View view = mav.getView();
 			mavContainer.setView(view);
+			// TODO: 此处所有的view，只有redirectView的isRedirectView()才是返回true的
 			if (view instanceof SmartView && ((SmartView) view).isRedirectView()) {
 				mavContainer.setRedirectModelScenario(true);
 			}
 		}
+		// TODO: 把状态设置进去
 		mavContainer.setStatus(mav.getStatus());
 		mavContainer.addAllAttributes(mav.getModel());
 	}

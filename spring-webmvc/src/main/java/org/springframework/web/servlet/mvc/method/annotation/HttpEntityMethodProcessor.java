@@ -55,6 +55,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
+ * TODO: 处理返回值是HttpEntity类型的，如果想要自己设置状态码可以返回ResponseEntity
  * Resolves {@link HttpEntity} and {@link RequestEntity} method argument values
  * and also handles {@link HttpEntity} and {@link ResponseEntity} return values.
  *
@@ -121,6 +122,11 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 				RequestEntity.class == parameter.getParameterType());
 	}
 
+	/**
+	 * TODO: 绝大部分，我们使用的返回值是ResponseEntity<T>, 当然也可以直接使用HttpEntity作为返回值也是可以的
+	 * @param returnType the method return type to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
 		return (HttpEntity.class.isAssignableFrom(returnType.getParameterType()) &&
@@ -170,6 +176,18 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 		}
 	}
 
+	/**
+	 *  1. 对请求中进行特殊处理
+	 *  2. http状态码是200的话，如果是get请求或者head请求，并且内容没有改变isResourceNotModify ，那就直接输出，然后return
+	 *  3. 做http状态码是3开头，如果有location的key，那就特殊处理，最终调用父类的writeWithMessageConverters方法
+	 * @param returnValue the value returned from the handler method
+	 * @param returnType the type of the return value. This type must have
+	 * previously been passed to {@link #supportsReturnType} which must
+	 * have returned {@code true}.
+	 * @param mavContainer the ModelAndViewContainer for the current request
+	 * @param webRequest the current request
+	 * @throws Exception
+	 */
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {

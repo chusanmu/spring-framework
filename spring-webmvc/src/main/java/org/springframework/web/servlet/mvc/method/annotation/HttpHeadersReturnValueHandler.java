@@ -28,6 +28,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
+ * TODO: 它只处理请求头httpHeaders
  * Handles {@link HttpHeaders} return values.
  *
  * @author Stephane Nicoll
@@ -35,6 +36,11 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  */
 public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHandler {
 
+	/**
+	 * 只支持处理请求头
+	 * @param returnType the method return type to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
 		return HttpHeaders.class.isAssignableFrom(returnType.getParameterType());
@@ -44,12 +50,12 @@ public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHa
 	@SuppressWarnings("resource")
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// TODO: 这里进行标记已经处理过了
 		mavContainer.setRequestHandled(true);
 
 		Assert.state(returnValue instanceof HttpHeaders, "HttpHeaders expected");
 		HttpHeaders headers = (HttpHeaders) returnValue;
-
+		// TODO: 返回值里自定义返回的响应头，会设置到httpServletResponse里面去的
 		if (!headers.isEmpty()) {
 			HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
 			Assert.state(servletResponse != null, "No HttpServletResponse");

@@ -28,6 +28,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
+ * TODO: 这个还比较特殊，即处理map类型的入参，又处理map类型的返回值
  * Resolves {@link Map} method arguments and handles {@link Map} return values.
  *
  * <p>A Map return value can be interpreted in more than one ways depending
@@ -54,6 +55,14 @@ public class MapMethodProcessor implements HandlerMethodArgumentResolver, Handle
 		return mavContainer.getModel();
 	}
 
+
+	/* ---------------- 处理返回值 -------------- */
+
+	/**
+	 * 仅当Map时才去处理，返回值是个Map时，处理器才去处理解析
+	 * @param returnType the method return type to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
 		return Map.class.isAssignableFrom(returnType.getParameterType());
@@ -64,6 +73,10 @@ public class MapMethodProcessor implements HandlerMethodArgumentResolver, Handle
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
+		/**
+		 * TODO: 做的事比较简单，其实就是把map放进model里面去，此处注意，并没有setViewName，所以此时是没有视图名称的
+		 * TODO: 但是此处需要注意 mavContainer 没有设置viewName, 所以后续需要进行保证还有其他处理器去处理
+		 */
 		if (returnValue instanceof Map){
 			mavContainer.addAllAttributes((Map) returnValue);
 		}

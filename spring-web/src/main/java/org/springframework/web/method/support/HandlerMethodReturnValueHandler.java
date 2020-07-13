@@ -21,6 +21,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * TODO: 解析返回值靠的就是这个接口啊，策略接口
  * Strategy interface to handle the value returned from the invocation of a
  * handler method .
  *
@@ -31,6 +32,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 public interface HandlerMethodReturnValueHandler {
 
 	/**
+	 * TODO: 每种处理器实现类，都对应着它能够处理的返回值类型
 	 * Whether the given {@linkplain MethodParameter method return type} is
 	 * supported by this handler.
 	 * @param returnType the method return type to check
@@ -40,6 +42,7 @@ public interface HandlerMethodReturnValueHandler {
 	boolean supportsReturnType(MethodParameter returnType);
 
 	/**
+	 * TODO: 简单的来说，就是处理返回值，可以处理着向model里设置一个view,ModelAndViewContainer#setRequestHandled设置true说明已经处理过了，后续不需要再继续渲染了
 	 * Handle the given return value by adding attributes to the model and
 	 * setting a view or setting the
 	 * {@link ModelAndViewContainer#setRequestHandled} flag to {@code true}

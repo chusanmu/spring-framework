@@ -41,6 +41,11 @@ import org.springframework.web.servlet.View;
  */
 public class ViewMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
+	/**
+	 * 支持处理view返回值
+	 * @param returnType the method return type to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
 		return View.class.isAssignableFrom(returnType.getParameterType());
@@ -50,6 +55,7 @@ public class ViewMethodReturnValueHandler implements HandlerMethodReturnValueHan
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
+		// TODO: 处理逻辑和上面基本上差不多 也会对重定向视图进行特殊处理
 		if (returnValue instanceof View) {
 			View view = (View) returnValue;
 			mavContainer.setView(view);

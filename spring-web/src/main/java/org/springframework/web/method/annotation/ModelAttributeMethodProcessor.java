@@ -55,6 +55,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
+ * TODO: 是一个processor即处理入参封装，也处理返回值
  * Resolve {@code @ModelAttribute} annotated method arguments and handle
  * return values from {@code @ModelAttribute} annotated methods.
  *
@@ -445,6 +446,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 	}
 
 	/**
+	 * TODO: 方法上标注有modelAttribute这个注解 或者 annotationNotRequired为true, 并且是简单类型isSimpleProperty = true
 	 * Return {@code true} if there is a method-level {@code @ModelAttribute}
 	 * or, in default resolution mode, for any return value type that is not
 	 * a simple type.
@@ -452,10 +454,12 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
 		return (returnType.hasMethodAnnotation(ModelAttribute.class) ||
+				// TODO: 简单类型，即8大基本类型 + 包装类型等
 				(this.annotationNotRequired && !BeanUtils.isSimpleProperty(returnType.getParameterType())));
 	}
 
 	/**
+	 * TODO: 做法比较简单，就是把返回值放在model里面
 	 * Add non-null return values to the {@link ModelAndViewContainer}.
 	 */
 	@Override
