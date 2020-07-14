@@ -190,9 +190,11 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	private static final boolean jsonbPresent;
 
 	static {
+		// TODO: 去加载一些类，从而判断，该类存不存在
 		ClassLoader classLoader = WebMvcConfigurationSupport.class.getClassLoader();
 		romePresent = ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", classLoader);
 		jaxb2Present = ClassUtils.isPresent("javax.xml.bind.Binder", classLoader);
+		// TODO: 判断jackson转json的包是否存在
 		jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
 						ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
 		jackson2XmlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper", classLoader);
@@ -391,6 +393,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	}
 
 	/**
+	 * TODO: 配置一个消息转换器
 	 * Return a {@link ContentNegotiationManager} instance to use to determine
 	 * requested {@linkplain MediaType media types} in a given request.
 	 */
@@ -398,22 +401,31 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	public ContentNegotiationManager mvcContentNegotiationManager() {
 		if (this.contentNegotiationManager == null) {
 			ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer(this.servletContext);
+			// TODO: 服务端默认支持的后缀名们 mediaTypes们
 			configurer.mediaTypes(getDefaultMediaTypes());
+			// TODO: 这个方法就是回调我们自定义配置的protected方法
 			configureContentNegotiation(configurer);
+			// TODO: 调用方法生成一个管理器
 			this.contentNegotiationManager = configurer.buildContentNegotiationManager();
 		}
 		return this.contentNegotiationManager;
 	}
 
+	/**
+	 * 默认支持的协商的MediaType们
+	 * @return
+	 */
 	protected Map<String, MediaType> getDefaultMediaTypes() {
 		Map<String, MediaType> map = new HashMap<>(4);
 		if (romePresent) {
 			map.put("atom", MediaType.APPLICATION_ATOM_XML);
 			map.put("rss", MediaType.APPLICATION_RSS_XML);
 		}
+		// TODO: 支持xml
 		if (jaxb2Present || jackson2XmlPresent) {
 			map.put("xml", MediaType.APPLICATION_XML);
 		}
+		// TODO: 支持json
 		if (jackson2Present || gsonPresent || jsonbPresent) {
 			map.put("json", MediaType.APPLICATION_JSON);
 		}
@@ -548,6 +560,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	}
 
 	/**
+	 * TODO: 配置一个 RequestMappingHandlerAdapter
 	 * Returns a {@link RequestMappingHandlerAdapter} for processing requests
 	 * through annotated controller methods. Consider overriding one of these
 	 * other more fine-grained methods:
@@ -559,18 +572,24 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 */
 	@Bean
 	public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
+		// TODO: 创建一个 RequestMappingHandlerAdapter
 		RequestMappingHandlerAdapter adapter = createRequestMappingHandlerAdapter();
+		// TODO: 设置内容协商管理器
 		adapter.setContentNegotiationManager(mvcContentNegotiationManager());
+		// TODO: 设置消息转换器
 		adapter.setMessageConverters(getMessageConverters());
+		// TODO: 设置数据绑定
 		adapter.setWebBindingInitializer(getConfigurableWebBindingInitializer());
+		// TODO: 设置自定义的参数解析器
 		adapter.setCustomArgumentResolvers(getArgumentResolvers());
+		// TODO: 设置自定义的返回值处理器
 		adapter.setCustomReturnValueHandlers(getReturnValueHandlers());
 
 		if (jackson2Present) {
 			adapter.setRequestBodyAdvice(Collections.singletonList(new JsonViewRequestBodyAdvice()));
 			adapter.setResponseBodyAdvice(Collections.singletonList(new JsonViewResponseBodyAdvice()));
 		}
-
+		// TODO: 异步相关
 		AsyncSupportConfigurer configurer = new AsyncSupportConfigurer();
 		configureAsyncSupport(configurer);
 		if (configurer.getTaskExecutor() != null) {
@@ -734,6 +753,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	}
 
 	/**
+	 * TODO: 配置消息转换器
 	 * Provides access to the shared {@link HttpMessageConverter HttpMessageConverters}
 	 * used by the {@link RequestMappingHandlerAdapter} and the
 	 * {@link ExceptionHandlerExceptionResolver}.
@@ -754,6 +774,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 
 	/* ---------------- 下面两个是钩子方法 -------------- */
 	/**
+	 * TODO：用来配置消息转换器
 	 * Override this method to add custom {@link HttpMessageConverter HttpMessageConverters}
 	 * to use with the {@link RequestMappingHandlerAdapter} and the
 	 * {@link ExceptionHandlerExceptionResolver}.
@@ -766,6 +787,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	}
 
 	/**
+	 * TODO: 用来扩展消息转换器
 	 * Override this method to extend or modify the list of converters after it has
 	 * been configured. This may be useful for example to allow default converters
 	 * to be registered and then insert a custom converter through this method.
@@ -776,16 +798,19 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	}
 
 	/**
+	 * TODO: 当开启@EnableWebMvc的时候, 会添加一些默认，
 	 * Adds a set of default HttpMessageConverter instances to the given list.
 	 * Subclasses can call this method from {@link #configureMessageConverters}.
 	 * @param messageConverters the list to add the default message converters to
 	 */
 	protected final void addDefaultHttpMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
 		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
+		// TODO: 添加了一个String消息转换，但是设置了不关系 客户端想要接受什么类型的charSet
 		stringHttpMessageConverter.setWriteAcceptCharset(false);  // see SPR-7316
-
+		// TODO: 字节数组消息转换
 		messageConverters.add(new ByteArrayHttpMessageConverter());
 		messageConverters.add(stringHttpMessageConverter);
+		// TODO: ResourceHttpMessageConverter
 		messageConverters.add(new ResourceHttpMessageConverter());
 		messageConverters.add(new ResourceRegionHttpMessageConverter());
 		try {
@@ -800,7 +825,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 			messageConverters.add(new AtomFeedHttpMessageConverter());
 			messageConverters.add(new RssChannelHttpMessageConverter());
 		}
-
+		// TODO: 如果jackson 转 xml的存在，则添加一个MappingJackson2XmlHttpMessageConverter 转成xml的
 		if (jackson2XmlPresent) {
 			Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.xml();
 			if (this.applicationContext != null) {
@@ -811,7 +836,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 		else if (jaxb2Present) {
 			messageConverters.add(new Jaxb2RootElementHttpMessageConverter());
 		}
-
+		// TODO: 如果Jackson转json的存在，则添加一个 MappingJackson2HttpMessageConverter 进去
 		if (jackson2Present) {
 			Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.json();
 			if (this.applicationContext != null) {

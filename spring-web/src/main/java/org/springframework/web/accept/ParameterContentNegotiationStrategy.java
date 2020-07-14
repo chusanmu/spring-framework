@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * TODO: 从名字可以看出 扩展名来自于param参数， 默认是没有开启的
  * Strategy that resolves the requested content type from a query parameter.
  * The default query parameter name is {@literal "format"}.
  *
@@ -36,11 +37,14 @@ import org.springframework.web.context.request.NativeWebRequest;
  * @since 3.2
  */
 public class ParameterContentNegotiationStrategy extends AbstractMappingContentNegotiationStrategy {
-
+	/**
+	 * TODO: 请求参数默认的key是format, 是可以设置和更改的 set方法
+	 */
 	private String parameterName = "format";
 
 
 	/**
+	 * 唯一构造
 	 * Create an instance with the given map of file extensions and media types.
 	 */
 	public ParameterContentNegotiationStrategy(Map<String, MediaType> mediaTypes) {
@@ -56,7 +60,6 @@ public class ParameterContentNegotiationStrategy extends AbstractMappingContentN
 		Assert.notNull(parameterName, "'parameterName' is required");
 		this.parameterName = parameterName;
 	}
-
 	public String getParameterName() {
 		return this.parameterName;
 	}
@@ -65,6 +68,7 @@ public class ParameterContentNegotiationStrategy extends AbstractMappingContentN
 	@Override
 	@Nullable
 	protected String getMediaTypeKey(NativeWebRequest request) {
+		// TODO: 调用getParameterName拿到 key format字段
 		return request.getParameter(getParameterName());
 	}
 

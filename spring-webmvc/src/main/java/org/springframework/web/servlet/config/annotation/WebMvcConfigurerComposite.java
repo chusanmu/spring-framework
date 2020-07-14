@@ -37,6 +37,10 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  */
 class WebMvcConfigurerComposite implements WebMvcConfigurer {
 
+
+	/**
+	 * TODO: 在程序启动的时候，会把所有的 WebMvcConfigurer 的实现注入进来
+	 */
 	private final List<WebMvcConfigurer> delegates = new ArrayList<>();
 
 

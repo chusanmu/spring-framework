@@ -29,6 +29,9 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 维护了一个双向查找表
+ * 		一个MediaType 对应了N个扩展名
+ * 	    一个扩展名最多只会属于一个MediaType
  * An implementation of {@code MediaTypeFileExtensionResolver} that maintains
  * lookups between file extensions and MediaTypes in both directions.
  *
@@ -36,15 +39,24 @@ import org.springframework.lang.Nullable;
  * Subsequently subclasses can use {@link #addMapping} to add more mappings.
  *
  * @author Rossen Stoyanchev
- * @author Juergen Hoeller
+ * @author Juergen Hoellerø
  * @since 3.2
  */
 public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExtensionResolver {
 
+	/**
+	 * key 是 lowerCaseExtension, value对应的MediaType
+	 */
 	private final ConcurrentMap<String, MediaType> mediaTypes = new ConcurrentHashMap<>(64);
 
+	/**
+	 * key是MediaType, value是lowerCaseExtension 多值map
+	 */
 	private final ConcurrentMap<MediaType, List<String>> fileExtensions = new ConcurrentHashMap<>(64);
 
+	/**
+	 * 所有的扩展名
+	 */
 	private final List<String> allFileExtensions = new CopyOnWriteArrayList<>();
 
 
@@ -74,9 +86,11 @@ public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExten
 	}
 
 	/**
+	 * TODO： 给extension添加一个对应的MediaType
 	 * Map an extension to a MediaType. Ignore if extension already mapped.
 	 */
 	protected void addMapping(String extension, MediaType mediaType) {
+		// TODO: 注意原子操作哈
 		MediaType previous = this.mediaTypes.putIfAbsent(extension, mediaType);
 		if (previous == null) {
 			addFileExtension(mediaType, extension);
@@ -90,7 +104,11 @@ public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExten
 		(oldList != null ? oldList : newList).add(extension);
 	}
 
-
+	/**
+	 * TODO: 给一个mediaType, 返回一个扩展名们
+	 * @param mediaType the media type to resolve
+	 * @return
+	 */
 	@Override
 	public List<String> resolveFileExtensions(MediaType mediaType) {
 		List<String> fileExtensions = this.fileExtensions.get(mediaType);
@@ -103,6 +121,7 @@ public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExten
 	}
 
 	/**
+	 * TODO: 根据扩展名 找一个MediaType
 	 * Use this method for a reverse lookup from extension to MediaType.
 	 * @return a MediaType for the key, or {@code null} if none found
 	 */

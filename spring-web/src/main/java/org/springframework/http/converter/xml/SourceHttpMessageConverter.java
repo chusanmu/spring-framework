@@ -57,6 +57,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StreamUtils;
 
 /**
+ * TODO: 处理一些和xml相关的资源
  * Implementation of {@link org.springframework.http.converter.HttpMessageConverter}
  * that can read and write {@link Source} objects.
  *

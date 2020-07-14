@@ -47,6 +47,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 它和form表单提交有关，form表单提交 文件下载
  * Implementation of {@link HttpMessageConverter} to read and write 'normal' HTML
  * forms and also to write (but not read) multipart data (e.g. file uploads).
  *
@@ -96,16 +97,25 @@ import org.springframework.util.StringUtils;
 public class FormHttpMessageConverter implements HttpMessageConverter<MultiValueMap<String, ?>> {
 
 	/**
+	 * TODO: 默认使用 u8 编码
 	 * The default charset used by the converter.
 	 */
 	public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
+	/**
+	 * 默认支持的 mediaType application/x-www-form-urlencoded
+	 */
 	private static final MediaType DEFAULT_FORM_DATA_MEDIA_TYPE =
 			new MediaType(MediaType.APPLICATION_FORM_URLENCODED, DEFAULT_CHARSET);
 
-
+	/**
+	 * 缓存它支持的MediaType们
+	 */
 	private List<MediaType> supportedMediaTypes = new ArrayList<>();
 
+	/**
+	 * TODO: 用户二进制内容的消息转换器们
+	 */
 	private List<HttpMessageConverter<?>> partConverters = new ArrayList<>();
 
 	private Charset charset = DEFAULT_CHARSET;
@@ -113,18 +123,22 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 	@Nullable
 	private Charset multipartCharset;
 
-
+	/**
+	 * 唯一的默认的构造器
+	 */
 	public FormHttpMessageConverter() {
+		// TODO: 默认支持的mediaType , 默认支持处理两种mediaType
 		this.supportedMediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
 		this.supportedMediaTypes.add(MediaType.MULTIPART_FORM_DATA);
 
 		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
 		stringHttpMessageConverter.setWriteAcceptCharset(false);  // see SPR-7316
 
+		// TODO: 它自己不仅仅是个转换器，还内置了3种转换器，这些消息转换器都是支持Part的，支持文件下载
 		this.partConverters.add(new ByteArrayHttpMessageConverter());
 		this.partConverters.add(stringHttpMessageConverter);
 		this.partConverters.add(new ResourceHttpMessageConverter());
-
+		// TODO: 为partConverters 消息转换器们设置编码
 		applyDefaultCharset();
 	}
 
@@ -186,6 +200,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 			if (candidate instanceof AbstractHttpMessageConverter) {
 				AbstractHttpMessageConverter<?> converter = (AbstractHttpMessageConverter<?>) candidate;
 				// Only override default charset if the converter operates with a charset to begin with...
+				// TODO: 覆盖掉默认的编码
 				if (converter.getDefaultCharset() != null) {
 					converter.setDefaultCharset(this.charset);
 				}
@@ -210,14 +225,18 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
 	@Override
 	public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {
+		// TODO:  只支持handler的入参类型是MultiValueMap 它才会去处理
 		if (!MultiValueMap.class.isAssignableFrom(clazz)) {
 			return false;
 		}
+		// TODO: 若没有指定mediaType, 会认为是可读的
 		if (mediaType == null) {
 			return true;
 		}
+		// TODO: 它所有支持的mediaTypes拿过来
 		for (MediaType supportedMediaType : getSupportedMediaTypes()) {
 			// We can't read multipart....
+			// TODO: 排除multipart/form-data，其他的如果存在就返回true
 			if (!supportedMediaType.equals(MediaType.MULTIPART_FORM_DATA) && supportedMediaType.includes(mediaType)) {
 				return true;
 			}
@@ -225,15 +244,20 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 		return false;
 	}
 
+
 	@Override
 	public boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType) {
+		// TODO: 不是MultiValueMap 直接返回false
 		if (!MultiValueMap.class.isAssignableFrom(clazz)) {
 			return false;
 		}
+		// TODO: mediaType 没有设置，如果MediaType.All里面有这个类型，则返回true
 		if (mediaType == null || MediaType.ALL.equals(mediaType)) {
 			return true;
 		}
+		// TODO: 把所有支持的mediaType拿到
 		for (MediaType supportedMediaType : getSupportedMediaTypes()) {
+			// TODO: 如果支持写出这种mediaType,则返回true
 			if (supportedMediaType.isCompatibleWith(mediaType)) {
 				return true;
 			}
@@ -241,17 +265,29 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 		return false;
 	}
 
+	/**
+	 * TODO: 把输入数据读进来, 变成一个MultiValueMap
+	 * @param clazz the type of object to return. This type must have previously been passed to the
+	 * {@link #canRead canRead} method of this interface, which must have returned {@code true}.
+	 * @param inputMessage the HTTP input message to read from
+	 * @return
+	 * @throws IOException
+	 * @throws HttpMessageNotReadableException
+	 */
 	@Override
 	public MultiValueMap<String, String> read(@Nullable Class<? extends MultiValueMap<String, ?>> clazz,
 			HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
-
+		// TODO: 拿到请求中的mediaType
 		MediaType contentType = inputMessage.getHeaders().getContentType();
+		// TODO: 如果contentType里面指定了编码，则也一块取出来
 		Charset charset = (contentType != null && contentType.getCharset() != null ?
 				contentType.getCharset() : this.charset);
+		// TODO: 把body里面的内容，根据指定编码，读成string类型作为body
 		String body = StreamUtils.copyToString(inputMessage.getBody(), charset);
-
+		// TODO: 根据& 进行分割，因为此处body的内容是 name=chusen&age=22
 		String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<>(pairs.length);
+		// TODO: 这里使用MultiValueMap来存储解析结果，为啥用MultiValueMap这个呢？因为name可能会对应多个value提交过来
 		for (String pair : pairs) {
 			int idx = pair.indexOf('=');
 			if (idx == -1) {

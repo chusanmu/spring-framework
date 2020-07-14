@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StreamUtils;
 
 /**
+ * TODO: 这个用的比较广泛，专门用在，处理入参，出参 字符串类型
  * Implementation of {@link HttpMessageConverter} that can read and write strings.
  *
  * <p>By default, this converter supports all media types ({@code &#42;&#47;&#42;}),
@@ -44,6 +45,7 @@ import org.springframework.util.StreamUtils;
 public class StringHttpMessageConverter extends AbstractHttpMessageConverter<String> {
 
 	/**
+	 * TODO: 默认的编码竟然是ios-8859-1
 	 * The default charset used by the converter.
 	 */
 	public static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
@@ -83,6 +85,11 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 	}
 
 
+	/**
+	 * 显然只处理 String类型
+	 * @param clazz the class to test for support
+	 * @return
+	 */
 	@Override
 	public boolean supports(Class<?> clazz) {
 		return String.class == clazz;
@@ -90,7 +97,11 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 
 	@Override
 	protected String readInternal(Class<? extends String> clazz, HttpInputMessage inputMessage) throws IOException {
+		// TODO: 如果客户端指定了编码, 就以指定的为准
+		// TODO: 没指定，但是类型为application/json, 廷议按照UTF-8处理
+		// TODO: 否则使用默认编码 iso-8859-1
 		Charset charset = getContentTypeCharset(inputMessage.getHeaders().getContentType());
+		// TODO: 按照此编码，转为字符串
 		return StreamUtils.copyToString(inputMessage.getBody(), charset);
 	}
 
@@ -102,10 +113,12 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 
 	@Override
 	protected void writeInternal(String str, HttpOutputMessage outputMessage) throws IOException {
+		// TODO: 默认会给请求设置一个接受的编码格式，若用户不指定，是所有的编码都支持的
 		HttpHeaders headers = outputMessage.getHeaders();
 		if (this.writeAcceptCharset && headers.get(HttpHeaders.ACCEPT_CHARSET) == null) {
 			headers.setAcceptCharset(getAcceptedCharsets());
 		}
+		// TODO: 根据编码，把字符串写进去, 注意，这里有编码问题
 		Charset charset = getContentTypeCharset(headers.getContentType());
 		StreamUtils.copy(str, charset, outputMessage.getBody());
 	}

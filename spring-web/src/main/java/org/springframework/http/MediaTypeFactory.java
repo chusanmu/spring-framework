@@ -42,6 +42,9 @@ import org.springframework.util.StringUtils;
  */
 public final class MediaTypeFactory {
 
+	/**
+	 * TODO: 从注册文件里面开始读喽
+	 */
 	private static final String MIME_TYPES_FILE_NAME = "/org/springframework/http/mime.types";
 
 	private static final MultiValueMap<String, MediaType> fileExtensionToMediaTypes = parseMimeTypes();
@@ -64,15 +67,20 @@ public final class MediaTypeFactory {
 	 * @return a multi-value map, mapping media types to file extensions.
 	 */
 	private static MultiValueMap<String, MediaType> parseMimeTypes() {
+		// TODO: 解析配置文件
 		InputStream is = MediaTypeFactory.class.getResourceAsStream(MIME_TYPES_FILE_NAME);
+		// TODO: 通过bufferReader去读啊
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
 			MultiValueMap<String, MediaType> result = new LinkedMultiValueMap<>();
 			String line;
+			// TODO: 如果是注释行 就跳过
 			while ((line = reader.readLine()) != null) {
 				if (line.isEmpty() || line.charAt(0) == '#') {
 					continue;
 				}
+				// TODO: 指定分隔符 分隔
 				String[] tokens = StringUtils.tokenizeToStringArray(line, " \t\n\r\f");
+				// TODO: 拿到mediaType
 				MediaType mediaType = MediaType.parseMediaType(tokens[0]);
 				for (int i = 1; i < tokens.length; i++) {
 					String fileExtension = tokens[i].toLowerCase(Locale.ENGLISH);

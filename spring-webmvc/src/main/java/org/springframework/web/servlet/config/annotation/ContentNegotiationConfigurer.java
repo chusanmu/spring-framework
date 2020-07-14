@@ -90,6 +90,7 @@ import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
  * parameters, and URI decoding. Consider setting {@link #favorPathExtension}
  * to {@literal false} or otherwise set the strategies to use explicitly via
  * {@link #strategies(List)}.
+ * TODO: 它用于收集配置项，根据提供的配置项来创建一个ContentNegotiationManager,它可以认为是提供设置ContentNegotiationManagerFactoryBean的入口，自己内容new了一个他的实例
  *
  * @author Rossen Stoyanchev
  * @since 3.2

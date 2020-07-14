@@ -21,6 +21,7 @@ import java.net.URI;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 代表了一个http请求，是对httpMessage的一个补充
  * Represents an HTTP request message, consisting of
  * {@linkplain #getMethod() method} and {@linkplain #getURI() uri}.
  *
@@ -30,6 +31,7 @@ import org.springframework.lang.Nullable;
 public interface HttpRequest extends HttpMessage {
 
 	/**
+	 * TODO： 可以根据String类型的值，返回一个枚举
 	 * Return the HTTP method of the request.
 	 * @return the HTTP method as an HttpMethod enum value, or {@code null}
 	 * if not resolvable (e.g. in case of a non-standard HTTP method)
@@ -50,6 +52,7 @@ public interface HttpRequest extends HttpMessage {
 	String getMethodValue();
 
 	/**
+	 * TODO: 可以从请求中拿到url
 	 * Return the URI of the request (including a query string if any,
 	 * but only if it is well-formed for a URI representation).
 	 * @return the URI of the request (never {@code null})

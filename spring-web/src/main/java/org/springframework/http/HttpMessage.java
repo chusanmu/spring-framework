@@ -17,6 +17,7 @@
 package org.springframework.http;
 
 /**
+ * TODO: 一个非常抽象的一个接口，代表HTTP请求和响应消息的基本接口
  * Represents the base interface for HTTP request and response messages.
  * Consists of {@link HttpHeaders}, retrievable via {@link #getHeaders()}.
  *

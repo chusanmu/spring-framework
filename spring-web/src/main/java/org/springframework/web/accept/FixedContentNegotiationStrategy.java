@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * TODO: 固定类型解析：返回固定的MediaType
  * A {@code ContentNegotiationStrategy} that returns a fixed content type.
  *
  * @author Rossen Stoyanchev
@@ -40,6 +41,8 @@ public class FixedContentNegotiationStrategy implements ContentNegotiationStrate
 
 
 	/**
+	 * TODO: 构造函数，必须指定mediaType
+	 *  可以通过@RequestMapping.produces这个注解属性指定
 	 * Constructor with a single default {@code MediaType}.
 	 */
 	public FixedContentNegotiationStrategy(MediaType contentType) {

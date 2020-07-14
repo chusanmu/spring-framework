@@ -29,6 +29,7 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * TODO: PathExtensionContentNegotiationStrategy 的扩展，和Servlet容器有关了
  * Extends {@code PathExtensionContentNegotiationStrategy} that also uses
  * {@link ServletContext#getMimeType(String)} to resolve file extensions.
  *
@@ -63,6 +64,7 @@ public class ServletPathExtensionContentNegotiationStrategy extends PathExtensio
 
 
 	/**
+	 * TODO: 在去
 	 * Resolve file extension via {@link ServletContext#getMimeType(String)}
 	 * and also delegate to base class for a potential
 	 * {@link org.springframework.http.MediaTypeFactory} lookup.
@@ -73,11 +75,13 @@ public class ServletPathExtensionContentNegotiationStrategy extends PathExtensio
 			throws HttpMediaTypeNotAcceptableException {
 
 		MediaType mediaType = null;
+		// TODO: 在去工厂找之前，先去getMimeType 找一下，找到就直接返回，否则再进入工厂
 		String mimeType = this.servletContext.getMimeType("file." + extension);
 		if (StringUtils.hasText(mimeType)) {
 			mediaType = MediaType.parseMediaType(mimeType);
 		}
 		if (mediaType == null || MediaType.APPLICATION_OCTET_STREAM.equals(mediaType)) {
+			// TODO: 去注册里面找吧
 			MediaType superMediaType = super.handleNoMatch(webRequest, extension);
 			if (superMediaType != null) {
 				mediaType = superMediaType;

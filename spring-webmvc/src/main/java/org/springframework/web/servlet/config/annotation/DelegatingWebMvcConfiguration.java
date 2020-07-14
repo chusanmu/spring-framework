@@ -31,6 +31,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
+ * TODO: 开启EnableWebMvc时会导入这个配置类
  * A subclass of {@code WebMvcConfigurationSupport} that detects and delegates
  * to all beans of type {@link WebMvcConfigurer} allowing them to customize the
  * configuration provided by {@code WebMvcConfigurationSupport}. This is the
@@ -45,6 +46,10 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
 	private final WebMvcConfigurerComposite configurers = new WebMvcConfigurerComposite();
 
 
+	/**
+	 * TODO: 会注入所有 实现了 WebMvcConfigurer 接口的bean， 然后添加到WebMvcConfigurerComposite中
+	 * @param configurers
+	 */
 	@Autowired(required = false)
 	public void setConfigurers(List<WebMvcConfigurer> configurers) {
 		if (!CollectionUtils.isEmpty(configurers)) {

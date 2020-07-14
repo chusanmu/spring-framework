@@ -45,7 +45,11 @@ public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<
 		super(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL);
 	}
 
-
+	/**
+	 * 只支持字节数组
+	 * @param clazz the class to test for support
+	 * @return
+	 */
 	@Override
 	public boolean supports(Class<?> clazz) {
 		return byte[].class == clazz;
@@ -53,9 +57,11 @@ public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	@Override
 	public byte[] readInternal(Class<? extends byte[]> clazz, HttpInputMessage inputMessage) throws IOException {
+		// TODO: 读的时候，把长度拿到
 		long contentLength = inputMessage.getHeaders().getContentLength();
 		ByteArrayOutputStream bos =
 				new ByteArrayOutputStream(contentLength >= 0 ? (int) contentLength : StreamUtils.BUFFER_SIZE);
+		// TODO: 拷贝到字节输出流里面
 		StreamUtils.copy(inputMessage.getBody(), bos);
 		return bos.toByteArray();
 	}
@@ -65,6 +71,12 @@ public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<
 		return (long) bytes.length;
 	}
 
+	/**
+	 * 把字节流写出到OutputStream里面
+	 * @param bytes
+	 * @param outputMessage the HTTP output message to write to
+	 * @throws IOException
+	 */
 	@Override
 	protected void writeInternal(byte[] bytes, HttpOutputMessage outputMessage) throws IOException {
 		StreamUtils.copy(bytes, outputMessage.getBody());

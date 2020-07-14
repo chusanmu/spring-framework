@@ -32,6 +32,7 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * TODO: 它是个内容协商策略抽象实现，同时也有了扩展名 + MediaType对应关系的能力
  * Base class for {@code ContentNegotiationStrategy} implementations with the
  * steps to resolve a request to media types.
  *
@@ -54,12 +55,20 @@ public abstract class AbstractMappingContentNegotiationStrategy extends MappingM
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * TODO: 它会读取mime.types这个文件，里面有记录的对应关系
+	 *
+	 */
 	private boolean useRegisteredExtensionsOnly = false;
 
+	/**
+	 * 默认false, 若不认识的扩展名，则抛出异常httpMediaTypeNotAcceptableExtensions
+	 */
 	private boolean ignoreUnknownExtensions = false;
 
 
 	/**
+	 * TODO: 唯一构造函数
 	 * Create an instance with the given map of file extensions and media types.
 	 */
 	public AbstractMappingContentNegotiationStrategy(@Nullable Map<String, MediaType> mediaTypes) {
@@ -95,10 +104,16 @@ public abstract class AbstractMappingContentNegotiationStrategy extends MappingM
 	}
 
 
+	/**
+	 * TODO: 实现策略接口
+	 * @param webRequest the current request
+	 * @return
+	 * @throws HttpMediaTypeNotAcceptableException
+	 */
 	@Override
 	public List<MediaType> resolveMediaTypes(NativeWebRequest webRequest)
 			throws HttpMediaTypeNotAcceptableException {
-
+		// TODO: getMediaTypeKey 抽象方法，让子类把扩展名这个key提供出来
 		return resolveMediaTypeKey(webRequest, getMediaTypeKey(webRequest));
 	}
 
@@ -111,17 +126,22 @@ public abstract class AbstractMappingContentNegotiationStrategy extends MappingM
 			throws HttpMediaTypeNotAcceptableException {
 
 		if (StringUtils.hasText(key)) {
+			// TODO: 调用父类方法，根据key查找一个MediaType出来
 			MediaType mediaType = lookupMediaType(key);
+			// TODO: 找到就return就可以了
 			if (mediaType != null) {
+				// handleMatch 是个空方法
 				handleMatch(key, mediaType);
 				return Collections.singletonList(mediaType);
 			}
+			// TODO: 若没有对应的MediaType, 交给handleNoMatch处理，默认是抛出异常
 			mediaType = handleNoMatch(webRequest, key);
 			if (mediaType != null) {
 				addMapping(key, mediaType);
 				return Collections.singletonList(mediaType);
 			}
 		}
+		// TODO: 默认值返回所有的
 		return MEDIA_TYPE_ALL_LIST;
 	}
 
@@ -141,6 +161,7 @@ public abstract class AbstractMappingContentNegotiationStrategy extends MappingM
 	}
 
 	/**
+	 * TODO: 此方法子类有复写 ServletPathExtensionContentNegotiationStrategy
 	 * Override to provide handling when a key is not resolved via.
 	 * {@link #lookupMediaType}. Sub-classes can take further steps to
 	 * determine the media type(s). If a MediaType is returned from
@@ -149,8 +170,9 @@ public abstract class AbstractMappingContentNegotiationStrategy extends MappingM
 	@Nullable
 	protected MediaType handleNoMatch(NativeWebRequest request, String key)
 			throws HttpMediaTypeNotAcceptableException {
-
+		// TODO: 若不仅仅从注册里拿，就从MediaTypeFactory里看看，找到了就返回
 		if (!isUseRegisteredExtensionsOnly()) {
+			// TODO: 从配置文件里头读
 			Optional<MediaType> mediaType = MediaTypeFactory.getMediaType("file." + key);
 			if (mediaType.isPresent()) {
 				return mediaType.get();

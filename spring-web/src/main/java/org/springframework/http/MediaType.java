@@ -36,6 +36,7 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 里面定义了各种类型
  * A subclass of {@link MimeType} that adds support for quality parameters
  * as defined in the HTTP specification.
  *

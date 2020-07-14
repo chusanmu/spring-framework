@@ -31,6 +31,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StreamUtils;
 
 /**
+ * TODO: 负责读取资源文件和写出资源文件
  * Implementation of {@link HttpMessageConverter} that can read/write {@link Resource Resources}
  * and supports byte range requests.
  *
@@ -44,10 +45,14 @@ import org.springframework.util.StreamUtils;
  */
 public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<Resource> {
 
+	/**
+	 * 是否支持读取流信息
+	 */
 	private final boolean supportsReadStreaming;
 
 
 	/**
+	 * TODO: 默认支持所有的mediaType
 	 * Create a new instance of the {@code ResourceHttpMessageConverter}
 	 * that supports read streaming, i.e. can convert an
 	 * {@code HttpInputMessage} to {@code InputStreamResource}.
@@ -69,6 +74,11 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 	}
 
 
+	/**
+	 * TODO: 支持resource类嘛
+	 * @param clazz the class to test for support
+	 * @return
+	 */
 	@Override
 	protected boolean supports(Class<?> clazz) {
 		return Resource.class.isAssignableFrom(clazz);
@@ -77,7 +87,7 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 	@Override
 	protected Resource readInternal(Class<? extends Resource> clazz, HttpInputMessage inputMessage)
 			throws IOException, HttpMessageNotReadableException {
-
+		// TODO: 只支持InputStream 以及 ByteArrayResource这两种resource的直接封装
 		if (this.supportsReadStreaming && InputStreamResource.class == clazz) {
 			return new InputStreamResource(inputMessage.getBody()) {
 				@Override
@@ -86,7 +96,9 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 				}
 			};
 		}
+		// TODO: 入参类型是resource类型，也是当做byteArrayResource处理的
 		else if (Resource.class == clazz || ByteArrayResource.class.isAssignableFrom(clazz)) {
+			// TODO: 把inputStream转为byte[]数组
 			byte[] body = StreamUtils.copyToByteArray(inputMessage.getBody());
 			return new ByteArrayResource(body) {
 				@Override
@@ -124,6 +136,13 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 		writeContent(resource, outputMessage);
 	}
 
+	/**
+	 * TODO: 把resource这个资源的内容写到body里面去，此处使用的StreamUtils.copy这个工具，专门为了处理流
+	 * @param resource
+	 * @param outputMessage
+	 * @throws IOException
+	 * @throws HttpMessageNotWritableException
+	 */
 	protected void writeContent(Resource resource, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
 		try {

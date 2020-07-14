@@ -107,6 +107,11 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	}
 
 
+	/**
+	 * TODO: 标注有@RequestBody
+	 * @param parameter the method parameter to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return parameter.hasParameterAnnotation(RequestBody.class);
@@ -133,14 +138,17 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	@Override
 	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
-
+		// TODO: 入参是支持使用Optional包装一层的
 		parameter = parameter.nestedIfOptional();
+		// TODO: 这个方法很重要
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
+		// TODO: 拿到入参的形参的名字
 		String name = Conventions.getVariableNameForParameter(parameter);
-
+		// TODO: 下面就是进行参数绑定，数据校验，转换的逻辑了，
 		if (binderFactory != null) {
 			WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
 			if (arg != null) {
+				// TODO: 数据校验@Validated也是在此处生效的
 				validateIfApplicable(binder, parameter);
 				if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
 					throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
@@ -154,6 +162,17 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		return adaptArgumentIfNecessary(arg, parameter);
 	}
 
+	/**
+	 * TODO：读的时候进行一个消息转换器的匹配
+	 * @param webRequest the current request
+	 * @param parameter the method parameter descriptor (may be {@code null})
+	 * @param paramType the type of the argument value to be created
+	 * @param <T>
+	 * @return
+	 * @throws IOException
+	 * @throws HttpMediaTypeNotSupportedException
+	 * @throws HttpMessageNotReadableException
+	 */
 	@Override
 	protected <T> Object readWithMessageConverters(NativeWebRequest webRequest, MethodParameter parameter,
 			Type paramType) throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
@@ -161,7 +180,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
 		Assert.state(servletRequest != null, "No HttpServletRequest");
 		ServletServerHttpRequest inputMessage = new ServletServerHttpRequest(servletRequest);
-
+		// TODO: 通过消息转换器进行读取
 		Object arg = readWithMessageConverters(inputMessage, parameter, paramType);
 		if (arg == null && checkRequired(parameter)) {
 			throw new HttpMessageNotReadableException("Required request body is missing: " +

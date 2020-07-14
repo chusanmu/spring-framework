@@ -27,6 +27,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 是对StringHttpMessageConverter的一个扩展，它在Spring内部并没有被装配进去，若我们需要，可以装配到spring mvc里面
  * An {@code HttpMessageConverter} that uses {@link StringHttpMessageConverter}
  * for reading and writing content and a {@link ConversionService} for converting
  * the String content to and from the target object type.
@@ -51,6 +52,9 @@ import org.springframework.util.Assert;
  */
 public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
+	/**
+	 * 自定义转换器，把String和Object之间互相转换
+	 */
 	private final ConversionService conversionService;
 
 	private final StringHttpMessageConverter stringHttpMessageConverter;
@@ -108,7 +112,7 @@ public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConve
 	@Override
 	protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage)
 			throws IOException, HttpMessageNotReadableException {
-
+		// TODO: 读的时候，读成String, 然后转为Object 可以自定义转换规则
 		String value = this.stringHttpMessageConverter.readInternal(String.class, inputMessage);
 		Object result = this.conversionService.convert(value, clazz);
 		if (result == null) {
@@ -121,6 +125,7 @@ public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConve
 
 	@Override
 	protected void writeInternal(Object obj, HttpOutputMessage outputMessage) throws IOException {
+		// TODO: 写的时候，把object类型的转为String类型的，String不为空，则写出.
 		String value = this.conversionService.convert(obj, String.class);
 		if (value != null) {
 			this.stringHttpMessageConverter.writeInternal(value, outputMessage);

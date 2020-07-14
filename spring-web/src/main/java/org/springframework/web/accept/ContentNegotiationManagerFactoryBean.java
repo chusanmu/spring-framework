@@ -35,6 +35,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.ServletContextAware;
 
 /**
+ * TODO:  专门用来创建一个 ContentNegotiationManager 的 FactoryBean
  * Factory to create a {@code ContentNegotiationManager} and configure it with
  * {@link ContentNegotiationStrategy} instances.
  *
@@ -101,11 +102,17 @@ public class ContentNegotiationManagerFactoryBean
 	@Nullable
 	private List<ContentNegotiationStrategy> strategies;
 
-
+	/**
+	 * 默认开启了对后缀的支持的
+	 */
 	private boolean favorPathExtension = true;
-
+	/**
+	 * 默认没有开启对param的支持
+	 */
 	private boolean favorParameter = false;
-
+	/**
+	 * 默认也是开启了对Accept的支持
+	 */
 	private boolean ignoreAcceptHeader = false;
 
 	private Map<String, MediaType> mediaTypes = new HashMap<>();
@@ -151,6 +158,7 @@ public class ContentNegotiationManagerFactoryBean
 	}
 
 	/**
+	 * TODO: 这里传入的是Properties， 表示后缀和MediaType的对应关系
 	 * Add a mapping from a key, extracted from a path extension or a query
 	 * parameter, to a MediaType. This is required in order for the parameter
 	 * strategy to work. Any extensions explicitly registered here are also
@@ -296,13 +304,16 @@ public class ContentNegotiationManagerFactoryBean
 		this.servletContext = servletContext;
 	}
 
-
+	/**
+	 * TODO: 这里面处理了很多的默认逻辑
+	 */
 	@Override
 	public void afterPropertiesSet() {
 		build();
 	}
 
 	/**
+	 * todo: 添加一些内容协商策略
 	 * Actually build the {@link ContentNegotiationManager}.
 	 * @since 5.0
 	 */
@@ -313,12 +324,15 @@ public class ContentNegotiationManagerFactoryBean
 			strategies.addAll(this.strategies);
 		}
 		else {
+			// TODO: 默认favorPathExtension=true，所以是支持path后缀模式的
 			if (this.favorPathExtension) {
 				PathExtensionContentNegotiationStrategy strategy;
+				// TODO: servlet环境使用的是ServletPathExtensionContentNegotiationStrategy
 				if (this.servletContext != null && !useRegisteredExtensionsOnly()) {
 					strategy = new ServletPathExtensionContentNegotiationStrategy(this.servletContext, this.mediaTypes);
 				}
 				else {
+					// TODO: 否则是Path
 					strategy = new PathExtensionContentNegotiationStrategy(this.mediaTypes);
 				}
 				strategy.setIgnoreUnknownExtensions(this.ignoreUnknownPathExtensions);
@@ -327,7 +341,7 @@ public class ContentNegotiationManagerFactoryBean
 				}
 				strategies.add(strategy);
 			}
-
+			// TODO: 默认favorParameter=false 默认没有开启
 			if (this.favorParameter) {
 				ParameterContentNegotiationStrategy strategy = new ParameterContentNegotiationStrategy(this.mediaTypes);
 				strategy.setParameterName(this.parameterName);
@@ -339,16 +353,17 @@ public class ContentNegotiationManagerFactoryBean
 				}
 				strategies.add(strategy);
 			}
-
+			// TODO: 注意 这里默认为true了
 			if (!this.ignoreAcceptHeader) {
+				// TODO: 把HeaderContentNegotiationStrategy添加进来
 				strategies.add(new HeaderContentNegotiationStrategy());
 			}
-
+			// TODO: 也可以设置一个defaultNegotiationStrategy 最终也会被add进去
 			if (this.defaultNegotiationStrategy != null) {
 				strategies.add(this.defaultNegotiationStrategy);
 			}
 		}
-
+		// TODO: 这里使用的是arrayList,所以add的顺序就是最后的执行顺序，所以default如果指定的话，会被放到最后
 		this.contentNegotiationManager = new ContentNegotiationManager(strategies);
 		return this.contentNegotiationManager;
 	}
@@ -357,6 +372,7 @@ public class ContentNegotiationManagerFactoryBean
 	@Override
 	@Nullable
 	public ContentNegotiationManager getObject() {
+		// TODO: 把contentNegotiationManager拿到返回
 		return this.contentNegotiationManager;
 	}
 

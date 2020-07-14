@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 它处理目标类型为泛型类型的类型
  * A specialization of {@link HttpMessageConverter} that can convert an HTTP request
  * into a target object of a specified generic type and a source object of a specified
  * generic type into an HTTP response.
@@ -39,6 +40,7 @@ import org.springframework.lang.Nullable;
 public interface GenericHttpMessageConverter<T> extends HttpMessageConverter<T> {
 
 	/**
+	 * TODO: 它的效果同父接口的canRead, 但是它加入了一个泛型类型，来加以更加详细的判断
 	 * Indicates whether the given type can be read by this converter.
 	 * This method should perform the same checks than
 	 * {@link HttpMessageConverter#canRead(Class, MediaType)} with additional ones
@@ -53,6 +55,7 @@ public interface GenericHttpMessageConverter<T> extends HttpMessageConverter<T> 
 	boolean canRead(Type type, @Nullable Class<?> contextClass, @Nullable MediaType mediaType);
 
 	/**
+	 * TODO: 一样，也是加入了泛型类型
 	 * Read an object of the given type form the given input message, and returns it.
 	 * @param type the (potentially generic) type of object to return. This type must have
 	 * previously been passed to the {@link #canRead canRead} method of this interface,

@@ -41,6 +41,8 @@ public interface ContentNegotiationStrategy {
 
 
 	/**
+	 * TODO: 将给定的请求解析为媒体类型列表，返回的List， 首先按照specificity, 参数排序，其次按照quality 参数排序
+	 * TODO: 如果请求的媒体类型不能被解析则抛出 HttpMediaTypeNotAcceptableException异常
 	 * Resolve the given request to a list of media types. The returned list is
 	 * ordered by specificity first and by quality parameter second.
 	 * @param webRequest the current request

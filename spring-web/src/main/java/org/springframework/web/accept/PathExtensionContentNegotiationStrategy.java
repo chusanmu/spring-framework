@@ -32,6 +32,7 @@ import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.UrlPathHelper;
 
 /**
+ * TODO: 它的扩展名 需要从path里面分析出来
  * A {@code ContentNegotiationStrategy} that resolves the file extension in the
  * request path to a key to be used to look up a media type.
  *
@@ -48,6 +49,7 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
 
 
 	/**
+	 * 额外提供了一个空构造
 	 * Create an instance without any mappings to start with. Mappings may be added
 	 * later on if any extensions are resolved through the Java Activation framework.
 	 */
@@ -56,12 +58,15 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
 	}
 
 	/**
+	 * 有参构造
 	 * Create an instance with the given map of file extensions and media types.
 	 */
 	public PathExtensionContentNegotiationStrategy(@Nullable Map<String, MediaType> mediaTypes) {
 		super(mediaTypes);
 		setUseRegisteredExtensionsOnly(false);
+		// TODO: 这个值设置为了true, 表示不认识的就直接忽略掉
 		setIgnoreUnknownExtensions(true);
+		// TODO: 不需要解码
 		this.urlPathHelper.setUrlDecode(false);
 	}
 
@@ -92,12 +97,14 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
 		if (request == null) {
 			return null;
 		}
+		// TODO: 借助urlPathHelper, UriUtils从URL中把扩展名解析出来
 		String path = this.urlPathHelper.getLookupPathForRequest(request);
 		String extension = UriUtils.extractFileExtension(path);
 		return (StringUtils.hasText(extension) ? extension.toLowerCase(Locale.ENGLISH) : null);
 	}
 
 	/**
+	 * TODO: 从resource里面找到这个资源对应的MediaType
 	 * A public method exposing the knowledge of the path extension strategy to
 	 * resolve file extensions to a {@link MediaType} in this case for a given
 	 * {@link Resource}. The method first looks up any explicitly registered

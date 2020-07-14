@@ -25,7 +25,9 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: http消息转换器接口 httpMessageConverter他对请求，响应都起到了非常关键的作用，用来处理请求和响应里面的数据的，请求和响应都有对应的body, 而这个body就是我们需要的数据
  * Strategy interface that specifies a converter that can convert from and to HTTP requests and responses.
+ * TODO: 它负责将请求信息转换为一个对象，类型为T，并将对象类型为T，绑定到请求方法的参数中，或者把一个java对象输出为一个响应
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
@@ -35,6 +37,7 @@ import org.springframework.lang.Nullable;
 public interface HttpMessageConverter<T> {
 
 	/**
+	 * TODO: 指定转换器可以读取的对象类型，即转换器可将请求信息转换为clazz类型的对象 同时支持指定的mime类型 text/html, application/json等等
 	 * Indicates whether the given class can be read by this converter.
 	 * @param clazz the class to test for readability
 	 * @param mediaType the media type to read (can be {@code null} if not specified);
@@ -44,6 +47,7 @@ public interface HttpMessageConverter<T> {
 	boolean canRead(Class<?> clazz, @Nullable MediaType mediaType);
 
 	/**
+	 * TODO: 指定转换器可以将clazz类型的对象写到相应流中，响应流支持mediaType中的定义
 	 * Indicates whether the given class can be written by this converter.
 	 * @param clazz the class to test for writability
 	 * @param mediaType the media type to write (can be {@code null} if not specified);
@@ -53,12 +57,14 @@ public interface HttpMessageConverter<T> {
 	boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType);
 
 	/**
+	 * TODO: 返回当前转换器支持的媒体类型
 	 * Return the list of {@link MediaType} objects supported by this converter.
 	 * @return the list of supported media types
 	 */
 	List<MediaType> getSupportedMediaTypes();
 
 	/**
+	 * TODO: 将请求信息转换为T类型的对象，流对象为 HttpInputMessage
 	 * Read an object of the given type from the given input message, and returns it.
 	 * @param clazz the type of object to return. This type must have previously been passed to the
 	 * {@link #canRead canRead} method of this interface, which must have returned {@code true}.
@@ -71,6 +77,7 @@ public interface HttpMessageConverter<T> {
 			throws IOException, HttpMessageNotReadableException;
 
 	/**
+	 * TODO: 将T类型的对象写到响应流中，同时指定响应的媒体类型为content-type, 输出流为HttpOutputMessage
 	 * Write an given object to the given output message.
 	 * @param t the object to write to the output message. The type of this object must have previously been
 	 * passed to the {@link #canWrite canWrite} method of this interface, which must have returned {@code true}.

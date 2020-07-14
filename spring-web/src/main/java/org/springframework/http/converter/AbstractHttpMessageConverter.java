@@ -36,6 +36,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * 一个基本抽象的实现
  * Abstract base class for most {@link HttpMessageConverter} implementations.
  *
  * <p>This base class adds support for setting supported {@code MediaTypes}, through the
@@ -54,7 +55,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	protected final Log logger = HttpLogging.forLogName(getClass());
 
 	/**
-	 * TODO: 负责content-type的匹配 canRead / canWrite
+	 * TODO: 负责content-type的匹配 canRead / canWrite， 支持mediaTypes
 	 */
 	private List<MediaType> supportedMediaTypes = Collections.emptyList();
 
@@ -136,6 +137,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 */
 	@Override
 	public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {
+		// TODO: supports留给子类去实现，去决定自己想要支持哪种处理类型
 		return supports(clazz) && canRead(mediaType);
 	}
 
@@ -149,9 +151,11 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * or if the media type is {@code null}
 	 */
 	protected boolean canRead(@Nullable MediaType mediaType) {
+		// TODO: 如果mediaType == null, 就默认可读啊
 		if (mediaType == null) {
 			return true;
 		}
+		// TODO: 否则找到它能支持的，然后返回true就可以了
 		for (MediaType supportedMediaType : getSupportedMediaTypes()) {
 			if (supportedMediaType.includes(mediaType)) {
 				return true;
@@ -168,6 +172,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 */
 	@Override
 	public boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType) {
+		// TODO: 这个很像canWrite，supports也是抽象了的
 		return supports(clazz) && canWrite(mediaType);
 	}
 
@@ -183,9 +188,11 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * or if the media type is {@code null}
 	 */
 	protected boolean canWrite(@Nullable MediaType mediaType) {
+		// TODO: 没有指定，如果全部的包含它，那就返回true
 		if (mediaType == null || MediaType.ALL.equalsTypeAndSubtype(mediaType)) {
 			return true;
 		}
+		// TODO: 否则查找自己支持了的
 		for (MediaType supportedMediaType : getSupportedMediaTypes()) {
 			if (supportedMediaType.isCompatibleWith(mediaType)) {
 				return true;
@@ -202,24 +209,27 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	@Override
 	public final T read(Class<? extends T> clazz, HttpInputMessage inputMessage)
 			throws IOException, HttpMessageNotReadableException {
-
+		// TODO: 抽象方法，留给子类去实现
 		return readInternal(clazz, inputMessage);
 	}
 
 	/**
+	 * TODO: 整体上 就write方法做了一些事情
 	 * This implementation sets the default headers by calling {@link #addDefaultHeaders},
 	 * and then calls {@link #writeInternal}.
 	 */
 	@Override
 	public final void write(final T t, @Nullable MediaType contentType, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
-
+		// TODO: 输出流中拿到headers
 		final HttpHeaders headers = outputMessage.getHeaders();
 		addDefaultHeaders(headers, t, contentType);
 
 		if (outputMessage instanceof StreamingHttpOutputMessage) {
 			StreamingHttpOutputMessage streamingOutputMessage = (StreamingHttpOutputMessage) outputMessage;
+			// TODO: streamingOutputMessage增加的setBody方法
 			streamingOutputMessage.setBody(outputStream -> writeInternal(t, new HttpOutputMessage() {
+				// TODO: 返回outputStream
 				@Override
 				public OutputStream getBody() {
 					return outputStream;
@@ -231,12 +241,14 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 			}));
 		}
 		else {
+			// TODO: 执行了flush, 这也就不需要flush的原因了
 			writeInternal(t, outputMessage);
 			outputMessage.getBody().flush();
 		}
 	}
 
 	/**
+	 * TODO: 设置默认的contentType和contentLength
 	 * Add default headers to the output message.
 	 * <p>This implementation delegates to {@link #getDefaultContentType(Object)} if a
 	 * content type was not provided, set if necessary the default character set, calls
@@ -244,9 +256,11 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * @since 4.2
 	 */
 	protected void addDefaultHeaders(HttpHeaders headers, T t, @Nullable MediaType contentType) throws IOException {
+		// TODO: 如果headers里面没有contentType
 		if (headers.getContentType() == null) {
 			MediaType contentTypeToUse = contentType;
 			if (contentType == null || contentType.isWildcardType() || contentType.isWildcardSubtype()) {
+				// TODO: 拿到一个默认的contentType
 				contentTypeToUse = getDefaultContentType(t);
 			}
 			else if (MediaType.APPLICATION_OCTET_STREAM.equals(contentType)) {
