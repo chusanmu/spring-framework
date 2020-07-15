@@ -42,6 +42,7 @@ import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
+ * TODO: 直接接受 HttpSession, HttpServletRequest 的原理
  * Resolves servlet backed request-related method arguments. Supports values of the
  * following types:
  * <ul>
@@ -83,7 +84,9 @@ public class ServletRequestMethodArgumentResolver implements HandlerMethodArgume
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// TODO: 拿到请求参数类型
 		Class<?> paramType = parameter.getParameterType();
+		// TODO: 支持各种类型，直接注入到参数中
 		return (WebRequest.class.isAssignableFrom(paramType) ||
 				ServletRequest.class.isAssignableFrom(paramType) ||
 				MultipartRequest.class.isAssignableFrom(paramType) ||

@@ -27,6 +27,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * TODO: 对value注解的支持，@Value让我们在配置文件里给参数赋值，在某些场合，比如前端不用传，在配置文件里面配一个默认值
  * Resolves method arguments annotated with {@code @Value}.
  *
  * <p>An {@code @Value} does not have a name but gets resolved from the default
@@ -51,7 +52,11 @@ public class ExpressionValueMethodArgumentResolver extends AbstractNamedValueMet
 		super(beanFactory);
 	}
 
-
+	/**
+	 * TODO: 必须标注有@Value注解
+	 * @param parameter the method parameter to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return parameter.hasParameterAnnotation(Value.class);

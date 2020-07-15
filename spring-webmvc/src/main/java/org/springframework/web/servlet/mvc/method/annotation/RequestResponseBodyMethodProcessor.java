@@ -144,16 +144,20 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
 		// TODO: 拿到入参的形参的名字
 		String name = Conventions.getVariableNameForParameter(parameter);
-		// TODO: 下面就是进行参数绑定，数据校验，转换的逻辑了，
+		// TODO: 下面就是进行参数绑定，数据校验，转换的逻辑了，只有存在binderFactory才会去完成自动的绑定校验
 		if (binderFactory != null) {
+			// TODO: 关于参数赋值这块，这里和dataBinder没有任何关系，都是MessageConverters去把值从request里面拿出来封装成对象的
 			WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
+			// TODO: 传了参数，才会去校验嘛，要不然校验干嘛
 			if (arg != null) {
-				// TODO: 数据校验@Validated也是在此处生效的
+				// TODO: 数据校验@Validated也是在此处生效的， 数据绑定+校验，绑定的错误和校验的错误 都会放进Error里面
 				validateIfApplicable(binder, parameter);
+				// TODO: 若有错误消息hasErrors,并且仅跟着的一个参数不是Errors类型，spring mvc会主动帮你抛出MethodArgumentNotValidException异常
 				if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
 					throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
 				}
 			}
+			// TODO: 把错误消息放进去，证明已经校验出错误了
 			if (mavContainer != null) {
 				mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, binder.getBindingResult());
 			}

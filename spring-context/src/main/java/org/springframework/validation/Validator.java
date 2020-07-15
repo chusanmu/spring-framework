@@ -17,6 +17,7 @@
 package org.springframework.validation;
 
 /**
+ * TODO: Spring自己抽象的
  * A validator for application-specific objects.
  *
  * <p>This interface is totally divorced from any infrastructure
@@ -66,6 +67,7 @@ package org.springframework.validation;
 public interface Validator {
 
 	/**
+	 * TODO: 此clazz是否可以被validate
 	 * Can this {@link Validator} {@link #validate(Object, Errors) validate}
 	 * instances of the supplied {@code clazz}?
 	 * <p>This method is <i>typically</i> implemented like so:
@@ -81,6 +83,7 @@ public interface Validator {
 	boolean supports(Class<?> clazz);
 
 	/**
+	 * TODO: 执行校验，错误消息放在error里面装着，然后进行校验
 	 * Validate the supplied {@code target} object, which must be
 	 * of a {@link Class} for which the {@link #supports(Class)} method
 	 * typically has (or would) return {@code true}.

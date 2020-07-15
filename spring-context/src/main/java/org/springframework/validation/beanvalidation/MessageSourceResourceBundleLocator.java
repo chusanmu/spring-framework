@@ -37,6 +37,9 @@ import org.springframework.util.Assert;
  */
 public class MessageSourceResourceBundleLocator implements ResourceBundleLocator {
 
+	/**
+	 * spring自己的国际化资源
+	 */
 	private final MessageSource messageSource;
 
 	/**

@@ -19,6 +19,7 @@ package org.springframework.validation;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 这个子接口扩展增加了校验分组
  * Extended variant of the {@link Validator} interface, adding support for
  * validation 'hints'.
  *
@@ -47,6 +48,7 @@ public interface SmartValidator extends Validator {
 	void validate(Object target, Errors errors, Object... validationHints);
 
 	/**
+	 * TODO:子类需要复写，否则抛出异常
 	 * Validate the supplied value for the specified field on the target type,
 	 * reporting the same validation errors as if the value would be bound to
 	 * the field on an instance of the target class.

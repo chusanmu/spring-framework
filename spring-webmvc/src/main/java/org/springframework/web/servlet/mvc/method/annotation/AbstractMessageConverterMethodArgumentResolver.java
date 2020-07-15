@@ -254,6 +254,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	}
 
 	/**
+	 * TODO: 进行校验嘛，如果合适的话，使用webDataBinder，失败信息最终也都是放在它身上，入参是binder和参数嘛
 	 * Validate the binding target if applicable.
 	 * <p>The default implementation checks for {@code @javax.validation.Valid},
 	 * Spring's {@link org.springframework.validation.annotation.Validated},
@@ -266,8 +267,11 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	protected void validateIfApplicable(WebDataBinder binder, MethodParameter parameter) {
 		Annotation[] annotations = parameter.getParameterAnnotations();
 		for (Annotation ann : annotations) {
+			// TODO: 拿到入参上面的注解
 			Validated validatedAnn = AnnotationUtils.getAnnotation(ann, Validated.class);
+			// TODO: 如果没有Validated注解，那么以注解名Valid打头的，都会是有效的，实际上就是自己定义的一个Valid注解也是会生效的
 			if (validatedAnn != null || ann.annotationType().getSimpleName().startsWith("Valid")) {
+				// TODO: 拿到分组group后，调用binder的validate()进行校验
 				Object hints = (validatedAnn != null ? validatedAnn.value() : AnnotationUtils.getValue(ann));
 				Object[] validationHints = (hints instanceof Object[] ? (Object[]) hints : new Object[] {hints});
 				binder.validate(validationHints);

@@ -50,7 +50,12 @@ public class SpringConstraintValidatorFactory implements ConstraintValidatorFact
 		this.beanFactory = beanFactory;
 	}
 
-
+	/**
+	 * 直接调createBean方法，放进容器
+	 * @param key
+	 * @param <T>
+	 * @return
+	 */
 	@Override
 	public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> key) {
 		return this.beanFactory.createBean(key);

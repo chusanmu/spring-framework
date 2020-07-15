@@ -45,9 +45,16 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  */
 public class ServletResponseMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
+
+	/**
+	 * TODO: 相对于request而言，它就比较简单了
+	 * @param parameter the method parameter to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		Class<?> paramType = parameter.getParameterType();
+		// TODO: 支持解析下面几种类型
 		return (ServletResponse.class.isAssignableFrom(paramType) ||
 				OutputStream.class.isAssignableFrom(paramType) ||
 				Writer.class.isAssignableFrom(paramType));

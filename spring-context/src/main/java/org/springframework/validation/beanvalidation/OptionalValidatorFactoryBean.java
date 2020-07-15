@@ -37,6 +37,7 @@ public class OptionalValidatorFactoryBean extends LocalValidatorFactoryBean {
 	@Override
 	public void afterPropertiesSet() {
 		try {
+			// TODO: 这里相当于把异常吞了
 			super.afterPropertiesSet();
 		}
 		catch (ValidationException ex) {

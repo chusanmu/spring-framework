@@ -39,6 +39,11 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  */
 public class ModelMethodProcessor implements HandlerMethodArgumentResolver, HandlerMethodReturnValueHandler {
 
+	/**
+	 * TODO: 允许入参里写 Model RedirectAttributes  等
+	 * @param parameter the method parameter to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return Model.class.isAssignableFrom(parameter.getParameterType());

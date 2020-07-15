@@ -37,6 +37,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.validation.annotation.Validated;
 
 /**
+ * TODO: 专门用于处理方法级别的数据校验
  * An AOP Alliance {@link MethodInterceptor} implementation that delegates to a
  * JSR-303 provider for performing method-level validation on annotated methods.
  *
@@ -63,6 +64,7 @@ public class MethodValidationInterceptor implements MethodInterceptor {
 
 
 	/**
+	 * TODO: 如果没有指定校验器，那使用的就是默认的校验器
 	 * Create a new MethodValidationInterceptor using a default JSR-303 validator underneath.
 	 */
 	public MethodValidationInterceptor() {
@@ -89,33 +91,39 @@ public class MethodValidationInterceptor implements MethodInterceptor {
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		// Avoid Validator invocation on FactoryBean.getObjectType/isSingleton
+		// TODO: 如果是FactoryBean.getObject()方法，那就不要去校验了
 		if (isFactoryBeanMetadataMethod(invocation.getMethod())) {
 			return invocation.proceed();
 		}
-
+		// TODO: 找到这个方法上面是否有标注@Validated注解，从里面拿到分组信息
 		Class<?>[] groups = determineValidationGroups(invocation);
 
 		// Standard Bean Validation 1.1 API
 		ExecutableValidator execVal = this.validator.forExecutables();
 		Method methodToValidate = invocation.getMethod();
+		// TODO: 错误消息 result,若存在都会以异常的形式抛出
 		Set<ConstraintViolation<Object>> result;
 
 		try {
+			// TODO: 先校验方法入参
 			result = execVal.validateParameters(
 					invocation.getThis(), methodToValidate, invocation.getArguments(), groups);
 		}
 		catch (IllegalArgumentException ex) {
 			// Probably a generic type mismatch between interface and impl as reported in SPR-12237 / HV-1011
 			// Let's try to find the bridged method on the implementation class...
+			// TODO: 此处回退了一步，找到bridged method方法再来一次
 			methodToValidate = BridgeMethodResolver.findBridgedMethod(
 					ClassUtils.getMostSpecificMethod(invocation.getMethod(), invocation.getThis().getClass()));
+			// TODO: 再去进行校验
 			result = execVal.validateParameters(
 					invocation.getThis(), methodToValidate, invocation.getArguments(), groups);
 		}
+		// TODO: 有错误，就抛出异常吧
 		if (!result.isEmpty()) {
 			throw new ConstraintViolationException(result);
 		}
-
+		// TODO: 执行目标方法，拿到返回值之后，再去校验这个返回值
 		Object returnValue = invocation.proceed();
 
 		result = execVal.validateReturnValue(invocation.getThis(), methodToValidate, returnValue, groups);

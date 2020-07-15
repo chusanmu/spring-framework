@@ -55,6 +55,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
+ * TODO: 比较核心，比较重要的一个类
  * This is the central class for {@code javax.validation} (JSR-303) setup in a Spring
  * application context: It bootstraps a {@code javax.validation.ValidationFactory} and
  * exposes it through the Spring {@link org.springframework.validation.Validator} interface

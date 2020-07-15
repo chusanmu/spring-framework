@@ -24,6 +24,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.Assert;
 
 /**
+ * TODO ： 插值器
  * Delegates to a target {@link MessageInterpolator} implementation but enforces Spring's
  * managed Locale. Typically used to wrap the validation provider's default interpolator.
  *

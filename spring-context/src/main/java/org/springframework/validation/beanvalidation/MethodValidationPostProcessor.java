@@ -60,14 +60,20 @@ import org.springframework.validation.annotation.Validated;
 @SuppressWarnings("serial")
 public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvisingPostProcessor
 		implements InitializingBean {
-
+	/**
+	 * TODO: 必须是Validated 标注
+	 */
 	private Class<? extends Annotation> validatedAnnotationType = Validated.class;
 
+	/**
+	 * TODO: javax.validation.Validator
+	 */
 	@Nullable
 	private Validator validator;
 
 
 	/**
+	 * TODO: 可以自定义生效的注解
 	 * Set the 'validated' annotation type.
 	 * The default validated annotation type is the {@link Validated} annotation.
 	 * <p>This setter property exists so that developers can provide their own
@@ -81,6 +87,7 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
 	}
 
 	/**
+	 * TODO: 可以自己传入一个Validator， 并且可以是定制化的LocalValidatorFactoryBean
 	 * Set the JSR-303 Validator to delegate to for validating methods.
 	 * <p>Default is the default ValidatorFactory's default Validator.
 	 */
@@ -98,6 +105,7 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
 	}
 
 	/**
+	 * TODO: 也可以直接提供一个ValidatorFactory也可以
 	 * Set the JSR-303 ValidatorFactory to delegate to for validating methods,
 	 * using its default Validator.
 	 * <p>Default is the default ValidatorFactory's default Validator.
@@ -108,6 +116,9 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
 	}
 
 
+	/**
+	 * TODO: 初始化之后会调用
+	 */
 	@Override
 	public void afterPropertiesSet() {
 		Pointcut pointcut = new AnnotationMatchingPointcut(this.validatedAnnotationType, true);
@@ -115,6 +126,7 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
 	}
 
 	/**
+	 * TODO: 这个advice就是给@Validation的类进行增强的
 	 * Create AOP advice for method validation purposes, to be applied
 	 * with a pointcut for the specified 'validated' annotation.
 	 * @param validator the JSR-303 Validator to delegate to
@@ -123,6 +135,7 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
 	 * @since 4.2
 	 */
 	protected Advice createMethodValidationAdvice(@Nullable Validator validator) {
+		// TODO: 重点看下这个类MethodValidationInterceptor
 		return (validator != null ? new MethodValidationInterceptor(validator) : new MethodValidationInterceptor());
 	}
 

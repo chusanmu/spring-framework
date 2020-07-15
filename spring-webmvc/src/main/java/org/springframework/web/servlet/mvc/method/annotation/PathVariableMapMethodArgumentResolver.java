@@ -43,6 +43,12 @@ import org.springframework.web.servlet.HandlerMapping;
  */
 public class PathVariableMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
+	/**
+	 * TODO: 必须标注@PathVariable注解，并且是Map，并且注解不能有value值
+	 * 		处理情况和PathVariableMethodResolver形成了互补
+	 * @param parameter the method parameter to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		PathVariable ann = parameter.getParameterAnnotation(PathVariable.class);

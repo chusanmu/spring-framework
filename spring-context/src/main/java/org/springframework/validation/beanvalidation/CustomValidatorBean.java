@@ -27,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 可配置的bean类 ，可配置ValidatorFactory验证器工厂
  * Configurable bean class that exposes a specific JSR-303 Validator
  * through its original interface as well as through the Spring
  * {@link org.springframework.validation.Validator} interface.
@@ -69,13 +70,16 @@ public class CustomValidatorBean extends SpringValidatorAdapter implements Valid
 	}
 
 
+	/**
+	 * 初始化
+	 */
 	@Override
 	public void afterPropertiesSet() {
 		if (this.validatorFactory == null) {
 			this.validatorFactory = Validation.buildDefaultValidatorFactory();
 		}
-
 		ValidatorContext validatorContext = this.validatorFactory.usingContext();
+		// TODO: 插值器
 		MessageInterpolator targetInterpolator = this.messageInterpolator;
 		if (targetInterpolator == null) {
 			targetInterpolator = this.validatorFactory.getMessageInterpolator();

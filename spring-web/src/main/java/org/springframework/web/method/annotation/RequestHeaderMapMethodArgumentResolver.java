@@ -32,6 +32,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
+ * TODO: 一次性把所有的请求头都拿到，不建议使用此方式，建议@RequestHeader HttpHeaders httpHeader
  * Resolves {@link Map} method arguments annotated with {@code @RequestHeader}.
  * For individual header values annotated with {@code @RequestHeader} see
  * {@link RequestHeaderMethodArgumentResolver} instead.

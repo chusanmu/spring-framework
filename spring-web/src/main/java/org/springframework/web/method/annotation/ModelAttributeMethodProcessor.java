@@ -95,6 +95,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 
 
 	/**
+	 * TODO: 主要是针对被@ModelAttribute注解修饰且不是普通类型，通过 !BeanUtils.isSimpleProperty(parameter.getParameterType()) 进行判断
 	 * Returns {@code true} if the parameter is annotated with
 	 * {@link ModelAttribute} or, if in default resolution mode, for any
 	 * method parameter that is not a simple type.

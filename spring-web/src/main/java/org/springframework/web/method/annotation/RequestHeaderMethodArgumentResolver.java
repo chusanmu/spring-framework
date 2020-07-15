@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * TODO: 可以把Request请求header部分的值绑定到方法的参数上
  * Resolves method arguments annotated with {@code @RequestHeader} except for
  * {@link Map} arguments. See {@link RequestHeaderMapMethodArgumentResolver} for
  * details on {@link Map} arguments annotated with {@code @RequestHeader}.
@@ -57,6 +58,11 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueMetho
 	}
 
 
+	/**
+	 * TODO: 可以把request请求header部分的值绑定到方法的参数上，必须标注有@RequestHeader,并且不能是Map类型的
+	 * @param parameter the method parameter to check
+	 * @return
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return (parameter.hasParameterAnnotation(RequestHeader.class) &&
@@ -70,6 +76,15 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueMetho
 		return new RequestHeaderNamedValueInfo(ann);
 	}
 
+	/**
+	 * TODO: 可以单值，也可以List 数组
+	 * @param name the name of the value being resolved
+	 * @param parameter the method parameter to resolve to an argument value
+	 * (pre-nested in case of a {@link java.util.Optional} declaration)
+	 * @param request the current request
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	@Nullable
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {

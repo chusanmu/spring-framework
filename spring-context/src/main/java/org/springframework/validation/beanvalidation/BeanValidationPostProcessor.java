@@ -33,6 +33,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 默认没有被装配到容器中
  * Simple {@link BeanPostProcessor} that checks JSR-303 constraint annotations
  * in Spring-managed beans, throwing an initialization exception in case of
  * constraint violations right before calling the bean's init method (if any).
@@ -42,9 +43,16 @@ import org.springframework.util.Assert;
  */
 public class BeanValidationPostProcessor implements BeanPostProcessor, InitializingBean {
 
+	/**
+	 * javax.validation.Validator
+	 */
 	@Nullable
 	private Validator validator;
 
+	/**
+	 * TODO: true: 表示在bean初始化之后完成校验
+	 * TODO: false: 表示在bean初始化之前就校验
+	 */
 	private boolean afterInitialization = false;
 
 
@@ -79,6 +87,7 @@ public class BeanValidationPostProcessor implements BeanPostProcessor, Initializ
 
 	@Override
 	public void afterPropertiesSet() {
+		// TODO: 使用的是默认的校验器
 		if (this.validator == null) {
 			this.validator = Validation.buildDefaultValidatorFactory().getValidator();
 		}
@@ -88,6 +97,7 @@ public class BeanValidationPostProcessor implements BeanPostProcessor, Initializ
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (!this.afterInitialization) {
+			// TODO: 去校验bean啊
 			doValidate(bean);
 		}
 		return bean;
@@ -114,7 +124,7 @@ public class BeanValidationPostProcessor implements BeanPostProcessor, Initializ
 			objectToValidate = bean;
 		}
 		Set<ConstraintViolation<Object>> result = this.validator.validate(objectToValidate);
-
+		// TODO: 如果错误消息不为空，进行拼接错误消息
 		if (!result.isEmpty()) {
 			StringBuilder sb = new StringBuilder("Bean state is invalid: ");
 			for (Iterator<ConstraintViolation<Object>> it = result.iterator(); it.hasNext();) {
@@ -124,6 +134,7 @@ public class BeanValidationPostProcessor implements BeanPostProcessor, Initializ
 					sb.append("; ");
 				}
 			}
+			// TODO: 然后抛出异常，阻止容器启动
 			throw new BeanInitializationException(sb.toString());
 		}
 	}

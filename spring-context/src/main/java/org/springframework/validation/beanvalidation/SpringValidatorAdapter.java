@@ -46,6 +46,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.SmartValidator;
 
 /**
+ * TODO: 我靠 适配器模式的应用，简单说下，具体此类的功能，SmartValidator接口中的方法的具体功能，交由Validator的实现类去做
  * Adapter that takes a JSR-303 {@code javax.validator.Validator} and
  * exposes it as a Spring {@link org.springframework.validation.Validator}
  * while also exposing the original JSR-303 Validator interface itself.
@@ -64,7 +65,9 @@ import org.springframework.validation.SmartValidator;
  * @see LocalValidatorFactoryBean
  */
 public class SpringValidatorAdapter implements SmartValidator, javax.validation.Validator {
-
+	/**
+	 * TODO: 通用的三个约束注解都需要有的属性
+	 */
 	private static final Set<String> internalAnnotationAttributes = new HashSet<>(4);
 
 	static {
@@ -73,6 +76,9 @@ public class SpringValidatorAdapter implements SmartValidator, javax.validation.
 		internalAnnotationAttributes.add("payload");
 	}
 
+	/**
+	 * 最终都委托给了它 去完成校验嘛
+	 */
 	@Nullable
 	private javax.validation.Validator targetValidator;
 
@@ -98,11 +104,22 @@ public class SpringValidatorAdapter implements SmartValidator, javax.validation.
 	// Implementation of Spring Validator interface
 	//---------------------------------------------------------------------
 
+	/**
+	 * TODO: 默认支持校验所有的bean
+	 * @param clazz the {@link Class} that this {@link Validator} is
+	 * being asked if it can {@link #validate(Object, Errors) validate}
+	 * @return
+	 */
 	@Override
 	public boolean supports(Class<?> clazz) {
 		return (this.targetValidator != null);
 	}
 
+	/**
+	 * processConstraintViolations 做的事，把ConstraintValidations错误消息拼到Error里面去
+	 * @param target the object that is to be validated
+	 * @param errors contextual state about the validation process
+	 */
 	@Override
 	public void validate(Object target, Errors errors) {
 		if (this.targetValidator != null) {

@@ -30,6 +30,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 
 /**
+ * TODO: 通过uriComponentsBuilder来得到URL的各个部分，以及构建URL都是很方便的
  * Resolvers argument values of type {@link UriComponentsBuilder}.
  *
  * <p>The returned instance is initialized via
