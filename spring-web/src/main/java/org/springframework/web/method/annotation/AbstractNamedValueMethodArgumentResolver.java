@@ -132,7 +132,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 			if (namedValueInfo.defaultValue != null) {
 				arg = resolveStringValue(namedValueInfo.defaultValue);
 			}
-			// TODO: 若arg == null && defaultValue == null && 非optinal类型的参数，则通过handleMissingValue来处理，一般是报异常
+			// TODO: 若arg == null && defaultValue == null && 非optional类型的参数，则通过handleMissingValue来处理，一般是报异常
 			else if (namedValueInfo.required && !nestedParameter.isOptional()) {
 				// TODO: 默认报异常，各个子类都复写了此方法，转而抛出自己的异常
 				handleMissingValue(namedValueInfo.name, nestedParameter, webRequest);
@@ -146,7 +146,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 		}
 		// TODO: 完成自动化的数据绑定
 		if (binderFactory != null) {
-			// TODO: 创建出一个WebDataBinder
+			// TODO: 创建出一个WebDataBinder, 然后会执行@InitBinder方法里面的代码
 			WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
 			try {
 				// TODO: 通过数据绑定器里的converter转换器把arg转换为指定类型的数值,TODO: 比如String转为converter

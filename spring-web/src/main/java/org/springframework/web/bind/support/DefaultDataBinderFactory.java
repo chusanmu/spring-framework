@@ -34,6 +34,7 @@ public class DefaultDataBinderFactory implements WebDataBinderFactory {
 
 
 	/**
+	 * TODO: 这是唯一的构造函数
 	 * Create a new {@code DefaultDataBinderFactory} instance.
 	 * @param initializer for global data binder initialization
 	 * (or {@code null} if none)
@@ -44,6 +45,7 @@ public class DefaultDataBinderFactory implements WebDataBinderFactory {
 
 
 	/**
+	 * TODO: 实现接口的方法
 	 * Create a new {@link WebDataBinder} for the given target object and
 	 * initialize it through a {@link WebBindingInitializer}.
 	 * @throws Exception in case of invalid state or arguments
@@ -54,7 +56,7 @@ public class DefaultDataBinderFactory implements WebDataBinderFactory {
 			NativeWebRequest webRequest, @Nullable Object target, String objectName) throws Exception {
 
 		WebDataBinder dataBinder = createBinderInstance(target, objectName, webRequest);
-		// TODO: WebBindingInitializer initializer在此解析完成了，全局生效
+		// TODO: WebBindingInitializer initializer在此解析完成了，全局生效，会回调
 		if (this.initializer != null) {
 			this.initializer.initBinder(dataBinder, webRequest);
 		}
@@ -64,6 +66,7 @@ public class DefaultDataBinderFactory implements WebDataBinderFactory {
 	}
 
 	/**
+	 * TODO: 子类可以复写，默认实现是WebRequestDataBinder
 	 * Extension point to create the WebDataBinder instance.
 	 * By default this is {@code WebRequestDataBinder}.
 	 * @param target the binding target or {@code null} for type conversion only

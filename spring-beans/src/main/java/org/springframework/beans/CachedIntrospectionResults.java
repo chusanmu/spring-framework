@@ -40,6 +40,7 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 它是spring提供的专门用于缓存JavaBean的PropertyDescriptor描述信息的类，不能为应用代码直接使用，它的缓存信息 是被静态存储起来的，因此，这个类使用了工厂模式
  * Internal class that caches JavaBeans {@link java.beans.PropertyDescriptor}
  * information for a Java class. Not intended for direct use by application code.
  *
@@ -74,6 +75,7 @@ import org.springframework.util.StringUtils;
 public final class CachedIntrospectionResults {
 
 	/**
+	 * TODO: 可以在配置文件里面配置，然后来关闭内省的缓存
 	 * System property that instructs Spring to use the {@link Introspector#IGNORE_ALL_BEANINFO}
 	 * mode when calling the JavaBeans {@link Introspector}: "spring.beaninfo.ignore", with a
 	 * value of "true" skipping the search for {@code BeanInfo} classes (typically for scenarios
@@ -97,6 +99,9 @@ public final class CachedIntrospectionResults {
 			SpringProperties.getFlag(IGNORE_BEANINFO_PROPERTY_NAME);
 
 	/** Stores the BeanInfoFactory instances. */
+	/**
+	 * TODO: 此处使用了SpringFactoriesLoader这个SPI来加载BeanInfoFactory，唯一实现类是ExtendBeanInfoFactory
+	 */
 	private static final List<BeanInfoFactory> beanInfoFactories = SpringFactoriesLoader.loadFactories(
 			BeanInfoFactory.class, CachedIntrospectionResults.class.getClassLoader());
 
@@ -250,8 +255,14 @@ public final class CachedIntrospectionResults {
 
 
 	/** The BeanInfo object for the introspected bean class. */
+	/**
+	 * TODO: 被包裹类的BeanInfo 也就是目标类
+	 */
 	private final BeanInfo beanInfo;
 
+	/**
+	 * TODO: 缓存了被包裹类的所有属性的属性描述器 PropertyDescriptor
+	 */
 	/** PropertyDescriptor objects keyed by property name String. */
 	private final Map<String, PropertyDescriptor> propertyDescriptorCache;
 

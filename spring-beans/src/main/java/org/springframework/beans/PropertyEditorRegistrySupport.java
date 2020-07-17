@@ -195,6 +195,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 	}
 
 	/**
+	 * TODO: 添加一系列的属性编辑器
 	 * Actually register the default editors for this registry instance.
 	 */
 	private void createDefaultEditors() {

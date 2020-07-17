@@ -19,6 +19,7 @@ package org.springframework.beans;
 import java.beans.PropertyDescriptor;
 
 /**
+ *  * TODO: spring低级JavaBean基础设施的中央接口，通常来说不直接使用beanWrapper, 而是借助BeanFactory或者DataBinder来一起使用
  * The central interface of Spring's low-level JavaBeans infrastructure.
  *
  * <p>Typically not used directly but rather implicitly via a

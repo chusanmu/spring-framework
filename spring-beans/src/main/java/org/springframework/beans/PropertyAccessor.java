@@ -22,6 +22,7 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 所有Spring创建的Bean对象都使用该接口存取Bean属性值
  * Common interface for classes that can access named properties
  * (such as bean properties of an object or fields in an object)
  * Serves as base interface for {@link BeanWrapper}.
@@ -35,6 +36,7 @@ import org.springframework.lang.Nullable;
 public interface PropertyAccessor {
 
 	/**
+	 * TODO: 级联属性的分隔符
 	 * Path separator for nested properties.
 	 * Follows normal Java conventions: getFoo().getBar() would be "foo.bar".
 	 */
@@ -47,6 +49,7 @@ public interface PropertyAccessor {
 	char NESTED_PROPERTY_SEPARATOR_CHAR = '.';
 
 	/**
+	 * TODO: 代表角标index的符号  person.addresses[0]
 	 * Marker that indicates the start of a property key for an
 	 * indexed or mapped property like "person.addresses[0]".
 	 */
@@ -72,6 +75,7 @@ public interface PropertyAccessor {
 
 
 	/**
+	 * TODO: 此属性是否可读， 属性不存在时返回false
 	 * Determine whether the specified property is readable.
 	 * <p>Returns {@code false} if the property doesn't exist.
 	 * @param propertyName the property to check
@@ -81,6 +85,7 @@ public interface PropertyAccessor {
 	boolean isReadableProperty(String propertyName);
 
 	/**
+	 * TODO: 此属性是否可写
 	 * Determine whether the specified property is writable.
 	 * <p>Returns {@code false} if the property doesn't exist.
 	 * @param propertyName the property to check
@@ -90,6 +95,7 @@ public interface PropertyAccessor {
 	boolean isWritableProperty(String propertyName);
 
 	/**
+	 * TODO: 读方法
 	 * Determine the property type for the specified property,
 	 * either checking the property descriptor or checking the value
 	 * in case of an indexed or mapped element.
@@ -152,6 +158,7 @@ public interface PropertyAccessor {
 	void setPropertyValue(PropertyValue pv) throws BeansException;
 
 	/**
+	 * TODO: 批量设置值
 	 * Perform a batch update from a Map.
 	 * <p>Bulk updates from PropertyValues are more powerful: This method is
 	 * provided for convenience. Behavior will be identical to that of
@@ -187,6 +194,8 @@ public interface PropertyAccessor {
 	 * @see #setPropertyValues(PropertyValues, boolean, boolean)
 	 */
 	void setPropertyValues(PropertyValues pvs) throws BeansException;
+
+	/* ---------------- 可控制是否接受非法字段 -------------- */
 
 	/**
 	 * Perform a batch update with more control over behavior.

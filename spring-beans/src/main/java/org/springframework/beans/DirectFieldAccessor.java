@@ -26,6 +26,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
 
 /**
+ * TODO: 继承自AbstractNestablePropertyAccessor， 则它也可以处理级联属性和集合数组值了
+ * 		它的功能主要就是直接操作bean的属性值，而代替使用get/set方法去操作bean，它的实现原理就是简单的field.get(getWrappedInstance()) 和 field.set(getWrappedInstance(), value) 等等
  * {@link ConfigurablePropertyAccessor} implementation that directly accesses
  * instance fields. Allows for direct binding to fields instead of going through
  * JavaBean setters.
@@ -47,6 +49,10 @@ import org.springframework.util.ReflectionUtils;
  */
 public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
 
+	/**
+	 * TODO: 缓存着每个字段的处理器FieldPropertyHandler
+	 * ReflectionUtils.findField()根据String去找到Field对象的
+	 */
 	private final Map<String, FieldPropertyHandler> fieldMap = new HashMap<>();
 
 
@@ -59,6 +65,7 @@ public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
 	}
 
 	/**
+	 * TODO: 父类构造
 	 * Create a new DirectFieldAccessor for the given object,
 	 * registering a nested path that the object is in.
 	 * @param object object wrapped by this DirectFieldAccessor
@@ -98,10 +105,17 @@ public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
 	}
 
 
+	/**
+	 * 字段field处理器，使用的内部类
+	 */
 	private class FieldPropertyHandler extends PropertyHandler {
 
 		private final Field field;
 
+		/**
+		 * 都是可读可写的
+		 * @param field
+		 */
 		public FieldPropertyHandler(Field field) {
 			super(field.getType(), true, true);
 			this.field = field;

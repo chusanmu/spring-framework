@@ -46,6 +46,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 此访问器将集合和数组值转换为相应的目标集合或数组，还解决了级联属性 嵌套属性的问题
  * A basic {@link ConfigurablePropertyAccessor} that provides the necessary
  * infrastructure for all typical use cases.
  *
@@ -92,6 +93,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
 
 	/**
+	 * TODO: 默认是注册默认的属性编辑器的，defaultEditors, 它几乎处理了所有的Java内置类型，包括基本类型，包装类型以及对应数组类型
 	 * Create a new empty accessor. Wrapped instance needs to be set afterwards.
 	 * Registers default editors.
 	 * @see #setWrappedInstance
@@ -123,6 +125,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	}
 
 	/**
+	 * TODO: 注意，此处传的clazz, 那就会反射先创建一个实例对象
 	 * Create a new accessor, wrapping a new instance of the specified class.
 	 * @param clazz class to instantiate and wrap
 	 */
@@ -144,6 +147,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	}
 
 	/**
+	 * TODO: parent不能为null
 	 * Create a new accessor for the given object,
 	 * registering a nested path that the object is in.
 	 * @param object object wrapped by this accessor
@@ -175,6 +179,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	}
 
 	/**
+	 * TODO: 复写父类的方法，增加内省逻辑
 	 * Switch the target object, replacing the cached introspection results only
 	 * if the class of the new object is different to that of the replaced object.
 	 * @param object the new target object
@@ -184,6 +189,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	}
 
 	/**
+	 * TODO: wrappedObject
 	 * Switch the target object, replacing the cached introspection results only
 	 * if the class of the new object is different to that of the replaced object.
 	 * @param object the new target object
@@ -191,9 +197,11 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	 * @param rootObject the root object at the top of the path
 	 */
 	public void setWrappedInstance(Object object, @Nullable String nestedPath, @Nullable Object rootObject) {
+		// TODO: wrappedObject 目标对象，这里卸掉 Optional 拿到实际对象
 		this.wrappedObject = ObjectUtils.unwrapOptional(object);
 		Assert.notNull(this.wrappedObject, "Target object must not be null");
 		this.nestedPath = (nestedPath != null ? nestedPath : "");
+		// TODO: 此处根对象，若nestedPath存在的话，是可以自定义一个rootObject的
 		this.rootObject = (!this.nestedPath.isEmpty() ? rootObject : this.wrappedObject);
 		this.nestedPropertyAccessors = null;
 		this.typeConverterDelegate = new TypeConverterDelegate(this, this.wrappedObject);
@@ -582,6 +590,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
 		Assert.state(this.typeConverterDelegate != null, "No TypeConverterDelegate");
 		try {
+			// TODO: 委托给typeConverterDelegate 去进行类型转换
 			return this.typeConverterDelegate.convertIfNecessary(propertyName, oldValue, newValue, requiredType, td);
 		}
 		catch (ConverterNotFoundException | IllegalStateException ex) {
@@ -1031,6 +1040,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
 
 	/**
+	 * TODO: 这个类的作用是对属性访问表达式的细化和归类， 例如 listMap[0][0] listMapValue00
 	 * Holder class used to store property tokens.
 	 */
 	protected static class PropertyTokenHolder {
@@ -1040,10 +1050,18 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 			this.canonicalName = name;
 		}
 
+		/**
+		 * 仅包含最外层的属性名称
+		 */
 		public String actualName;
-
+		/**
+		 * listMap[0][0] 代表整个属性访问表达式
+		 */
 		public String canonicalName;
 
+		/**
+		 * TODO: 数组的长度代表索引深度，各元素代表索引值
+		 */
 		@Nullable
 		public String[] keys;
 	}

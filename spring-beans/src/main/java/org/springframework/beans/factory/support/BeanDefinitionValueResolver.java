@@ -109,6 +109,7 @@ class BeanDefinitionValueResolver {
 			RuntimeBeanReference ref = (RuntimeBeanReference) value;
 			return resolveReference(argName, ref);
 		}
+		// TODO: 处理String类型的值：处理SpEL表达式，但是它并不处理占位符
 		else if (value instanceof RuntimeBeanNameReference) {
 			String refName = ((RuntimeBeanNameReference) value).getBeanName();
 			refName = String.valueOf(doEvaluate(refName));

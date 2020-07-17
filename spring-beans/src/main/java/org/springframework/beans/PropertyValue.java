@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * TODO: 封装属性访问表达式 如 listMap[0][0], 还有属性值， PropertyValue就是用来封装这些信息的，如果某个值要给赋值到bean属性，Spring就会把这个值包装成PropertyValue对象
  * Object to hold information and value for an individual bean property.
  * Using an object here, rather than just storing all properties in
  * a map keyed by property name, allows for more flexibility, and the

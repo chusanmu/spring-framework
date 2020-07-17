@@ -20,6 +20,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 可配置的PropertyAccessor，它是一个子接口，提供了可配置的能力
  * Interface that encapsulates configuration methods for a PropertyAccessor.
  * Also extends the PropertyEditorRegistry interface, which defines methods
  * for PropertyEditor management.
@@ -34,6 +35,7 @@ import org.springframework.lang.Nullable;
 public interface ConfigurablePropertyAccessor extends PropertyAccessor, PropertyEditorRegistry, TypeConverter {
 
 	/**
+	 * TODO: 设置一个ConversionService， 用于对Value值进行转换，spring 3.0 之后 用于替换propertyEdits的方案
 	 * Specify a Spring 3.0 ConversionService to use for converting
 	 * property values, as an alternative to JavaBeans PropertyEditors.
 	 */
@@ -46,6 +48,7 @@ public interface ConfigurablePropertyAccessor extends PropertyAccessor, Property
 	ConversionService getConversionService();
 
 	/**
+	 * TODO: 设置在将属性编辑器应用于属性的新值时是否提取旧属性值
 	 * Set whether to extract the old property value when applying a
 	 * property editor to a new value for a property.
 	 */
@@ -58,6 +61,7 @@ public interface ConfigurablePropertyAccessor extends PropertyAccessor, Property
 	boolean isExtractOldValueForEditor();
 
 	/**
+	 * TODO: 设置此实例是否应尝试自动增长包含null的嵌套路径，为null的值会自动被填充为一个默认的value值，而不是抛出异常
 	 * Set whether this instance should attempt to "auto-grow" a
 	 * nested path that contains a {@code null} value.
 	 * <p>If {@code true}, a {@code null} path location will be populated

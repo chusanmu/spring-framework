@@ -114,12 +114,12 @@ class TypeConverterDelegate {
 	@Nullable
 	public <T> T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue, @Nullable Object newValue,
 			@Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws IllegalArgumentException {
-
+		// TODO: 找到一个合适的PropertyEditor，显然有时候没有自定义custom处理Date的PropertyEditor，会返回null
 		// Custom editor for this type?
 		PropertyEditor editor = this.propertyEditorRegistry.findCustomEditor(requiredType, propertyName);
 
 		ConversionFailedException conversionAttemptEx = null;
-
+		// TODO: 然后会进行一个回退，回退到使用ConversionService，显然有时候也不会进行一个设置
 		// No custom editor but custom ConversionService specified?
 		ConversionService conversionService = this.propertyEditorRegistry.getConversionService();
 		if (editor == null && conversionService != null && newValue != null && typeDescriptor != null) {
@@ -149,6 +149,7 @@ class TypeConverterDelegate {
 					}
 				}
 			}
+			// TODO: 回退到使用默认的editor = findDefaultEditor(requiredType);此处只根据类型去找了，可能也会返回null
 			if (editor == null) {
 				editor = findDefaultEditor(requiredType);
 			}
@@ -159,7 +160,7 @@ class TypeConverterDelegate {
 
 		if (requiredType != null) {
 			// Try to apply some standard type conversion rules if appropriate.
-
+			// TODO: 最终的最终 回退到Spring对Array, Collection, Map的默认值处理问题，最终若是String类型，都会调用BeanUtils.instantiateClass(strCtor,convertedValue), 也就是有参构造器进行初始化，String特权
 			if (convertedValue != null) {
 				if (Object.class == requiredType) {
 					return (T) convertedValue;

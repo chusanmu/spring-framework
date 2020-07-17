@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.util.WebUtils;
 
 /**
+ * TODO: 支持从ServletRequest里把参数绑定到JavaBean里，支持multipart
  * Special {@link org.springframework.validation.DataBinder} to perform data binding
  * from servlet request parameters to JavaBeans, including support for multipart files.
  *
@@ -81,6 +82,7 @@ public class ServletRequestDataBinder extends WebDataBinder {
 
 
 	/**
+	 * TODO: 意思就是kv都从request里来， 当然内部还是适配成了一个 MutablePropertyValues
 	 * Bind the parameters of the given request to this binder's target,
 	 * also binding multipart files in case of a multipart request.
 	 * <p>This call can create field errors, representing basic binding
@@ -98,11 +100,15 @@ public class ServletRequestDataBinder extends WebDataBinder {
 	 * @see #bind(org.springframework.beans.PropertyValues)
 	 */
 	public void bind(ServletRequest request) {
+		// TODO: 内部最核心的方法是它
 		MutablePropertyValues mpvs = new ServletRequestParameterPropertyValues(request);
+		// TODO: 最核心的方法就是下面一行嘛
 		MultipartRequest multipartRequest = WebUtils.getNativeRequest(request, MultipartRequest.class);
+		// TODO: 调用父类的bindMultipart方法，把MultipartFile都放进MutablePropertyValues里去
 		if (multipartRequest != null) {
 			bindMultipart(multipartRequest.getMultiFileMap(), mpvs);
 		}
+		// TODO: 本类流出来的一个扩展点
 		addBindValues(mpvs, request);
 		doBind(mpvs);
 	}
@@ -118,6 +124,7 @@ public class ServletRequestDataBinder extends WebDataBinder {
 	}
 
 	/**
+	 * TODO: 这个方法和父类的close方法类似，很少直接调用
 	 * Treats errors as fatal.
 	 * <p>Use this method only if it's an error if the input isn't valid.
 	 * This might be appropriate if all input is from dropdowns, for example.

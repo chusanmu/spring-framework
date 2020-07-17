@@ -26,6 +26,8 @@ import org.springframework.web.method.annotation.InitBinderDataBinderFactory;
 import org.springframework.web.method.support.InvocableHandlerMethod;
 
 /**
+ * TODO: 也能够处理@InitBinder, 而且它使用的是更为强大的数据绑定器 ExtendedServletRequestDataBinder
+ * TODO: 此工厂是RequestMappingHandlerAdapter这个适配器默认使用的一个数据绑定器工厂
  * Creates a {@code ServletRequestDataBinder}.
  *
  * @author Rossen Stoyanchev

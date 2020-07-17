@@ -17,6 +17,7 @@
 package org.springframework.beans;
 
 /**
+ * TODO: spring 2.5 后提供的快速获取PropertyAccessor两个重要实现类的工厂
  * Simple factory facade for obtaining {@link PropertyAccessor} instances,
  * in particular for {@link BeanWrapper} instances. Conceals the actual
  * target implementation classes and their extended public signature.
@@ -31,6 +32,7 @@ public final class PropertyAccessorFactory {
 
 
 	/**
+	 * TODO: 生成一个BeanWrapperImpl 最为常用
 	 * Obtain a BeanWrapper for the given target object,
 	 * accessing properties in JavaBeans style.
 	 * @param target the target object to wrap
@@ -42,6 +44,7 @@ public final class PropertyAccessorFactory {
 	}
 
 	/**
+	 * TODO: 生成一个DirectFieldAccessor
 	 * Obtain a PropertyAccessor for the given target object,
 	 * accessing properties in direct field style.
 	 * @param target the target object to wrap

@@ -51,6 +51,10 @@ import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 具体做了哪些事？
+ * 		TODO: 1. 把属性值PropertyValue绑定到target上 bind()方法，依赖于PropertyAccessor实现
+ * 		      2. 提供校验的能力，提供了Public方法validate()对各个属性使用Validator执行校验
+ * 		      3. 提供了注册属性编辑器(PropertyEditor) 和 对类型进行转换的能力 TypeConverter
  * Binder that allows for setting property values onto a target object,
  * including support for validation and binding result analysis.
  * The binding process can be customized through specifying allowed fields,
@@ -124,21 +128,36 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	@Nullable
 	private final Object target;
 
+	/**
+	 * 默认值是target
+	 */
 	private final String objectName;
-
+	/**
+	 * TODO: 绑定错误，失败的时候会放进这里来
+	 */
 	@Nullable
 	private AbstractPropertyBindingResult bindingResult;
-
+	/**
+	 * TODO: 类型转换器，会注册最为常用的那么多类型转换 Map<Class<?>, PropertyEditor>
+	 */
 	@Nullable
 	private SimpleTypeConverter typeConverter;
-
+	/**
+	 * TODO: 默认忽略 不能识别的字段
+	 */
 	private boolean ignoreUnknownFields = true;
-
+	/**
+	 * TODO: 不能忽略 非法的字段，比如要Integer, 你那边给传了个aaa，那肯定不行啊
+	 */
 	private boolean ignoreInvalidFields = false;
-
+	/**
+	 * TODO: 默认支持级联的
+	 */
 	private boolean autoGrowNestedPaths = true;
 
 	private int autoGrowCollectionLimit = DEFAULT_AUTO_GROW_COLLECTION_LIMIT;
+
+	/* ---------------- 这三个参数，都可以自己指定，允许的字段，不允许的，必须的 -------------- */
 
 	@Nullable
 	private String[] allowedFields;
@@ -148,19 +167,28 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
 	@Nullable
 	private String[] requiredFields;
-
+	/**
+	 * TODO: 转换器 ConversionService
+	 */
 	@Nullable
 	private ConversionService conversionService;
-
+	/**
+	 * TODO: 状态码处理器
+	 */
 	@Nullable
 	private MessageCodesResolver messageCodesResolver;
-
+	/**
+	 * TODO: 绑定出现错误的处理器
+	 */
 	private BindingErrorProcessor bindingErrorProcessor = new DefaultBindingErrorProcessor();
-
+	/**
+	 * TODO: 校验器
+	 */
 	private final List<Validator> validators = new ArrayList<>();
 
 
 	/**
+	 * TODO: objectName没有指定，就用默认的
 	 * Create a new DataBinder instance, with default object name.
 	 * @param target the target object to bind onto (or {@code null}
 	 * if the binder is just used to convert a plain parameter value)
@@ -241,6 +269,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	}
 
 	/**
+	 * TODO: 提供一些列的初始化方法，供给子类使用，或者外部使用
 	 * Initialize standard JavaBean property access for this DataBinder.
 	 * <p>This is the default; an explicit call just leads to eager initialization.
 	 * @see #initDirectFieldAccess()
@@ -314,6 +343,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	}
 
 	/**
+	 * TODO: 把属性访问器返回，PropertyAccessor 默认直接从结果拿，子类MapDataBinder有复写
 	 * Return the underlying PropertyAccessor of this binder's BindingResult.
 	 */
 	protected ConfigurablePropertyAccessor getPropertyAccessor() {
@@ -321,6 +351,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	}
 
 	/**
+	 * TODO: 可以看到简单的转换器也是使用到了conversionService的
 	 * Return this binder's underlying SimpleTypeConverter.
 	 */
 	protected SimpleTypeConverter getSimpleTypeConverter() {
@@ -415,6 +446,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	}
 
 	/**
+	 * TODO：设置指定的可以绑定的字段，默认是所有的字段
 	 * Register fields that should be allowed for binding. Default is all
 	 * fields. Restrict this for example to avoid unwanted modifications
 	 * by malicious users when binding HTTP request parameters.
@@ -528,7 +560,9 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	 * @see #replaceValidators(Validator...)
 	 */
 	public void setValidator(@Nullable Validator validator) {
+		// TODO: 判断逻辑在下面，你的validator至少得支持这种类型
 		assertValidators(validator);
+		// TODO: 因为自己手动设置了，所以先清空，再加进来，validator为null， 也会进行一个清空的
 		this.validators.clear();
 		if (validator != null) {
 			this.validators.add(validator);
@@ -605,6 +639,9 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 		return this.conversionService;
 	}
 
+	/* ---------------- 提供了一系列 addCustomFormatter方法，注册进PropertyEditorRegistry里 -------------- */
+
+
 	/**
 	 * Add a custom formatter, applying it to all fields matching the
 	 * {@link Formatter}-declared type.
@@ -663,6 +700,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 		}
 	}
 
+	/* ---------------- 实现接口方法 -------------- */
+
 	@Override
 	public void registerCustomEditor(Class<?> requiredType, PropertyEditor propertyEditor) {
 		getPropertyEditorRegistry().registerCustomEditor(requiredType, propertyEditor);
@@ -678,6 +717,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	public PropertyEditor findCustomEditor(@Nullable Class<?> requiredType, @Nullable String propertyPath) {
 		return getPropertyEditorRegistry().findCustomEditor(requiredType, propertyPath);
 	}
+
+	/* ---------------- 实现接口方法 -------------- */
 
 	@Override
 	@Nullable
@@ -739,6 +780,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	 * @see #applyPropertyValues
 	 */
 	protected void doBind(MutablePropertyValues mpvs) {
+		// TODO: 前面两个就是一个check的过程
 		checkAllowedFields(mpvs);
 		checkRequiredFields(mpvs);
 		applyPropertyValues(mpvs);
@@ -767,6 +809,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	}
 
 	/**
+	 * TODO: allowed允许的，并且还是没有在disallowed里面的，这个字段就是被允许的
 	 * Return if the given field is allowed for binding.
 	 * Invoked for each passed-in property value.
 	 * <p>The default implementation checks for "xxx*", "*xxx" and "*xxx*" matches,
@@ -831,6 +874,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	}
 
 	/**
+	 * TODO: 给target赋值
 	 * Apply given property values to the target object.
 	 * <p>Default implementation applies all of the supplied property
 	 * values as bean property values. By default, unknown fields will
@@ -845,9 +889,11 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	protected void applyPropertyValues(MutablePropertyValues mpvs) {
 		try {
 			// Bind request parameters onto target object.
+			// TODO: 可以看到最终赋值是委托给PropertyAccessor去完成的
 			getPropertyAccessor().setPropertyValues(mpvs, isIgnoreUnknownFields(), isIgnoreInvalidFields());
 		}
 		catch (PropertyBatchUpdateException ex) {
+			// TODO: 抛出异常 交给BindingErrorProcessor一个个处理
 			// Use bind error processor to create FieldErrors.
 			for (PropertyAccessException pae : ex.getPropertyAccessExceptions()) {
 				getBindingErrorProcessor().processPropertyAccessException(pae, getInternalBindingResult());
@@ -857,6 +903,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
 
 	/**
+	 * TODO: 执行校验，此处就和BindingResult关联上了，校验失败的消息都会放进来
 	 * Invoke the specified Validators, if any.
 	 * @see #setValidator(Validator)
 	 * @see #getBindingResult()
@@ -866,12 +913,14 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 		Assert.state(target != null, "No target to validate");
 		BindingResult bindingResult = getBindingResult();
 		// Call each validator with the same binding result
+		// TODO: 每个validator都会执行
 		for (Validator validator : getValidators()) {
 			validator.validate(target, bindingResult);
 		}
 	}
 
 	/**
+	 * TODO: 带有校验提示的校验器
 	 * Invoke the specified Validators, if any, with the given validation hints.
 	 * <p>Note: Validation hints may get ignored by the actual target Validator.
 	 * @param validationHints one or more hint objects to be passed to a {@link SmartValidator}

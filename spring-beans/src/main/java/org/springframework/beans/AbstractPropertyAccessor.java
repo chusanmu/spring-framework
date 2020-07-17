@@ -24,6 +24,7 @@ import java.util.Map;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 实现了部分父类的接口以及提供一些模板实现
  * Abstract implementation of the {@link PropertyAccessor} interface.
  * Provides base implementations of all convenience methods, with the
  * implementation of actual property access left to subclasses.
@@ -62,8 +63,14 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 	}
 
 
+	/**
+	 * TODO: 直接传入一个Properties 这里传入false ,表示要求默认属性和value值都合法 否则抛出异常
+	 * @param pv an object containing the new property value
+	 * @throws BeansException
+	 */
 	@Override
 	public void setPropertyValue(PropertyValue pv) throws BeansException {
+		// TODO: 抽象方法
 		setPropertyValue(pv.getName(), pv.getValue());
 	}
 
@@ -82,13 +89,22 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 		setPropertyValues(pvs, ignoreUnknown, false);
 	}
 
+	/**
+	 * TODO: 此抽象类，最重要的实现方法
+	 * @param pvs a PropertyValues to set on the target object
+	 * @param ignoreUnknown should we ignore unknown properties (not found in the bean)
+	 * @param ignoreInvalid should we ignore invalid properties (found but not accessible)
+	 * @throws BeansException
+	 */
 	@Override
 	public void setPropertyValues(PropertyValues pvs, boolean ignoreUnknown, boolean ignoreInvalid)
 			throws BeansException {
 
 		List<PropertyAccessException> propertyAccessExceptions = null;
+		// TODO: 大部分情况都是MutablePropertyValues 直接拿就可以了
 		List<PropertyValue> propertyValues = (pvs instanceof MutablePropertyValues ?
 				((MutablePropertyValues) pvs).getPropertyValueList() : Arrays.asList(pvs.getPropertyValues()));
+		// TODO: 遍历一个一个的执行，批量设置值最终也还是调用的单个的，这里ignoreUnknown，ignoreInvalid 两个字段会生效
 		for (PropertyValue pv : propertyValues) {
 			try {
 				// This method may throw any BeansException, which won't be caught
@@ -97,6 +113,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 				setPropertyValue(pv);
 			}
 			catch (NotWritablePropertyException ex) {
+				// TODO: 如果不忽略字段，直接抛出异常
 				if (!ignoreUnknown) {
 					throw ex;
 				}
@@ -109,14 +126,17 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 				// Otherwise, just ignore it and continue...
 			}
 			catch (PropertyAccessException ex) {
+				// TODO: 放到catch里面 如果为空，再来初始化，延迟初始化嘛
 				if (propertyAccessExceptions == null) {
 					propertyAccessExceptions = new ArrayList<>();
 				}
+				// TODO: 收集异常，最终一次性抛出
 				propertyAccessExceptions.add(ex);
 			}
 		}
 
 		// If we encountered individual exceptions, throw the composite exception.
+		// TODO: 说明有异常，最后一次性抛出
 		if (propertyAccessExceptions != null) {
 			PropertyAccessException[] paeArray = propertyAccessExceptions.toArray(new PropertyAccessException[0]);
 			throw new PropertyBatchUpdateException(paeArray);
@@ -130,6 +150,8 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 	public Class<?> getPropertyType(String propertyPath) {
 		return null;
 	}
+
+	/* ---------------- 抽象方法 用来获取值和设置值 -------------- */
 
 	/**
 	 * Actually get the value of a property.
@@ -145,6 +167,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 	public abstract Object getPropertyValue(String propertyName) throws BeansException;
 
 	/**
+	 * TODO: 由具体的子类去实现
 	 * Actually set a property value.
 	 * @param propertyName name of the property to set value of
 	 * @param value the new value

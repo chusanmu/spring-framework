@@ -31,6 +31,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
 
 /**
+ *  TODO: 它作为BeanWrapper接口的默认实现
+ *  		1.bean包裹器
+ *  	    2.属性访问器 (PropertyAccessor)
+ *  	    3.属性编辑注册表
  * Default {@link BeanWrapper} implementation that should be sufficient
  * for all typical use cases. Caches introspection results for efficiency.
  *
@@ -63,6 +67,7 @@ import org.springframework.util.ReflectionUtils;
 public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements BeanWrapper {
 
 	/**
+	 * TODO: 缓存内省结果
 	 * Cached introspections results for this object, to prevent encountering
 	 * the cost of JavaBeans introspection every time.
 	 */
@@ -77,6 +82,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
 
 	/**
+	 * TODO: 构造方法都是沿用父类的
 	 * Create a new empty BeanWrapperImpl. Wrapped instance needs to be set afterwards.
 	 * Registers default editors.
 	 * @see #setWrappedInstance
@@ -136,6 +142,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
 
 	/**
+	 * TODO: 设置目标对象
 	 * Set a bean instance to hold, without any unwrapping of {@link java.util.Optional}.
 	 * @param object the actual target object
 	 * @since 4.3
@@ -145,9 +152,16 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 		this.wrappedObject = object;
 		this.rootObject = object;
 		this.typeConverterDelegate = new TypeConverterDelegate(this, this.wrappedObject);
+		// TODO: 设置内省的clazz
 		setIntrospectionClass(object.getClass());
 	}
 
+	/**
+	 * TODO: 复写父类的方法，增加内省逻辑
+	 * @param object the new target object
+	 * @param nestedPath the nested path of the object
+	 * @param rootObject the root object at the top of the path
+	 */
 	@Override
 	public void setWrappedInstance(Object object, @Nullable String nestedPath, @Nullable Object rootObject) {
 		super.setWrappedInstance(object, nestedPath, rootObject);
@@ -155,6 +169,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 	}
 
 	/**
+	 * TODO: 如果cachedIntrospectionResults 它持有的BeanClass并不是传入的clazz， 那就清空缓存，重新来
 	 * Set the class to introspect.
 	 * Needs to be called when the target object changes.
 	 * @param clazz the class to introspect
@@ -171,6 +186,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 	 */
 	private CachedIntrospectionResults getCachedIntrospectionResults() {
 		if (this.cachedIntrospectionResults == null) {
+			// TODO: 生成此clazz的类型结果，并且缓存了起来
 			this.cachedIntrospectionResults = CachedIntrospectionResults.forClass(getWrappedClass());
 		}
 		return this.cachedIntrospectionResults;
@@ -224,6 +240,11 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 		return new Property(gpd.getBeanClass(), gpd.getReadMethod(), gpd.getWriteMethod(), gpd.getName());
 	}
 
+	/**
+	 * TODO: 拿到此属性的处理器，此处是个BeanPropertyHandler内部类
+	 * @param propertyName the name of a local property
+	 * @return
+	 */
 	@Override
 	@Nullable
 	protected BeanPropertyHandler getLocalPropertyHandler(String propertyName) {
@@ -243,11 +264,22 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 				matches.buildErrorMessage(), matches.getPossibleMatches());
 	}
 
+	/**
+	 * TODO: 获取属性们
+	 * @return
+	 */
 	@Override
 	public PropertyDescriptor[] getPropertyDescriptors() {
 		return getCachedIntrospectionResults().getPropertyDescriptors();
 	}
 
+	/**
+	 * TODO: 获取具体的某一个属性的PropertyDescriptor
+	 * @param propertyName the property to obtain the descriptor for
+	 * (may be a nested path, but no indexed/mapped property)
+	 * @return
+	 * @throws InvalidPropertyException
+	 */
 	@Override
 	public PropertyDescriptor getPropertyDescriptor(String propertyName) throws InvalidPropertyException {
 		BeanWrapperImpl nestedBw = (BeanWrapperImpl) getPropertyAccessorForPropertyPath(propertyName);
@@ -260,11 +292,17 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 		return pd;
 	}
 
-
+	/**
+	 * TODO: 此处理器处理的是PropertyDescriptor
+	 */
 	private class BeanPropertyHandler extends PropertyHandler {
 
 		private final PropertyDescriptor pd;
 
+		/**
+		 * TODO: 是否可读可写 都是由PropertyDescriptor去决定了
+		 * @param pd
+		 */
 		public BeanPropertyHandler(PropertyDescriptor pd) {
 			super(pd.getPropertyType(), pd.getReadMethod() != null, pd.getWriteMethod() != null);
 			this.pd = pd;
@@ -286,6 +324,11 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 			return TypeDescriptor.nested(property(this.pd), level);
 		}
 
+		/**
+		 * TODO: 拿到属性值
+		 * @return
+		 * @throws Exception
+		 */
 		@Override
 		@Nullable
 		public Object getValue() throws Exception {
@@ -328,6 +371,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 				}
 			}
 			else {
+				// TODO: 给属性赋值调用的就是invoke方法嘛
 				ReflectionUtils.makeAccessible(writeMethod);
 				writeMethod.invoke(getWrappedInstance(), value);
 			}

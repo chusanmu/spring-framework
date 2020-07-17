@@ -31,6 +31,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.method.support.InvocableHandlerMethod;
 
 /**
+ * TODO: 主要用于处理标注有InitBinder的方法做初始绑定
  * Adds initialization to a WebDataBinder via {@code @InitBinder} methods.
  *
  * @author Rossen Stoyanchev
@@ -39,12 +40,13 @@ import org.springframework.web.method.support.InvocableHandlerMethod;
 public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
 
 	/**
-	 * TODO: 保存所有
+	 * TODO: 保存所有，@InitBinder可以标注N多个方法，所以此处是个List
 	 */
 	private final List<InvocableHandlerMethod> binderMethods;
 
 
 	/**
+	 * 此子类的唯一构造函数
 	 * Create a new InitBinderDataBinderFactory instance.
 	 * @param binderMethods {@code @InitBinder} methods
 	 * @param initializer for global data binder initialization
@@ -67,7 +69,7 @@ public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
 	@Override
 	public void initBinder(WebDataBinder dataBinder, NativeWebRequest request) throws Exception {
 		for (InvocableHandlerMethod binderMethod : this.binderMethods) {
-			// TODO:
+			// TODO: 判断@InitBinder是否对dataBinder持有的target对象生效
 			if (isBinderMethodApplicable(binderMethod, dataBinder)) {
 				// TODO: 这里和调用普通控制器方法一样，方法入参上也可以写各式各样的参数
 				Object returnValue = binderMethod.invokeForRequest(request, null, dataBinder);
