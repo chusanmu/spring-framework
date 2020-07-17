@@ -63,11 +63,13 @@ import org.springframework.util.StringUtils;
 public class GenericConversionService implements ConfigurableConversionService {
 
 	/**
+	 * TODO: 啥都不做
 	 * General NO-OP converter used when conversion is not required.
 	 */
 	private static final GenericConverter NO_OP_CONVERTER = new NoOpConverter("NO_OP");
 
 	/**
+	 * TODO: 当转换器缓存中没有任何匹配时，它上场
 	 * Used as a cache entry when no converter is available.
 	 * This converter is never returned.
 	 */
@@ -76,6 +78,9 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 	private final Converters converters = new Converters();
 
+	/**
+	 * 缓存转换器
+	 */
 	private final Map<ConverterCacheKey, GenericConverter> converterCache = new ConcurrentReferenceHashMap<>(64);
 
 
@@ -83,14 +88,18 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 	@Override
 	public void addConverter(Converter<?, ?> converter) {
+		// TODO: 拿到两个泛型参数类型，若没有指定泛型，返回的是null
 		ResolvableType[] typeInfo = getRequiredTypeInfo(converter.getClass(), Converter.class);
+		// TODO: decorate和Proxy模式的区别
 		if (typeInfo == null && converter instanceof DecoratingProxy) {
 			typeInfo = getRequiredTypeInfo(((DecoratingProxy) converter).getDecoratedClass(), Converter.class);
 		}
+		// TODO: 这个转换器的泛型类型是必须的
 		if (typeInfo == null) {
 			throw new IllegalArgumentException("Unable to determine source type <S> and target type <T> for your " +
 					"Converter [" + converter.getClass().getName() + "]; does the class parameterize those types?");
 		}
+		// TODO: 适配，最终转换成了GenericConverter
 		addConverter(new ConverterAdapter(converter, typeInfo[0], typeInfo[1]));
 	}
 
@@ -103,9 +112,14 @@ public class GenericConversionService implements ConfigurableConversionService {
 	@Override
 	public void addConverter(GenericConverter converter) {
 		this.converters.add(converter);
+		// TODO: 清空缓存
 		invalidateCache();
 	}
 
+	/**
+	 * TODO: 使用ConverterFactoryAdapter转换成GenericConverter
+	 * @param factory
+	 */
 	@Override
 	public void addConverterFactory(ConverterFactory<?, ?> factory) {
 		ResolvableType[] typeInfo = getRequiredTypeInfo(factory.getClass(), ConverterFactory.class);
@@ -116,6 +130,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 			throw new IllegalArgumentException("Unable to determine source type <S> and target type <T> for your " +
 					"ConverterFactory [" + factory.getClass().getName() + "]; does the class parameterize those types?");
 		}
+		// TODO: ConvertiblePair 重写了equals hash方法
 		addConverter(new ConverterFactoryAdapter(factory,
 				new ConvertiblePair(typeInfo[0].toClass(), typeInfo[1].toClass())));
 	}
@@ -253,6 +268,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 	protected GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
 		ConverterCacheKey key = new ConverterCacheKey(sourceType, targetType);
 		GenericConverter converter = this.converterCache.get(key);
+		// TODO: 如果缓存有值，但是为NO_MATCH 那就返回null, 而不是把NO_MATCH直接return
 		if (converter != null) {
 			return (converter != NO_MATCH ? converter : null);
 		}
@@ -261,7 +277,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 		if (converter == null) {
 			converter = getDefaultConverter(sourceType, targetType);
 		}
-
+		// TODO: 如果默认的不为Null, 也可以return的
 		if (converter != null) {
 			this.converterCache.put(key, converter);
 			return converter;
@@ -287,6 +303,12 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 	// Internal helpers
 
+	/**
+	 * TODO: 拿到泛型类型们
+	 * @param converterClass
+	 * @param genericIfc
+	 * @return
+	 */
 	@Nullable
 	private ResolvableType[] getRequiredTypeInfo(Class<?> converterClass, Class<?> genericIfc) {
 		ResolvableType resolvableType = ResolvableType.forClass(converterClass).as(genericIfc);

@@ -21,6 +21,7 @@ import java.util.Locale;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 国际化接口，用于访问国际化信息
  * Strategy interface for resolving messages, with support for the parameterization
  * and internationalization of such messages.
  *
@@ -40,6 +41,9 @@ import org.springframework.lang.Nullable;
 public interface MessageSource {
 
 	/**
+	 * TODO: 国际化资源中的属性名
+	 * TODO: args 传递格式化串占位符所用的运行期参数，当在资源找不到对应的属性名时，会返回defaultMessage参数所指定的默认信息
+	 * TODO: local表示本地化对象
 	 * Try to resolve the message. Return default message if no message was found.
 	 * @param code the message code to look up, e.g. 'calculator.noRateSet'.
 	 * MessageSource users are encouraged to base message names on qualified class
@@ -74,6 +78,7 @@ public interface MessageSource {
 	String getMessage(String code, @Nullable Object[] args, Locale locale) throws NoSuchMessageException;
 
 	/**
+	 * TODO: resolvable封装了属性名，参数数组以及默认信息的类
 	 * Try to resolve the message using all the attributes contained within the
 	 * {@code MessageSourceResolvable} argument that was passed in.
 	 * <p>NOTE: We must throw a {@code NoSuchMessageException} on this method

@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import org.springframework.core.convert.converter.Converter;
 
 /**
+ * TODO: String 转 Charset
  * Convert a String to a {@link Charset}.
  *
  * @author Stephane Nicoll

@@ -30,6 +30,11 @@ import org.springframework.util.StringUtils;
  */
 final class StringToUUIDConverter implements Converter<String, UUID> {
 
+	/**
+	 * TODO：将一个String变为UUID
+	 * @param source the source object to convert, which must be an instance of {@code S} (never {@code null})
+	 * @return
+	 */
 	@Override
 	public UUID convert(String source) {
 		return (StringUtils.hasLength(source) ? UUID.fromString(source.trim()) : null);

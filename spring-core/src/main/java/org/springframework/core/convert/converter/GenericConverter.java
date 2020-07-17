@@ -23,6 +23,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 用于在两个或多个类型之间转换的通用转换接口，也是最灵活的接口
  * Generic converter interface for converting between two or more types.
  *
  * <p>This is the most flexible of the Converter SPI interfaces, but also the most complex.
@@ -69,6 +70,7 @@ public interface GenericConverter {
 
 	/**
 	 * Holder for a source-to-target class pair.
+	 * TODO: 包含有一对S和T
 	 */
 	final class ConvertiblePair {
 

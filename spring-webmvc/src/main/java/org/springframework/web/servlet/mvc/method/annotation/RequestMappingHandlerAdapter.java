@@ -1045,23 +1045,39 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		return attrMethod;
 	}
 
+	/**
+	 * TODO: 创建一个WebDataBinderFactory
+	 * @param handlerMethod
+	 * @return
+	 * @throws Exception
+	 */
 	private WebDataBinderFactory getDataBinderFactory(HandlerMethod handlerMethod) throws Exception {
+		// TODO: 方法所在的类，控制器方法所在的类
 		Class<?> handlerType = handlerMethod.getBeanType();
+		// TODO: 根据类去找 Method缓存
 		Set<Method> methods = this.initBinderCache.get(handlerType);
 		if (methods == null) {
+			// TODO: 拿到存在@InitBinder的注解，缓存没找到，则去selectMethods找到所有标注有@InitBinder的方法们
 			methods = MethodIntrospector.selectMethods(handlerType, INIT_BINDER_METHODS);
+			// TODO: 进行缓存起来
 			this.initBinderCache.put(handlerType, methods);
 		}
+		// TODO: Method最终都会被包装成了InvocableHanlderMethod，从而具有执行的能力
 		List<InvocableHandlerMethod> initBinderMethods = new ArrayList<>();
-		// Global methods first
+		// TODO:  Global methods first 先把全局的放进去，再放个性化的，有覆盖的效果哦
+		// TODO: 上面是找了本类的，现在看看全局里有没有@InitBinder, initBinderAdviceCache它是一个缓存LinkedHashMap，缓存着作用于全局的类，如 @ControllerAdvice, methodSet说明一个类里面可以定义N多个标注有@InitBinder的方法
 		this.initBinderAdviceCache.forEach((clazz, methodSet) -> {
+			// TODO: @RestControllerAdvice 可以指定basePackages之类的属性，看本类是否能被扫描到吧
 			if (clazz.isApplicableToBeanType(handlerType)) {
+				// TODO: 它持有的bean若是个BeanName的话，会getBean()一下的
 				Object bean = clazz.resolveBean();
 				for (Method method : methodSet) {
+					// TODO: 把method适配为可执行的InvocableHandlerMethod
 					initBinderMethods.add(createInitBinderMethod(bean, method));
 				}
 			}
 		});
+		// TODO: 标注有@InitBinder的方法们
 		for (Method method : methods) {
 			Object bean = handlerMethod.getBean();
 			initBinderMethods.add(createInitBinderMethod(bean, method));
@@ -1069,6 +1085,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		return createDataBinderFactory(initBinderMethods);
 	}
 
+	/**
+	 * TODO: 把本类的HandlerMethodArgumentResolverComposite传进去了，还有DataBinderFactory和ParameterNameDiscoverer等
+	 * @param bean
+	 * @param method
+	 * @return
+	 */
 	private InvocableHandlerMethod createInitBinderMethod(Object bean, Method method) {
 		InvocableHandlerMethod binderMethod = new InvocableHandlerMethod(bean, method);
 		if (this.initBinderArgumentResolvers != null) {

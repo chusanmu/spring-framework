@@ -55,7 +55,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * TODO: 比较核心，比较重要的一个类
+ * TODO: 比较核心，比较重要的一个类, 默认情况下，LocalValidatorFactoryBean创建的validator使用 PlatformResourceBundleLocator 获取资源的绑定关系，获取的资源名称是：ValidationMessages
  * This is the central class for {@code javax.validation} (JSR-303) setup in a Spring
  * application context: It bootstraps a {@code javax.validation.ValidationFactory} and
  * exposes it through the Spring {@link org.springframework.validation.Validator} interface
@@ -268,7 +268,7 @@ public class LocalValidatorFactoryBean extends SpringValidatorAdapter
 				// Ignore - no Hibernate Validator 5.2+ or similar provider
 			}
 		}
-
+		// TODO: spring 重新代理这个消息插值器
 		MessageInterpolator targetInterpolator = this.messageInterpolator;
 		if (targetInterpolator == null) {
 			targetInterpolator = configuration.getDefaultMessageInterpolator();

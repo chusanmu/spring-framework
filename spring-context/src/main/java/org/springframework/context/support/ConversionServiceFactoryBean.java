@@ -53,6 +53,9 @@ public class ConversionServiceFactoryBean implements FactoryBean<ConversionServi
 	@Nullable
 	private Set<?> converters;
 
+	/**
+	 * TODO: 最终是一个DefaultConversionService，然后向里面添加自定义的转换器
+	 */
 	@Nullable
 	private GenericConversionService conversionService;
 
@@ -69,11 +72,13 @@ public class ConversionServiceFactoryBean implements FactoryBean<ConversionServi
 
 	@Override
 	public void afterPropertiesSet() {
+		// TODO: bean初始化结束后，注册自定义的转换器进去
 		this.conversionService = createConversionService();
 		ConversionServiceFactory.registerConverters(this.converters, this.conversionService);
 	}
 
 	/**
+	 * TODO: 最终是个GenericConversionService
 	 * Create the ConversionService instance returned by this factory bean.
 	 * <p>Creates a simple {@link GenericConversionService} instance by default.
 	 * Subclasses may override to customize the ConversionService instance that
@@ -86,6 +91,11 @@ public class ConversionServiceFactoryBean implements FactoryBean<ConversionServi
 
 	// implementing FactoryBean
 
+	/**
+	 * 最终是一个DefaultConversionService
+	 *
+	 * @return
+	 */
 	@Override
 	@Nullable
 	public ConversionService getObject() {

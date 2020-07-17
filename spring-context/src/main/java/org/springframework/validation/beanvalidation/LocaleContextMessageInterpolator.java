@@ -49,6 +49,7 @@ public class LocaleContextMessageInterpolator implements MessageInterpolator {
 
 	@Override
 	public String interpolate(String message, Context context) {
+		// TODO: LocaleContextHolder.getLocale() 获取当前时区信息
 		return this.targetInterpolator.interpolate(message, context, LocaleContextHolder.getLocale());
 	}
 

@@ -35,6 +35,11 @@ import org.springframework.util.StringUtils;
  */
 final class StringToLocaleConverter implements Converter<String, Locale> {
 
+	/**
+	 * TODO: 把String转为本地化Locale
+	 * @param source the source object to convert, which must be an instance of {@code S} (never {@code null})
+	 * @return
+	 */
 	@Override
 	@Nullable
 	public Locale convert(String source) {

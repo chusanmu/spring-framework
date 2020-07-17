@@ -38,6 +38,9 @@ import org.springframework.web.method.support.InvocableHandlerMethod;
  */
 public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
 
+	/**
+	 * TODO: 保存所有
+	 */
 	private final List<InvocableHandlerMethod> binderMethods;
 
 
@@ -64,8 +67,11 @@ public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
 	@Override
 	public void initBinder(WebDataBinder dataBinder, NativeWebRequest request) throws Exception {
 		for (InvocableHandlerMethod binderMethod : this.binderMethods) {
+			// TODO:
 			if (isBinderMethodApplicable(binderMethod, dataBinder)) {
+				// TODO: 这里和调用普通控制器方法一样，方法入参上也可以写各式各样的参数
 				Object returnValue = binderMethod.invokeForRequest(request, null, dataBinder);
+				// TODO: 标记有@InitBinder注解的方法必须返回void
 				if (returnValue != null) {
 					throw new IllegalStateException(
 							"@InitBinder methods must not return a value (should be void): " + binderMethod);
@@ -80,6 +86,7 @@ public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
 	 * check the specified attribute names in the annotation value, if any.
 	 */
 	protected boolean isBinderMethodApplicable(HandlerMethod initBinderMethod, WebDataBinder dataBinder) {
+		// TODO: 直接查找注解啊
 		InitBinder ann = initBinderMethod.getMethodAnnotation(InitBinder.class);
 		Assert.state(ann != null, "No InitBinder annotation");
 		String[] names = ann.value();

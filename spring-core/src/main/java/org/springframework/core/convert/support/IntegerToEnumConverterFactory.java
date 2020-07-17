@@ -31,10 +31,14 @@ final class IntegerToEnumConverterFactory implements ConverterFactory<Integer, E
 
 	@Override
 	public <T extends Enum> Converter<Integer, T> getConverter(Class<T> targetType) {
+		// TODO: getEnumType 表示拿出枚举的class类型
 		return new IntegerToEnum(ConversionUtils.getEnumType(targetType));
 	}
 
-
+	/**
+	 * TODO: 把Integer转为Enum的子类型，相当于根据integer 找到一个 enum
+	 * @param <T>
+	 */
 	private static class IntegerToEnum<T extends Enum> implements Converter<Integer, T> {
 
 		private final Class<T> enumType;

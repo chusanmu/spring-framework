@@ -108,6 +108,11 @@ public class RequestContextFilter extends OncePerRequestFilter {
 		}
 	}
 
+	/**
+	 * TODO: spring Boot环境下，会添加一个这个过滤器，然后每一次请求，LocaleContextHolder都会保存当前请求的本地化信息
+	 * @param request
+	 * @param requestAttributes
+	 */
 	private void initContextHolders(HttpServletRequest request, ServletRequestAttributes requestAttributes) {
 		LocaleContextHolder.setLocale(request.getLocale(), this.threadContextInheritable);
 		RequestContextHolder.setRequestAttributes(requestAttributes, this.threadContextInheritable);

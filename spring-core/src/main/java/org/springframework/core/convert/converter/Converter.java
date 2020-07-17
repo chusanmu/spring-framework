@@ -19,6 +19,7 @@ package org.springframework.core.convert.converter;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: converter顶层接口, 把S类型转换为T类型，使用最简单，但是最不灵活
  * A converter converts a source object of type {@code S} to a target of type {@code T}.
  *
  * <p>Implementations of this interface are thread-safe and can be shared.

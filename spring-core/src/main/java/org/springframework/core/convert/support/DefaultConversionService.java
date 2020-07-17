@@ -45,6 +45,7 @@ public class DefaultConversionService extends GenericConversionService {
 
 
 	/**
+	 * TODO： 注册到自己身上，因为自己也是个ConverterRegistry
 	 * Create a new {@code DefaultConversionService} with the set of
 	 * {@linkplain DefaultConversionService#addDefaultConverters(ConverterRegistry) default converters}.
 	 */
@@ -79,6 +80,7 @@ public class DefaultConversionService extends GenericConversionService {
 	}
 
 	/**
+	 * TODO: 默认情况下这个ConversionService注册的转换器们，几乎涵盖了所有, 非常全面了
 	 * Add converters appropriate for most environments.
 	 * @param converterRegistry the registry of converters to add to
 	 * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})

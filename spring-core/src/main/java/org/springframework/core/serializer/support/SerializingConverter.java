@@ -24,6 +24,7 @@ import org.springframework.core.serializer.Serializer;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 把任意一个对象，转换成一个byte[]数组
  * A {@link Converter} that delegates to a
  * {@link org.springframework.core.serializer.Serializer}
  * to convert an object to a byte array.
@@ -34,6 +35,9 @@ import org.springframework.util.Assert;
  */
 public class SerializingConverter implements Converter<Object, byte[]> {
 
+	/**
+	 * TODO: 序列化器，把简单的对象 输出流里
+	 */
 	private final Serializer<Object> serializer;
 
 
@@ -60,6 +64,7 @@ public class SerializingConverter implements Converter<Object, byte[]> {
 	public byte[] convert(Object source) {
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream(1024);
 		try  {
+			// TODO: 把对象序列化成字节流
 			this.serializer.serialize(source, byteStream);
 			return byteStream.toByteArray();
 		}

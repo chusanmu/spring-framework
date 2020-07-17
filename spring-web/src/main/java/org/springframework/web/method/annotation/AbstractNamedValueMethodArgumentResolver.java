@@ -146,9 +146,10 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 		}
 		// TODO: 完成自动化的数据绑定
 		if (binderFactory != null) {
+			// TODO: 创建出一个WebDataBinder
 			WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
 			try {
-				// TODO: 通过数据绑定器里的converter转换器把arg转换为指定类型的数值
+				// TODO: 通过数据绑定器里的converter转换器把arg转换为指定类型的数值,TODO: 比如String转为converter
 				arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
 			}
 			catch (ConversionNotSupportedException ex) {

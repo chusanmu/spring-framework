@@ -29,6 +29,9 @@ import org.springframework.util.ClassUtils;
  */
 abstract class AbstractConditionalEnumConverter implements ConditionalConverter {
 
+	/**
+	 * 借助这个接口，当然需要外部自定义转换逻辑
+	 */
 	private final ConversionService conversionService;
 
 
@@ -39,7 +42,9 @@ abstract class AbstractConditionalEnumConverter implements ConditionalConverter 
 
 	@Override
 	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		// TODO: 拿到source所有的实现的接口，若没有实现任何接口，永远返回true
 		for (Class<?> interfaceType : ClassUtils.getAllInterfacesForClassAsSet(sourceType.getType())) {
+			// TODO: 最终委托给conversionService去判断是否可以进行转换
 			if (this.conversionService.canConvert(TypeDescriptor.valueOf(interfaceType), targetType)) {
 				return false;
 			}

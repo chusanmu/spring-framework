@@ -25,6 +25,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 通过MessageSourceAccessor根据code获取具体信息时，如果默认配置的本地化对象为空，则通过LocalContextHolder获取
  * Helper class for easy access to messages from a MessageSource,
  * providing various overloaded getMessage methods.
  *
@@ -84,6 +85,7 @@ public class MessageSourceAccessor {
 	 * @return the message
 	 */
 	public String getMessage(String code, String defaultMessage) {
+		// TODO: 如果默认配置的本地化对象为空，则通过LocaleContextHolder获取
 		String msg = this.messageSource.getMessage(code, null, defaultMessage, getDefaultLocale());
 		return (msg != null ? msg : "");
 	}

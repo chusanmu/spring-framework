@@ -34,6 +34,9 @@ final class StringToBooleanConverter implements Converter<String, Boolean> {
 
 	private static final Set<String> falseValues = new HashSet<>(4);
 
+	/**
+	 * TODO: StringToBooleanConverter 这个转换器，就是传下列哪些值的时候可以被转为boolean
+	 */
 	static {
 		trueValues.add("true");
 		trueValues.add("on");

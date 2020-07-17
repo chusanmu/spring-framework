@@ -34,6 +34,9 @@ import org.springframework.lang.Nullable;
  */
 final class ArrayToObjectConverter implements ConditionalGenericConverter {
 
+	/**
+	 * TODO: 借助了conversionService
+	 */
 	private final ConversionService conversionService;
 
 
@@ -42,11 +45,21 @@ final class ArrayToObjectConverter implements ConditionalGenericConverter {
 	}
 
 
+	/**
+	 * TODO: 注意都是Object
+	 * @return
+	 */
 	@Override
 	public Set<ConvertiblePair> getConvertibleTypes() {
 		return Collections.singleton(new ConvertiblePair(Object[].class, Object.class));
 	}
 
+	/**
+	 * TODO: 实现ConditionalConverter的方法，最终是委托给了ConversionService#canConvert方法
+	 * @param sourceType the type descriptor of the field we are converting from
+	 * @param targetType the type descriptor of the field we are converting to
+	 * @return
+	 */
 	@Override
 	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
 		return ConversionUtils.canConvertElements(sourceType.getElementTypeDescriptor(), targetType, this.conversionService);
