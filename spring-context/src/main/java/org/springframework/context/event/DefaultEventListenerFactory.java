@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 
 /**
+ * TODO: 它是在Bean工厂准备好后，默认都会注册的6大bean之一
  * Default {@link EventListenerFactory} implementation that supports the
  * regular {@link EventListener} annotation.
  *
@@ -32,6 +33,9 @@ import org.springframework.core.Ordered;
  */
 public class DefaultEventListenerFactory implements EventListenerFactory, Ordered {
 
+	/**
+	 * TODO: 它希望自己是被最后执行的
+	 */
 	private int order = LOWEST_PRECEDENCE;
 
 
@@ -44,11 +48,22 @@ public class DefaultEventListenerFactory implements EventListenerFactory, Ordere
 		return this.order;
 	}
 
-
+	/**
+	 * TODO: 匹配了所有的标注了@EventListener的方法
+	 * @param method an {@link EventListener} annotated method
+	 * @return
+	 */
 	public boolean supportsMethod(Method method) {
 		return true;
 	}
 
+	/**
+	 * TODO； ApplicationListenerMethodAdapter是一个通用的方法监听适配器
+	 * @param beanName the name of the bean
+	 * @param type the target type of the instance
+	 * @param method the {@link EventListener} annotated method
+	 * @return
+	 */
 	@Override
 	public ApplicationListener<?> createApplicationListener(String beanName, Class<?> type, Method method) {
 		return new ApplicationListenerMethodAdapter(beanName, type, method);

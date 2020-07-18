@@ -48,9 +48,14 @@ import org.springframework.util.ErrorHandler;
  */
 public class SimpleApplicationEventMulticaster extends AbstractApplicationEventMulticaster {
 
+	/**
+	 * TODO: 若set了一个执行器，那所有的监听器都将会异步执行
+	 */
 	@Nullable
 	private Executor taskExecutor;
-
+	/**
+	 * TODO: 监听者执行失败的回调
+	 */
 	@Nullable
 	private ErrorHandler errorHandler;
 
@@ -130,9 +135,13 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	@Override
 	public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
 		ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));
+		// TODO: 如果有执行器executor, 那就会扔给线程池异步的去执行
+		// TODO: 默认情况下是没有的，spring默认情况下同步执行这些监听器的，我们可以调用set方法配置一个执行器(建议配置)
 		Executor executor = getTaskExecutor();
 		for (ApplicationListener<?> listener : getApplicationListeners(event, type)) {
+			// TODO: 绝大部分都是null
 			if (executor != null) {
+				// TODO: 可以放在线程池里面执行
 				executor.execute(() -> invokeListener(listener, event));
 			}
 			else {
@@ -169,6 +178,8 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
 		try {
+			// TODO: 如果是实现了ApplicationListener接口，则直接调用其中的onApplicationEvent()方法
+			// TODO: 如果是@EventListener， 则调用ApplicationListenerMethodAdapter中的onApplicationEvent()方法
 			listener.onApplicationEvent(event);
 		}
 		catch (ClassCastException ex) {

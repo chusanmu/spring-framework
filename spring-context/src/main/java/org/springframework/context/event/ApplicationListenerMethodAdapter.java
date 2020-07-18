@@ -79,7 +79,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
 	@Nullable
 	private ApplicationContext applicationContext;
-
+	/**
+	 * TODO: 条件表达式处理器，默认使用Spel去解析，只是对它进行了增强
+	 */
 	@Nullable
 	private EventExpressionEvaluator evaluator;
 
@@ -90,10 +92,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		this.targetMethod = (!Proxy.isProxyClass(targetClass) ?
 				AopUtils.getMostSpecificMethod(method, targetClass) : this.method);
 		this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
-
+		// TODO: 把这个注解拿到，至少指定一个监听类型
 		EventListener ann = AnnotatedElementUtils.findMergedAnnotation(this.targetMethod, EventListener.class);
 		this.declaredEventTypes = resolveDeclaredEventTypes(method, ann);
+		// TODO: 拿到条件信息 spel中有用
 		this.condition = (ann != null ? ann.condition() : null);
+		// TODO: 支持order来控制执行顺序的
 		this.order = resolveOrder(this.targetMethod);
 	}
 
@@ -136,7 +140,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		this.evaluator = evaluator;
 	}
 
-
+	// TODO: 开始处理事件
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		processEvent(event);
@@ -144,7 +148,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
 	@Override
 	public boolean supportsEventType(ResolvableType eventType) {
+		// TODO: 判断该处理器是否支持当前类型的事件
 		for (ResolvableType declaredEventType : this.declaredEventTypes) {
+			// TODO: 类型匹配上了，就表示可以处理这个事件，支持事件的泛型依赖匹配
 			if (declaredEventType.isAssignableFrom(eventType)) {
 				return true;
 			}
@@ -174,10 +180,15 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 	 * match and handling non-null result, if any.
 	 */
 	public void processEvent(ApplicationEvent event) {
+		// TODO: 解析参数，主要是兼容PayloadApplicationEvent，把事件拿出来，返回的数组要么为[], 总之最多只有一个参数，就是事件本身
 		Object[] args = resolveArguments(event);
+		// TODO: 解析condition条件的地方，总之就是根据事件源，绝大多数情况下args里面装的就是这个event
 		if (shouldHandle(event, args)) {
+			// TODO: 调用方法，调用此方法Method
 			Object result = doInvoke(args);
+			// TODO: @EventListener最大的优势，它可以行使事件链，可以继续发布事件，把返回值当做事件继续往下publish，返回值可以是个object,最终会被包装成payload事件
 			if (result != null) {
+				// TODO: 如果返回值是数组或者是collection，会把里面的内容当做事件循环publishEvent，如果就是个pojo，那就直接Publish
 				handleResult(result);
 			}
 			else {
@@ -241,9 +252,11 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		if (args == null) {
 			return false;
 		}
+		// TODO: 解析condition，它默认是空串，只有配置了才会去执行，委托给EventExpressionEvaluator去执行
 		String condition = getCondition();
 		if (StringUtils.hasText(condition)) {
 			Assert.notNull(this.evaluator, "EventExpressionEvaluator must not be null");
+			// TODO: 使用evaluator 去解析
 			return this.evaluator.condition(
 					condition, event, this.targetMethod, this.methodKey, args, this.applicationContext);
 		}

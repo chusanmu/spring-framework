@@ -25,6 +25,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * TODO: 执行器的执行上下文
  * A method-based {@link org.springframework.expression.EvaluationContext} that
  * provides explicit support for method-based invocations.
  *
@@ -85,6 +86,7 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
 		}
 
 		// Expose indexed variables as well as parameter names (if discoverable)
+		// TODO: 支持根据参数名取值
 		String[] paramNames = this.parameterNameDiscoverer.getParameterNames(this.method);
 		int paramCount = (paramNames != null ? paramNames.length : this.method.getParameterCount());
 		int argsCount = this.arguments.length;
@@ -99,6 +101,7 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
 				// Actual argument found - otherwise left as null
 				value = this.arguments[i];
 			}
+			// TODO: 支持a0, a1, p0,o1方式取值
 			setVariable("a" + i, value);
 			setVariable("p" + i, value);
 			if (paramNames != null && paramNames[i] != null) {

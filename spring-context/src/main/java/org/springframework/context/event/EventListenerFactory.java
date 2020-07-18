@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import org.springframework.context.ApplicationListener;
 
 /**
+ * TODO: 策略接口，专门为Method生产ApplicationListener，类似一个转换器的作用
  * Strategy interface for creating {@link ApplicationListener} for methods
  * annotated with {@link EventListener}.
  *
@@ -30,6 +31,7 @@ import org.springframework.context.ApplicationListener;
 public interface EventListenerFactory {
 
 	/**
+	 * TODO: 是否支持此方法，支持才create
 	 * Specify if this factory supports the specified {@link Method}.
 	 * @param method an {@link EventListener} annotated method
 	 * @return {@code true} if this factory supports the specified method
@@ -37,6 +39,7 @@ public interface EventListenerFactory {
 	boolean supportsMethod(Method method);
 
 	/**
+	 * TODO: 根据Method等相关信息，生产一个ApplicationListener
 	 * Create an {@link ApplicationListener} for the specified method.
 	 * @param beanName the name of the bean
 	 * @param type the target type of the instance

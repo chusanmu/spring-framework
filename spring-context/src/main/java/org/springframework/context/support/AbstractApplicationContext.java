@@ -382,32 +382,39 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
 		Assert.notNull(event, "Event must not be null");
-
+		// TODO: 如果这个事件不是ApplicationEvent类型，那就包装成这个类型
 		// Decorate event as an ApplicationEvent if necessary
 		ApplicationEvent applicationEvent;
 		if (event instanceof ApplicationEvent) {
 			applicationEvent = (ApplicationEvent) event;
 		}
 		else {
+			// TODO: 第一个参数为source ,第二个是 payload, 才传的是事件本身
 			applicationEvent = new PayloadApplicationEvent<>(this, event);
+			// TODO: 若没有指定类型，就交给payloadApplicationEvent<T> 它会根据泛型类型生成出来的
 			if (eventType == null) {
 				eventType = ((PayloadApplicationEvent<?>) applicationEvent).getResolvableType();
 			}
 		}
 
 		// Multicast right now if possible - or lazily once the multicaster is initialized
+		// TODO: 如果是早期事件 就添加进去, 会立马发布了
 		if (this.earlyApplicationEvents != null) {
 			this.earlyApplicationEvents.add(applicationEvent);
 		}
 		else {
+			// TODO: 最终都会把事件委派给了applicationEventMulticaster 让它去发送事件
 			getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
 		}
 
 		// Publish event via parent context as well...
+		// TODO: 这里要注意，如果是父容器，也会向父容器里面添加一份
 		if (this.parent != null) {
+			// TODO: 既然eventType已经解析出来了，所以就调用protected内部方法即可，而不用再解析一遍了
 			if (this.parent instanceof AbstractApplicationContext) {
 				((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
 			}
+			// TODO: 如果是普通的发布，就没有eventType了
 			else {
 				this.parent.publishEvent(event);
 			}

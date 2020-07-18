@@ -24,6 +24,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 /**
+ * TODO: 持有上下文的Request容器，使用是很简单的，它所有的方法都是static的
  * Holder class to expose the web request in the form of a thread-bound
  * {@link RequestAttributes} object. The request will be inherited
  * by any child threads spawned by the current thread if the
@@ -47,9 +48,14 @@ public abstract class RequestContextHolder  {
 	private static final boolean jsfPresent =
 			ClassUtils.isPresent("javax.faces.context.FacesContext", RequestContextHolder.class.getClassLoader());
 
+	/**
+	 * TODO: 线程和request绑定的容器
+	 */
 	private static final ThreadLocal<RequestAttributes> requestAttributesHolder =
 			new NamedThreadLocal<>("Request attributes");
-
+	/**
+	 * TODO: 它是被子线程继承的request
+	 */
 	private static final ThreadLocal<RequestAttributes> inheritableRequestAttributesHolder =
 			new NamedInheritableThreadLocal<>("Request context");
 
@@ -63,6 +69,7 @@ public abstract class RequestContextHolder  {
 	}
 
 	/**
+	 * TODO: 把传入的requestAttributes和当前线程绑定，false 表示不能被继承
 	 * Bind the given RequestAttributes to the current thread,
 	 * <i>not</i> exposing it as inheritable for child threads.
 	 * @param attributes the RequestAttributes to expose
@@ -96,6 +103,7 @@ public abstract class RequestContextHolder  {
 	}
 
 	/**
+	 * TODO: 兼容继承和非继承，只要得到了就成
 	 * Return the RequestAttributes currently bound to the thread.
 	 * @return the RequestAttributes currently bound to the thread,
 	 * or {@code null} if none bound

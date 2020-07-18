@@ -864,6 +864,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Trigger post-initialization callback for all applicable beans...
 		for (String beanName : beanNames) {
+			// TODO: 注意这里，getSingleton(beanName)这个方法，是直接去map里找，只有被实例化的单例bean才会返回true，否则是false, Spring这里没有用getBean可能是性能的考虑
 			Object singletonInstance = getSingleton(beanName);
 			if (singletonInstance instanceof SmartInitializingSingleton) {
 				final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;

@@ -24,6 +24,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 /**
+ * TODO； 注解驱动的声明式事务相关的监听器工厂，用于处理@TransactionalEventListener这个注解标注的方法
  * {@link EventListenerFactory} implementation that handles {@link TransactionalEventListener}
  * annotated methods.
  *
@@ -45,6 +46,11 @@ public class TransactionalEventListenerFactory implements EventListenerFactory, 
 	}
 
 
+	/**
+	 * TODO； 它要求方法上必须拥有@TransactionalEventListener这个注解
+	 * @param method an {@link EventListener} annotated method
+	 * @return
+	 */
 	@Override
 	public boolean supportsMethod(Method method) {
 		return AnnotatedElementUtils.hasAnnotation(method, TransactionalEventListener.class);
@@ -52,6 +58,7 @@ public class TransactionalEventListenerFactory implements EventListenerFactory, 
 
 	@Override
 	public ApplicationListener<?> createApplicationListener(String beanName, Class<?> type, Method method) {
+		// TODO: 这个adapter继承自 ApplicationListenerMethodAdapter
 		return new ApplicationListenerMethodTransactionalAdapter(beanName, type, method);
 	}
 

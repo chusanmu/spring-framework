@@ -40,6 +40,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * TODO：事件发布器的抽象实现, 如果想自定义一个事件发布器，可以继承它
+ * TODO: 提供基本的监听器注册功能，比如处理代理对象类型
  * Abstract implementation of the {@link ApplicationEventMulticaster} interface,
  * providing the basic listener registration facility.
  *
@@ -62,8 +64,14 @@ import org.springframework.util.ObjectUtils;
 public abstract class AbstractApplicationEventMulticaster
 		implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
 
+	/**
+	 * TODO: 内部类，类似包装的类
+	 */
 	private final ListenerRetriever defaultRetriever = new ListenerRetriever(false);
 
+	/**
+	 * TODO: 它是一个缓存，key由eventType, sourceType唯一确定
+	 */
 	final Map<ListenerCacheKey, ListenerRetriever> retrieverCache = new ConcurrentHashMap<>(64);
 
 	@Nullable
@@ -88,6 +96,7 @@ public abstract class AbstractApplicationEventMulticaster
 			if (this.beanClassLoader == null) {
 				this.beanClassLoader = cbf.getBeanClassLoader();
 			}
+			// TODO: 互斥锁，用容器里面的互斥锁
 			this.retrievalMutex = cbf.getSingletonMutex();
 		}
 	}
@@ -100,21 +109,32 @@ public abstract class AbstractApplicationEventMulticaster
 		return this.beanFactory;
 	}
 
-
+	/**
+	 * TODO: 向容器内注册一个监听器，需要注意的是，添加进来的监听器都是保存到defaultRetriever里面的，最后getApplicationListeners就是从这里面拿的，注册进来多少，最终就返回多少
+	 * @param listener the listener to add
+	 */
 	@Override
 	public void addApplicationListener(ApplicationListener<?> listener) {
 		synchronized (this.retrievalMutex) {
 			// Explicitly remove target for a proxy, if registered already,
 			// in order to avoid double invocations of the same listener.
+			// TODO:这一步，若类型是SingletonTargetSource也给拿出来，如果不是被代理的对象Advised，那就返回null
 			Object singletonTarget = AopProxyUtils.getSingletonTarget(listener);
 			if (singletonTarget instanceof ApplicationListener) {
+				// TODO: 从默认的持有的applicationListeners里把它移除
 				this.defaultRetriever.applicationListeners.remove(singletonTarget);
 			}
+			// TODO: 然后添加进来，可以保证它在顶部
 			this.defaultRetriever.applicationListeners.add(listener);
+			// TODO: 每加进来一个，都清空了缓存
 			this.retrieverCache.clear();
 		}
 	}
 
+	/**
+	 * TODO: 根据名称添加一个监听器也是可以的
+	 * @param listenerBeanName the name of the listener bean to add
+	 */
 	@Override
 	public void addApplicationListenerBean(String listenerBeanName) {
 		synchronized (this.retrievalMutex) {
@@ -150,6 +170,7 @@ public abstract class AbstractApplicationEventMulticaster
 
 
 	/**
+	 * TODO: 如果不传参数，那就是返回defaultRetriever这个里面的值即可
 	 * Return a Collection containing all ApplicationListeners.
 	 * @return a Collection of ApplicationListeners
 	 * @see org.springframework.context.ApplicationListener
@@ -161,6 +182,7 @@ public abstract class AbstractApplicationEventMulticaster
 	}
 
 	/**
+	 * TODO: 如果指定了event事件，和eventType，那就这个方法，绝大部分是这里
 	 * Return a Collection of ApplicationListeners matching the given
 	 * event type. Non-matching listeners get excluded early.
 	 * @param event the event to be propagated. Allows for excluding
@@ -177,12 +199,14 @@ public abstract class AbstractApplicationEventMulticaster
 		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
 
 		// Quick check for existing entry on ConcurrentHashMap...
+		// TODO: 缓存里存在，则直接返回
 		ListenerRetriever retriever = this.retrieverCache.get(cacheKey);
 		if (retriever != null) {
 			return retriever.getApplicationListeners();
 		}
-
+		// TODO: 这里有个缓存安全的特殊处理，其最为核心的方法，其实还是retrieveApplicationListeners，若是缓存安全的，才会缓存它，否则直接return即可
 		if (this.beanClassLoader == null ||
+				// TODO: 判断该类型是否在指定的classLoader或者其parent classloader中
 				(ClassUtils.isCacheSafe(event.getClass(), this.beanClassLoader) &&
 						(sourceType == null || ClassUtils.isCacheSafe(sourceType, this.beanClassLoader)))) {
 			// Fully synchronized building and caching of a ListenerRetriever
@@ -192,6 +216,7 @@ public abstract class AbstractApplicationEventMulticaster
 					return retriever.getApplicationListeners();
 				}
 				retriever = new ListenerRetriever(true);
+				// TODO: 需要缓存起来，所以才需要把retriever传过去，否则传null即可
 				Collection<ApplicationListener<?>> listeners =
 						retrieveApplicationListeners(eventType, sourceType, retriever);
 				this.retrieverCache.put(cacheKey, retriever);

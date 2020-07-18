@@ -30,6 +30,7 @@ import org.springframework.expression.Expression;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 处理eventCondition
  * Utility class handling the SpEL expression parsing. Meant to be used
  * as a reusable, thread-safe component.
  *
@@ -39,22 +40,29 @@ import org.springframework.lang.Nullable;
  */
 class EventExpressionEvaluator extends CachedExpressionEvaluator {
 
+	/**
+	 * TODO: ExpressionKey 为cachedExpressionEvaluator的一个内部类
+	 * TODO: Expression为表达式
+	 */
 	private final Map<ExpressionKey, Expression> conditionCache = new ConcurrentHashMap<>(64);
 
 
 	/**
+	 * TODO: 只有这一个重要方法，EventExpressionRootObject就是简单的持有传入的两个变量的引用而已
+	 * TODO: root是#root值的来源
 	 * Specify if the condition defined by the specified expression matches.
 	 */
 	public boolean condition(String conditionExpression, ApplicationEvent event, Method targetMethod,
 			AnnotatedElementKey methodKey, Object[] args, @Nullable BeanFactory beanFactory) {
 
 		EventExpressionRootObject root = new EventExpressionRootObject(event, args);
+		// TODO: 准备一个执行上下文，getParameterNameDiscoverer可以根据方法参数列表的名称取值，同时也支持a0,a1,a2等等都直接取值
 		MethodBasedEvaluationContext evaluationContext = new MethodBasedEvaluationContext(
 				root, targetMethod, args, getParameterNameDiscoverer());
 		if (beanFactory != null) {
 			evaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
 		}
-
+		// TODO: 默认采用的是spelExpressionParser这个解析器解析这个表达式
 		return (Boolean.TRUE.equals(getExpression(this.conditionCache, methodKey, conditionExpression).getValue(
 				evaluationContext, Boolean.class)));
 	}
