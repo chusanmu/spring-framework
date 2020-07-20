@@ -527,14 +527,16 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		long startTime = System.currentTimeMillis();
 
 		try {
+			// TODO: 开始初始化子容器
 			this.webApplicationContext = initWebApplicationContext();
+			// TODO: 继续留一个口，给子类去复写初始化所需要的操作，一般都为空实现即可，除非自己要复习DispatcherServlet
 			initFrameworkServlet();
 		}
 		catch (ServletException | RuntimeException ex) {
 			logger.error("Context initialization failed", ex);
 			throw ex;
 		}
-
+		// TODO: 看到这句日志，就表示DispatcherServlet已经初始化完成了，web子容器也就初始化完成了
 		if (logger.isDebugEnabled()) {
 			String value = this.enableLoggingRequestDetails ?
 					"shown which may lead to unsafe logging of potentially sensitive data" :
@@ -542,7 +544,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			logger.debug("enableLoggingRequestDetails='" + this.enableLoggingRequestDetails +
 					"': request parameters and headers will be " + value);
 		}
-
+		// TODO: 看到这句日志，表示 整个spring父子容器全部初始化，启动完成了
 		if (logger.isInfoEnabled()) {
 			logger.info("Completed initialization in " + (System.currentTimeMillis() - startTime) + " ms");
 		}
@@ -558,16 +560,18 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see #setContextConfigLocation
 	 */
 	protected WebApplicationContext initWebApplicationContext() {
+		// TODO: 从servletContext中把上面已经 创建好了的跟容器拿到手
 		WebApplicationContext rootContext =
 				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 		WebApplicationContext wac = null;
-
+		// TODO: 这里注意，因为我们是注解版开发，创建DispatcherServlet的时候会把web子容器放进来，所以此处肯定不为null了，那么就会继续进行 初始化，刷新容器，和父容器一样的
 		if (this.webApplicationContext != null) {
 			// A context instance was injected at construction time -> use it
 			wac = this.webApplicationContext;
 			if (wac instanceof ConfigurableWebApplicationContext) {
 				ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) wac;
 				if (!cwac.isActive()) {
+					// TODO: 设置父容器 为根容器
 					// The context has not yet been refreshed -> provide services such as
 					// setting the parent context, setting the application context id, etc
 					if (cwac.getParent() == null) {
@@ -575,10 +579,12 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 						// the root application context (if any; may be null) as the parent
 						cwac.setParent(rootContext);
 					}
+					// TODO: 根据绑定的配置，初始化，刷新容器
 					configureAndRefreshWebApplicationContext(cwac);
 				}
 			}
 		}
+		// TODO: 若是web.xml的方式，会走到这里，进而走findWebApplicationContext()
 		if (wac == null) {
 			// No context instance was injected at construction time -> see if one
 			// has been registered in the servlet context. If one exists, it is assumed
@@ -590,7 +596,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			// No context instance is defined for this servlet -> create a local one
 			wac = createWebApplicationContext(rootContext);
 		}
-		// TODO: 如果没有初始化刷新，则进行刷新
+		// TODO: 如果没有初始化刷新，则进行刷新 refreshEventReceived和onRefresh方法，不会重复执行
 		if (!this.refreshEventReceived) {
 			// Either the context is not a ConfigurableApplicationContext with refresh
 			// support or the context injected at construction time had already been
@@ -599,9 +605,10 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 				onRefresh(wac);
 			}
 		}
-
+		// TODO: 是否需要把容器发布出去，作为servletContext的一个属性值呢？默认是true的，一般情况下都为true
 		if (this.publishContext) {
 			// Publish the context as a servlet context attribute.
+			// TODO: 这么一来，我们的根容器，web子容器其实就放到servletContext上下文里面了，拿取都很方便，只是一般都是拿根容器
 			String attrName = getServletContextAttributeName();
 			getServletContext().setAttribute(attrName, wac);
 		}
@@ -699,6 +706,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		postProcessWebApplicationContext(wac);
 		applyInitializers(wac);
+		// TODO: 初始化方法啊
 		wac.refresh();
 	}
 
@@ -837,8 +845,10 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @param event the incoming ApplicationContext event
 	 */
 	public void onApplicationEvent(ContextRefreshedEvent event) {
+		// TODO: 标记已经刷新过了
 		this.refreshEventReceived = true;
 		synchronized (this.onRefreshMonitor) {
+			// TODO: 模板方法，dispatcherServlet就可以进行初始化web组件了
 			onRefresh(event.getApplicationContext());
 		}
 	}

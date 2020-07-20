@@ -56,10 +56,12 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 		Class<?>[] configClasses = getRootConfigClasses();
 		if (!ObjectUtils.isEmpty(configClasses)) {
 			AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+			// TODO: 并且把留给子类 设置的配置文件注册了进去，配置文件可能有多个，这里会以累加的方式添加进去
 			context.register(configClasses);
 			return context;
 		}
 		else {
+			// TODO: 说明，我们关于root的配置文件 是可以设置返回null的
 			return null;
 		}
 	}
@@ -72,6 +74,7 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 	@Override
 	protected WebApplicationContext createServletApplicationContext() {
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+		// TODO: 这里也是拿到我们配置的配置文件，然后进行注册
 		Class<?>[] configClasses = getServletConfigClasses();
 		if (!ObjectUtils.isEmpty(configClasses)) {
 			context.register(configClasses);

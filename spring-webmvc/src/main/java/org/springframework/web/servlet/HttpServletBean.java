@@ -140,6 +140,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	}
 
 	/**
+	 * TODO: servlet的初始化方法啊
 	 * Map config parameters onto bean properties of this servlet, and
 	 * invoke subclass initialization.
 	 * @throws ServletException if bean properties are invalid (or required
@@ -149,12 +150,17 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	public final void init() throws ServletException {
 
 		// Set bean properties from init parameters.
+		// TODO: 把servlet的初始化参数封装进来
 		PropertyValues pvs = new ServletConfigPropertyValues(getServletConfig(), this.requiredProperties);
+		// TODO: 这里我们并没有给此servlet初始化一些参数，所以此处为空 ，最后也就是false, 若进来了，可以看到里面会做一些处理，将DispatcherServlet转换成一个BeanWrapper对象，从而能够以spring的方式来对初始化参数的值进行一个注入
+		// TODO: 此部分把当前servlet封装成一个BeanWrapper在把它交给spring管理部分 非常的重要，后续spring boot源码，会知道此部分代码的重要性
 		if (!pvs.isEmpty()) {
 			try {
 				BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(this);
 				ResourceLoader resourceLoader = new ServletContextResourceLoader(getServletContext());
+				// TODO: 同时注册一个属性编辑器
 				bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, getEnvironment()));
+				// TODO: 让子类去实现，但是都没有具体的实现
 				initBeanWrapper(bw);
 				bw.setPropertyValues(pvs, true);
 			}
@@ -167,6 +173,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		}
 
 		// Let subclasses do whatever initialization they like.
+		// TODO: 会走到这里
 		initServletBean();
 	}
 

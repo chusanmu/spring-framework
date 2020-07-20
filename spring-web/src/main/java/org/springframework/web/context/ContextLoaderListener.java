@@ -96,6 +96,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 
 
 	/**
+	 * TODO: 把listener添加到容器之后，这时候会执行到此方法去初始化webApplicationContext
 	 * Initialize the root web application context.
 	 */
 	@Override

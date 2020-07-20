@@ -17,6 +17,7 @@
 package org.springframework.context;
 
 /**
+ * TODO: Spring事件发布器接口
  * Interface that encapsulates event publication functionality.
  *
  * <p>Serves as a super-interface for {@link ApplicationContext}.

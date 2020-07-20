@@ -227,6 +227,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		if (result.getClass().isArray()) {
 			Object[] events = ObjectUtils.toObjectArray(result);
 			for (Object event : events) {
+				// TODO: 如果存在返回值，我们这时候会继续publishEvent， 发布事件
 				publishEvent(event);
 			}
 		}
@@ -237,6 +238,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 			}
 		}
 		else {
+			// TODO: 继续发布事件
 			publishEvent(result);
 		}
 	}
@@ -271,6 +273,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		Object bean = getTargetBean();
 		ReflectionUtils.makeAccessible(this.method);
 		try {
+			// TODO: 直接反射调用，具体的方法
 			return this.method.invoke(bean, args);
 		}
 		catch (IllegalArgumentException ex) {

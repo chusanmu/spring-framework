@@ -58,9 +58,17 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	public static final String DEFAULT_SERVLET_NAME = "dispatcher";
 
 
+	/**
+	 * TODO: 这里主要分了两步:
+	 * 		1. super.onStartup(servletContext) 注册ContextLoaderListener监听器，让它去初始化Spring父容器
+	 * 		2. 	registerDispatcherServlet 注册DispatcherServlet，让它去初始化Spring mvc的子容器
+	 * @param servletContext
+	 * @throws ServletException
+	 */
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
 		super.onStartup(servletContext);
+		// TODO: 注册dispatcherServlet
 		registerDispatcherServlet(servletContext);
 	}
 
@@ -76,26 +84,31 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	 * @param servletContext the context to register the servlet against
 	 */
 	protected void registerDispatcherServlet(ServletContext servletContext) {
+		// TODO: servlet名称，一般用于系统默认的即可
 		String servletName = getServletName();
 		Assert.hasLength(servletName, "getServletName() must not return null or empty");
-
+		// TODO: 创建web的子容器 首先创建AnnotationConfigWebApplicationContext，然后进行注册配置文件
 		WebApplicationContext servletAppContext = createServletApplicationContext();
 		Assert.notNull(servletAppContext, "createServletApplicationContext() must not return null");
-
+		// TODO: 创建DispatchServlet，并且把子容器传进去，其实就是new一个出来，最后加到容器里面，就能够执行一些init初始化方法了
 		FrameworkServlet dispatcherServlet = createDispatcherServlet(servletAppContext);
 		Assert.notNull(dispatcherServlet, "createDispatcherServlet(WebApplicationContext) must not return null");
+		// TODO: 这里这个getServletApplicationContextInitializers 一般也为null
 		dispatcherServlet.setContextInitializers(getServletApplicationContextInitializers());
-
+		// TODO: 注册servlet到web容器里面，这样就可以接受请求了，添加servlet到servletContext中
 		ServletRegistration.Dynamic registration = servletContext.addServlet(servletName, dispatcherServlet);
 		if (registration == null) {
 			throw new IllegalStateException("Failed to register servlet with name '" + servletName + "'. " +
 					"Check if there is another servlet registered under the same name.");
 		}
-
+		// TODO: 1表示立马执行，没有第一次惩罚了，由于设置了registration.setLoadOnStartup(1)，在容器启动完成之后就调用servlet的init()方法，在HttpServletBean实现了init()
 		registration.setLoadOnStartup(1);
+		// TODO: 调用者必须实现，设置dispatcherServlet处理的url嘛
 		registration.addMapping(getServletMappings());
+		// TODO: 默认就是开启了支持异步的
 		registration.setAsyncSupported(isAsyncSupported());
-
+		// TODO: 处理自定义的filter进来，一般我们Filter不这么添加进来，而是自己@WebFilter, 或者借助spring
+		// TODO: 这里添加进来的Filter都仅仅只过滤上面注册的dispatcher
 		Filter[] filters = getServletFilters();
 		if (!ObjectUtils.isEmpty(filters)) {
 			for (Filter filter : filters) {
