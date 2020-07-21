@@ -38,15 +38,19 @@ import org.springframework.core.annotation.AliasFor;
  *
  * @author Stephane Nicoll
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.2 提供
  */
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+// 有点类似继承的味道
 @EventListener
 public @interface TransactionalEventListener {
 
 	/**
+	 * TODO: 阶段，有四种状态，数据回滚，数据提交，数据完成，提交之前，这么四种状态
+	 * TODO: 需要注意的是 AFTER_COMMIT + AFTER_COMPLETION是可以同时生效的
+	 * TODO: AFTER_ROLLBACK + AFTER_COMPLETION  也是可以同时生效的
 	 * Phase to bind the handling of an event to.
 	 * <p>The default phase is {@link TransactionPhase#AFTER_COMMIT}.
 	 * <p>If no transaction is in progress, the event is not processed at
@@ -55,10 +59,12 @@ public @interface TransactionalEventListener {
 	TransactionPhase phase() default TransactionPhase.AFTER_COMMIT;
 
 	/**
+	 * TODO: 没有事务的时候，此event是否执行，默认为false, 没有就不执行了呗
 	 * Whether the event should be processed if no transaction is running.
 	 */
 	boolean fallbackExecution() default false;
 
+	/* ---------------- 别名喽 -------------- */
 	/**
 	 * Alias for {@link #classes}.
 	 */
@@ -76,6 +82,7 @@ public @interface TransactionalEventListener {
 	Class<?>[] classes() default {};
 
 	/**
+	 * TODO: condition条件
 	 * Spring Expression Language (SpEL) attribute used for making the event
 	 * handling conditional.
 	 * <p>The default is {@code ""}, meaning the event is always handled.

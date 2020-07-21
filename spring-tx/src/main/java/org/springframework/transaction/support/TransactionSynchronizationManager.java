@@ -78,21 +78,39 @@ public abstract class TransactionSynchronizationManager {
 
 	private static final Log logger = LogFactory.getLog(TransactionSynchronizationManager.class);
 
+	/* ---------------- TODO: 使用ThreadLocal记录事务的一些属性，用于应用扩展同步器的使用，在事务的开启，挂起，提交等各个点上回调应用的逻辑 -------------- */
+
+	/**
+	 * TODO: 应用代码随事务的生命周期绑定的对象，当前线程的数据存储中心
+	 */
 	private static final ThreadLocal<Map<Object, Object>> resources =
 			new NamedThreadLocal<>("Transactional resources");
-
+	/**
+	 * TODO: 使用的同步器，用于应用扩展，每个线程都可以注册N多个同步器
+	 */
 	private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
 			new NamedThreadLocal<>("Transaction synchronizations");
-
+	/**
+	 * TODO: 事务的名称
+	 */
 	private static final ThreadLocal<String> currentTransactionName =
 			new NamedThreadLocal<>("Current transaction name");
 
+	/**
+	 * TODO: 事务是否是只读
+	 */
 	private static final ThreadLocal<Boolean> currentTransactionReadOnly =
 			new NamedThreadLocal<>("Current transaction read-only status");
 
+	/**
+	 * TODO: 事务的隔离级别
+	 */
 	private static final ThreadLocal<Integer> currentTransactionIsolationLevel =
 			new NamedThreadLocal<>("Current transaction isolation level");
 
+	/**
+	 * TODO: 事务是否开启
+	 */
 	private static final ThreadLocal<Boolean> actualTransactionActive =
 			new NamedThreadLocal<>("Actual transaction active");
 
@@ -102,6 +120,7 @@ public abstract class TransactionSynchronizationManager {
 	//-------------------------------------------------------------------------
 
 	/**
+	 * TODO: 返回的是个只读视图
 	 * Return all resources that are bound to the current thread.
 	 * <p>Mainly for debugging purposes. Resource managers should always invoke
 	 * {@code hasResource} for a specific resource key that they are interested in.
@@ -146,6 +165,7 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * TODO: actualKey 确定的key, 拆包后的
 	 * Actually check the value of the resource that is bound for the given key.
 	 */
 	@Nullable
@@ -156,6 +176,7 @@ public abstract class TransactionSynchronizationManager {
 		}
 		Object value = map.get(actualKey);
 		// Transparently remove ResourceHolder that was marked as void...
+		// TODO: 如果resourceHolder 被标记为了Void空白了， 直接从map里移除对应的key
 		if (value instanceof ResourceHolder && ((ResourceHolder) value).isVoid()) {
 			map.remove(actualKey);
 			// Remove entire ThreadLocal if empty...
@@ -168,6 +189,7 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * TODO: 和当前线程绑定一个map，并且处理ResourceHolder，如果isVoid就抛错
 	 * Bind the given resource for the given key to the current thread.
 	 * @param key the key to bind the value to (usually the resource factory)
 	 * @param value the value to bind (usually the active resource object)
@@ -257,6 +279,7 @@ public abstract class TransactionSynchronizationManager {
 	//-------------------------------------------------------------------------
 
 	/**
+	 * TODO: 同步器是否是激活状态，若是激活状态，就可以执行同步器里的相关回调方法了
 	 * Return if transaction synchronization is active for the current thread.
 	 * Can be called before register to avoid unnecessary instance creation.
 	 * @see #registerSynchronization
@@ -266,6 +289,7 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * TODO: 如果事务已经开启了，就不能再初始化同步器了，而是直接注册
 	 * Activate transaction synchronization for the current thread.
 	 * Called by a transaction manager on transaction begin.
 	 * @throws IllegalStateException if synchronization is already active
@@ -279,6 +303,7 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * TODO: 注册同步器TransactionSynchronization 这个非常重要，注册的时候要求当前线程的事务 已经是激活状态的，而不是随便就可以调用的
 	 * Register a new transaction synchronization for the current thread.
 	 * Typically called by resource management code.
 	 * <p>Note that synchronizations can implement the
@@ -300,6 +325,7 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * TODO: 返回一个只读视图，并且支持排序
 	 * Return an unmodifiable snapshot list of all registered synchronizations
 	 * for the current thread.
 	 * @return unmodifiable List of TransactionSynchronization instances

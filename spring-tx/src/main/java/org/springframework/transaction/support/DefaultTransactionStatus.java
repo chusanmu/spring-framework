@@ -22,6 +22,7 @@ import org.springframework.transaction.SavepointManager;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 默认的事务状态，它的重要的任务是在新建，挂起，提交事务的过程中，保存对应事务的属性
  * Default implementation of the {@link org.springframework.transaction.TransactionStatus}
  * interface, used by {@link AbstractPlatformTransactionManager}. Based on the concept
  * of an underlying "transaction object".

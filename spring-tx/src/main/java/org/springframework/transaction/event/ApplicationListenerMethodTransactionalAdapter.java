@@ -28,6 +28,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
+ * TODO: 它是 @TransactionalEventListener 的适配器,继承自ApplicationListenerMethodAdapter
  * {@link GenericApplicationListener} adapter that delegates the processing of
  * an event to a {@link TransactionalEventListener} annotated method. Supports
  * the exact same features as any regular {@link EventListener} annotated method
@@ -49,7 +50,9 @@ class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerM
 
 
 	public ApplicationListenerMethodTransactionalAdapter(String beanName, Class<?> targetClass, Method method) {
+		// TODO: 交给父类去做，去拿一些值
 		super(beanName, targetClass, method);
+		// TODO: 我只查找TransactionalEventListener 这个注解
 		TransactionalEventListener ann = AnnotatedElementUtils.findMergedAnnotation(method, TransactionalEventListener.class);
 		if (ann == null) {
 			throw new IllegalStateException("No TransactionalEventListener annotation found on method: " + method);
@@ -60,10 +63,13 @@ class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerM
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
+		// TODO: 如果存在事务，那就注册一个同步器 进去
 		if (TransactionSynchronizationManager.isSynchronizationActive()) {
 			TransactionSynchronization transactionSynchronization = createTransactionSynchronization(event);
+			// TODO: 注册了一个事务同步器，在事务成功提交之后 会进行一个回调
 			TransactionSynchronizationManager.registerSynchronization(transactionSynchronization);
 		}
+		// TODO: 如果fallbackExecution 为 true，那就表示即使没有事务，也会执行handler
 		else if (this.annotation.fallbackExecution()) {
 			if (this.annotation.phase() == TransactionPhase.AFTER_ROLLBACK && logger.isWarnEnabled()) {
 				logger.warn("Processing " + event + " as a fallback execution on AFTER_ROLLBACK phase");
@@ -72,17 +78,25 @@ class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerM
 		}
 		else {
 			// No transactional event execution at all
+			// TODO: 若没有事务，输出一个debug信息，表示这个监听器没有执行
 			if (logger.isDebugEnabled()) {
 				logger.debug("No transaction is active - skipping " + event);
 			}
 		}
 	}
 
+	/**
+	 * TODO: 创建一个内部类
+	 * @param event
+	 * @return
+	 */
 	private TransactionSynchronization createTransactionSynchronization(ApplicationEvent event) {
 		return new TransactionSynchronizationEventAdapter(this, event, this.annotation.phase());
 	}
 
-
+	/**
+	 * TODO: 内部类，它是一个 TransactionSynchronization 同步器
+	 */
 	private static class TransactionSynchronizationEventAdapter extends TransactionSynchronizationAdapter {
 
 		private final ApplicationListenerMethodAdapter listener;
@@ -99,10 +113,18 @@ class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerM
 			this.phase = phase;
 		}
 
+		/**
+		 * TODO: 它的order由监听器去决定
+		 * @return
+		 */
 		@Override
 		public int getOrder() {
 			return this.listener.getOrder();
 		}
+
+
+		/* ---------------- 下面几个方法都是委托给了listener来真正的执行处理，来执行最终处理逻辑 -------------- */
+		/* ---------------- 也就是解析classes, condition, 执行方法体等等 -------------- */
 
 		@Override
 		public void beforeCommit(boolean readOnly) {
@@ -111,8 +133,14 @@ class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerM
 			}
 		}
 
+		/**
+		 * TODO: 此处接合 status 和 phase判断是否应该执行
+		 * TODO: TransactionPhase.AFTER_COMMIT也是放在了此处执行的，只是它结合了status进行判断而已
+		 * @param status
+		 */
 		@Override
 		public void afterCompletion(int status) {
+			// TODO: 事务提交后执行啊
 			if (this.phase == TransactionPhase.AFTER_COMMIT && status == STATUS_COMMITTED) {
 				processEvent();
 			}

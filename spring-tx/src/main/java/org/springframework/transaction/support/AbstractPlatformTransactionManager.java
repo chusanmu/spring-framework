@@ -530,6 +530,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	protected void prepareSynchronization(DefaultTransactionStatus status, TransactionDefinition definition) {
 		if (status.isNewSynchronization()) {
+			// TODO: 相当于表示事务为开
 			TransactionSynchronizationManager.setActualTransactionActive(status.hasTransaction());
 			TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(
 					definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT ?
@@ -710,11 +711,12 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			processRollback(defStatus, true);
 			return;
 		}
-
+		// TODO: 处理事务提交
 		processCommit(defStatus);
 	}
 
 	/**
+	 * TODO: 会进行一些回调
 	 * Process an actual commit.
 	 * Rollback-only flags have already been checked and applied.
 	 * @param status object representing the transaction
@@ -743,6 +745,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 						logger.debug("Initiating transaction commit");
 					}
 					unexpectedRollback = status.isGlobalRollbackOnly();
+					// TODO: 事务提交之后
 					doCommit(status);
 				}
 				else if (isFailEarlyOnGlobalRollbackOnly()) {
@@ -782,6 +785,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			// Trigger afterCommit callbacks, with an exception thrown there
 			// propagated to callers but the transaction still considered as committed.
 			try {
+				// TODO: 事务正常提交后，会触发此方法
 				triggerAfterCommit(status);
 			}
 			finally {
@@ -790,6 +794,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 		}
 		finally {
+			// TODO: 清除回收事务相关的资源，并且恢复底层事务
 			cleanupAfterCompletion(status);
 		}
 	}
@@ -1272,6 +1277,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 
 	/**
+	 * TODO: 负责事务挂起的时候，保存事务属性的对象，用于恢复外层事务，当恢复外层事务时，根据SuspendedResourcesHolder对象，调用底层事务框架恢复事务属性，并恢复TransactionSynchronizationManager
 	 * Holder for suspended resources.
 	 * Used internally by {@code suspend} and {@code resume}.
 	 */

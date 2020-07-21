@@ -19,6 +19,7 @@ package org.springframework.transaction.support;
 import java.io.Flushable;
 
 /**
+ * TODO: 事务同步器
  * Interface for transaction synchronization callbacks.
  * Supported by AbstractPlatformTransactionManager.
  *
@@ -48,6 +49,7 @@ public interface TransactionSynchronization extends Flushable {
 
 
 	/**
+	 * TODO: 事务暂停的时候 调用此方法
 	 * Suspend this synchronization.
 	 * Supposed to unbind resources from TransactionSynchronizationManager if managing any.
 	 * @see TransactionSynchronizationManager#unbindResource
@@ -56,6 +58,7 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * TODO: 事务恢复的时候，调用此方法
 	 * Resume this synchronization.
 	 * Supposed to rebind resources to TransactionSynchronizationManager if managing any.
 	 * @see TransactionSynchronizationManager#bindResource
@@ -64,6 +67,7 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * TODO: 将基础会话刷新到数据存储区
 	 * Flush the underlying session to the datastore, if applicable:
 	 * for example, a Hibernate/JPA session.
 	 * @see org.springframework.transaction.TransactionStatus#flush()
@@ -73,6 +77,7 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * TODO: 在事务提交之前触发，AbstractPlatformTransactionManage.processCommit()方法里面 commit 之前触发，此处发生异常 会导致回滚
 	 * Invoked before transaction commit (before "beforeCompletion").
 	 * Can e.g. flush transactional O/R Mapping sessions to the database.
 	 * <p>This callback does <i>not</i> mean that the transaction will actually be committed.
@@ -90,6 +95,7 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * TODO: 在beforeCommit之后，在commit/rollback之前执行，它和beforeCommit还有个非常大的区别，即使beforeCommit抛出了异常，这个也会执行
 	 * Invoked before transaction commit/rollback.
 	 * Can perform resource cleanup <i>before</i> transaction completion.
 	 * <p>This method will be invoked after {@code beforeCommit}, even when
@@ -103,7 +109,9 @@ public interface TransactionSynchronization extends Flushable {
 	default void beforeCompletion() {
 	}
 
+	/* ---------------- 非常重要的一个方法 -------------- */
 	/**
+	 * TODO: 非常重要的一个方法，它是事务提交之后，事务已经成功提交，数据库已经持久化
 	 * Invoked after transaction commit. Can perform further operations right
 	 * <i>after</i> the main transaction has <i>successfully</i> committed.
 	 * <p>Can e.g. commit further operations that are supposed to follow on a successful
@@ -122,6 +130,7 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * TODO: 这个和上面的区别在于，即使抛出异常回滚了，它也会执行的
 	 * Invoked after transaction commit/rollback.
 	 * Can perform resource cleanup <i>after</i> transaction completion.
 	 * <p><b>NOTE:</b> The transaction will have been committed or rolled back already,
