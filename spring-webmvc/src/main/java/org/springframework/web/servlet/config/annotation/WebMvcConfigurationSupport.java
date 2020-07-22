@@ -100,6 +100,7 @@ import org.springframework.web.servlet.view.ViewResolverComposite;
 import org.springframework.web.util.UrlPathHelper;
 
 /**
+ * TODO: 该类会随着 @EnableWebMvc 一同导入进来，然后里面配置了一些bean
  * This is the main class providing the configuration behind the MVC Java config.
  * It is typically imported by adding {@link EnableWebMvc @EnableWebMvc} to an
  * application {@link Configuration @Configuration} class. An alternative more
@@ -173,6 +174,8 @@ import org.springframework.web.util.UrlPathHelper;
  */
 public class WebMvcConfigurationSupport implements ApplicationContextAware, ServletContextAware {
 
+	/* ---------------- 用于判断各种环境是否存在 -------------- */
+
 	private static final boolean romePresent;
 
 	private static final boolean jaxb2Present;
@@ -217,15 +220,25 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	@Nullable
 	private PathMatchConfigurer pathMatchConfigurer;
 
+	/**
+	 * TODO: 内容协商管理器
+	 */
 	@Nullable
 	private ContentNegotiationManager contentNegotiationManager;
 
+	/**
+	 * TODO: 参数解析器
+	 */
 	@Nullable
 	private List<HandlerMethodArgumentResolver> argumentResolvers;
-
+	/**
+	 * TODO: 返回值处理器
+	 */
 	@Nullable
 	private List<HandlerMethodReturnValueHandler> returnValueHandlers;
-
+	/**
+	 * 消息转换器
+	 */
 	@Nullable
 	private List<HttpMessageConverter<?>> messageConverters;
 
@@ -270,6 +283,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 
 
 	/**
+	 * TODO: 导入@EnableWebMvc后 默认向容器里面添加了RequestMappingHandlerMapping
 	 * Return a {@link RequestMappingHandlerMapping} ordered at 0 for mapping
 	 * requests to annotated controllers.
 	 */
@@ -277,7 +291,9 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	public RequestMappingHandlerMapping requestMappingHandlerMapping() {
 		RequestMappingHandlerMapping mapping = createRequestMappingHandlerMapping();
 		mapping.setOrder(0);
+		// TODO: 添加一些拦截器
 		mapping.setInterceptors(getInterceptors());
+		// TODO: 设置消息转换器
 		mapping.setContentNegotiationManager(mvcContentNegotiationManager());
 		mapping.setCorsConfigurations(getCorsConfigurations());
 
@@ -329,7 +345,9 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	protected final Object[] getInterceptors() {
 		if (this.interceptors == null) {
 			InterceptorRegistry registry = new InterceptorRegistry();
+			// TODO: 会把所有的实现了 WebMvcConfigurer 接口的类都执行一遍
 			addInterceptors(registry);
+			// TODO: 添加了两个默认的拦截器
 			registry.addInterceptor(new ConversionServiceExposingInterceptor(mvcConversionService()));
 			registry.addInterceptor(new ResourceUrlProviderExposingInterceptor(mvcResourceUrlProvider()));
 			this.interceptors = registry.getInterceptors();
@@ -897,6 +915,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	}
 
 	/**
+	 * Todo: 配置异常处理器
 	 * Returns a {@link HandlerExceptionResolverComposite} containing a list of exception
 	 * resolvers obtained either through {@link #configureHandlerExceptionResolvers} or
 	 * through {@link #addDefaultHandlerExceptionResolvers}.
@@ -907,11 +926,14 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	@Bean
 	public HandlerExceptionResolver handlerExceptionResolver() {
 		List<HandlerExceptionResolver> exceptionResolvers = new ArrayList<>();
+		// TODO: 如果你加进去了,那么就不会给我们加一些默认的了
 		configureHandlerExceptionResolvers(exceptionResolvers);
 		if (exceptionResolvers.isEmpty()) {
 			addDefaultHandlerExceptionResolvers(exceptionResolvers);
 		}
+		// TODO: 添加一些异常处理器，扩展
 		extendHandlerExceptionResolvers(exceptionResolvers);
+		// TODO: 组合的异常解析处理器
 		HandlerExceptionResolverComposite composite = new HandlerExceptionResolverComposite();
 		composite.setOrder(0);
 		composite.setExceptionResolvers(exceptionResolvers);
@@ -919,6 +941,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	}
 
 	/**
+	 * TODO: 允许 我们自定义，添加异常处理器,如果我们自己加了,就不会添加默认的了
 	 * Override this method to configure the list of
 	 * {@link HandlerExceptionResolver HandlerExceptionResolvers} to use.
 	 * <p>Adding resolvers to the list turns off the default resolvers that would otherwise
@@ -941,6 +964,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	}
 
 	/**
+	 * TODO: 默认添加的是 ExceptionHandlerExceptionResolver 注解方式的
 	 * A method available to subclasses for adding default
 	 * {@link HandlerExceptionResolver HandlerExceptionResolvers}.
 	 * <p>Adds the following exception resolvers:
@@ -954,9 +978,13 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 */
 	protected final void addDefaultHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
 		ExceptionHandlerExceptionResolver exceptionHandlerResolver = createExceptionHandlerExceptionResolver();
+		// TODO: 把内容协商管理器 传进去了
 		exceptionHandlerResolver.setContentNegotiationManager(mvcContentNegotiationManager());
+		// TODO: 消息转换器也放进去
 		exceptionHandlerResolver.setMessageConverters(getMessageConverters());
+		// TODO: 把参数解析器放进去
 		exceptionHandlerResolver.setCustomArgumentResolvers(getArgumentResolvers());
+		// TODO: 返回值解析器
 		exceptionHandlerResolver.setCustomReturnValueHandlers(getReturnValueHandlers());
 		if (jackson2Present) {
 			exceptionHandlerResolver.setResponseBodyAdvice(
@@ -971,7 +999,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 		ResponseStatusExceptionResolver responseStatusResolver = new ResponseStatusExceptionResolver();
 		responseStatusResolver.setMessageSource(this.applicationContext);
 		exceptionResolvers.add(responseStatusResolver);
-
+		// TODO: 把默认的也加进去了
 		exceptionResolvers.add(new DefaultHandlerExceptionResolver());
 	}
 

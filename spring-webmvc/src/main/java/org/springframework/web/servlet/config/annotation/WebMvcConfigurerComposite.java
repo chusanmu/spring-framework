@@ -88,6 +88,7 @@ class WebMvcConfigurerComposite implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+		// TODO: 拿到所有的 WebMvcConfigurer 的实现类，然后分别调用里面的addInterceptors方法
 		for (WebMvcConfigurer delegate : this.delegates) {
 			delegate.addInterceptors(registry);
 		}

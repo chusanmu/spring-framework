@@ -67,7 +67,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	private static final Method CALLABLE_METHOD = ClassUtils.getMethod(Callable.class, "call");
 
 	/**
-	 * TODO: 处理方法返回值
+	 * TODO: 处理方法返回值，这是一个组合的 handlerMethodReturnValueHandler的组合器，里面融合了基本常用的HandlerMethodReturnValueHandler
 	 */
 	@Nullable
 	private HandlerMethodReturnValueHandlerComposite returnValueHandlers;
@@ -108,7 +108,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 */
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		// TODO: 这里最终会调用目标controller中的目标方法，然后进行执行，拿到返回值
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
 		// TODO: 设置httpServletResponse返回状态码， @ResponseStatus#code在父类已经解析过了，但是子类才用
 		setResponseStatus(webRequest);
@@ -130,7 +130,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 		mavContainer.setRequestHandled(false);
 		Assert.state(this.returnValueHandlers != null, "No return value handlers");
 		try {
-			// TODO: 对方法返回值的处理
+			// TODO: 对方法返回值的处理, 使用组合器，去处理
 			this.returnValueHandlers.handleReturnValue(
 					returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
 		}
