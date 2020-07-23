@@ -119,14 +119,19 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		// TODO: 判断是否已经存在BeanFactory，存在则销毁，所有的bean，并且关闭beanFactory
+		// TODO: 避免重复加载beanFactory
 		if (hasBeanFactory()) {
 			destroyBeans();
 			closeBeanFactory();
 		}
 		try {
+			// TODO: 创建具体的BeanFactory, 这里创建的是DefaultListableBeanFactory，最重要的beanFactory了，spring注册就是靠它
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
+			// TODO: 就是把当前旧容器的一些配置值复制给新容器
 			customizeBeanFactory(beanFactory);
+			// TODO: 加载所有的bean配置信息，它属于模板方法，由子类去实现加载的方式
 			loadBeanDefinitions(beanFactory);
 			this.beanFactory = beanFactory;
 		}
@@ -180,6 +185,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	}
 
 	/**
+	 * TODO: 创建的时候就是new了一个工厂: DefaultListableBeanFactory, 这个时候工厂里面所有东西都是默认值，很多还没有完成初始化属性的设置
 	 * Create an internal bean factory for this context.
 	 * Called for each {@link #refresh()} attempt.
 	 * <p>The default implementation creates a
@@ -194,6 +200,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowRawInjectionDespiteWrapping
 	 */
 	protected DefaultListableBeanFactory createBeanFactory() {
+		// TODO: getInternalParentBeanFactory 找到父的，若存在就返回，若存在父容器就存在父的BeanFactory
 		return new DefaultListableBeanFactory(getInternalParentBeanFactory());
 	}
 
@@ -212,9 +219,11 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see DefaultListableBeanFactory#setAllowEagerClassLoading
 	 */
 	protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
+		// TODO: allowBeanDefinitionOverriding 这个属性是指是否允许对一个名字相同, 但definition不同进行重新注册，默认是true
 		if (this.allowBeanDefinitionOverriding != null) {
 			beanFactory.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
 		}
+		// TODO: allowCircularReferences 属性是指是否允许bean之间循环引用，默认是true,这两个属性值初始值为空
 		if (this.allowCircularReferences != null) {
 			beanFactory.setAllowCircularReferences(this.allowCircularReferences);
 		}

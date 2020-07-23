@@ -59,12 +59,15 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		implements BeanDefinition, Cloneable {
 
 	/**
+	 * TODO: 默认的scope, 默认是单例的
 	 * Constant for the default scope name: {@code ""}, equivalent to singleton
 	 * status unless overridden from a parent bean definition (if applicable).
 	 */
 	public static final String SCOPE_DEFAULT = "";
 
+	/* ---------------- 一些常量 -------------- */
 	/**
+	 * TODO: 自己装配的一些常量
 	 * Constant that indicates no external autowiring at all.
 	 * @see #setAutowireMode
 	 */
@@ -98,19 +101,24 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	@Deprecated
 	public static final int AUTOWIRE_AUTODETECT = AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT;
 
+	/* ---------------- 检查依赖是否合法，在本类中，默认不进行依赖检查 -------------- */
+
 	/**
+	 * TODO: 不进行检查
 	 * Constant that indicates no dependency check at all.
 	 * @see #setDependencyCheck
 	 */
 	public static final int DEPENDENCY_CHECK_NONE = 0;
 
 	/**
+	 * TODO: 如果依赖类型为对象引用，则需要检查
 	 * Constant that indicates dependency checking for object references.
 	 * @see #setDependencyCheck
 	 */
 	public static final int DEPENDENCY_CHECK_OBJECTS = 1;
 
 	/**
+	 * TODO: 对简单属性的依赖进行检查
 	 * Constant that indicates dependency checking for "simple" properties.
 	 * @see #setDependencyCheck
 	 * @see org.springframework.beans.BeanUtils#isSimpleProperty
@@ -118,6 +126,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	public static final int DEPENDENCY_CHECK_SIMPLE = 2;
 
 	/**
+	 * TODO: 对所有属性的依赖进行检查
 	 * Constant that indicates dependency checking for all properties
 	 * (object references as well as "simple" properties).
 	 * @see #setDependencyCheck
@@ -125,6 +134,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	public static final int DEPENDENCY_CHECK_ALL = 3;
 
 	/**
+	 * TODO: 如bean未指定销毁方法，容器应该尝试推断bean的销毁方法的名字，目前来说哦，推断销毁方法的名字一般为close或者是shutdown
+	 * TODO: 即未指定bean的销毁方法，但是内部定义了，名为close或者是shutdown的方法，则容器推断其为销毁方法
 	 * Constant that indicates the container should attempt to infer the
 	 * {@link #setDestroyMethodName destroy method name} for a bean as opposed to
 	 * explicit specification of a method name. The value {@value} is specifically
@@ -136,71 +147,136 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 */
 	public static final String INFER_METHOD = "(inferred)";
 
+	/* ---------------- 一系列的属性，基本包括了bean实例化需要的所有的信息 -------------- */
 
+	/**
+	 * TODO: bean的class对象或是类的全限定名
+	 */
 	@Nullable
 	private volatile Object beanClass;
-
+	/**
+	 * 默认是单例的
+	 */
 	@Nullable
 	private String scope = SCOPE_DEFAULT;
 
+	/**
+	 * 默认不为抽象
+	 */
 	private boolean abstractFlag = false;
 
+	/**
+	 * 默认非懒加载
+	 */
 	private boolean lazyInit = false;
 
+	/**
+	 * 默认不进行自动装配
+	 */
 	private int autowireMode = AUTOWIRE_NO;
 
+	/**
+	 * 默认不进行依赖检查
+	 */
 	private int dependencyCheck = DEPENDENCY_CHECK_NONE;
 
+	/**
+	 * 默认没有
+	 */
 	@Nullable
 	private String[] dependsOn;
 
+	/**
+	 * autowireCandidate 这个设置为false,这样容器在查找自动装配的时候，将不考虑该bean
+	 */
 	private boolean autowireCandidate = true;
-
+	/**
+	 * 默认不是首选的
+	 */
 	private boolean primary = false;
 
 	private final Map<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
-
+	/**
+	 * TODO: 通过这个函数的逻辑来初始化bean, 而不是通过构造函数或者是工厂方法，相当于自己去实例化，而不是交给bean工厂
+	 */
 	@Nullable
 	private Supplier<?> instanceSupplier;
-
+	/**
+	 * TODO: 是否允许访问非Public方法和属性，应用于构造函数，工厂方法，init destroy方法的解析，默认为true, 表示啥都可以方法
+	 */
 	private boolean nonPublicAccessAllowed = true;
-
+	/**
+	 * TODO: 是否以一种宽松的模式解析构造函数，不是class类型，对应bean属性 factory-method
+	 */
 	private boolean lenientConstructorResolution = true;
-
+	/**
+	 * TODO：工厂类名
+	 */
 	@Nullable
 	private String factoryBeanName;
-
+	/**
+	 * TODO: 工厂方法名，String类型，不是method类型哈
+	 */
 	@Nullable
 	private String factoryMethodName;
-
+	/**
+	 * TODO: 记录构造函数注入属性，对应bean属性constructor-arg
+	 */
 	@Nullable
 	private ConstructorArgumentValues constructorArgumentValues;
-
+	/**
+	 * TODO: bean属性的名称以及对应的值，这里不会存放构造函数相关的参数值，只会存放通过setter注入的依赖
+	 */
 	@Nullable
 	private MutablePropertyValues propertyValues;
-
+	/**
+	 * TODO: 方法重写的持有者，记录lookup-method, replaced-method元素，@Lookup等
+	 */
 	private MethodOverrides methodOverrides = new MethodOverrides();
 
+	/**
+	 * TODO: init函数的名字
+	 */
 	@Nullable
 	private String initMethodName;
 
+	/**
+	 * TODO: destroy函数的名字
+	 */
 	@Nullable
 	private String destroyMethodName;
 
+	/**
+	 * TODO: 是否执行init-method，程序设置
+	 */
 	private boolean enforceInitMethod = true;
 
 	private boolean enforceDestroyMethod = true;
 
+	/**
+	 * 是否是合成类(是不是应用自定义的，例如生成aop代理时，会用到某些辅助类，这些辅助类不是应用自定义的，这个就是合成类)
+	 * TODO: 创建aop时候为true
+	 */
 	private boolean synthetic = false;
 
+	/**
+	 * TODO: bean的角色，为用户自定义bean
+	 */
 	private int role = BeanDefinition.ROLE_APPLICATION;
 
+	/**
+	 * TODO: bean的描述信息
+	 */
 	@Nullable
 	private String description;
 
+	/**
+	 * 这个bean从哪儿来
+	 */
 	@Nullable
 	private Resource resource;
 
+	/* ---------------- 再下面就是一些getter setter了 -------------- */
 
 	/**
 	 * Create a new AbstractBeanDefinition with default settings.

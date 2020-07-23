@@ -94,6 +94,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
 		// TODO: 把这个注解拿到，至少指定一个监听类型
 		EventListener ann = AnnotatedElementUtils.findMergedAnnotation(this.targetMethod, EventListener.class);
+		// TODO: 解析事件处理参数，可以写在method参数上面，也可以在注解里面声明
 		this.declaredEventTypes = resolveDeclaredEventTypes(method, ann);
 		// TODO: 拿到条件信息 spel中有用
 		this.condition = (ann != null ? ann.condition() : null);
@@ -101,17 +102,26 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		this.order = resolveOrder(this.targetMethod);
 	}
 
+	/**
+	 * TODO: 优先处理注解里面标注的事件类型，注解里面没有才去解析方法参数
+	 * @param method
+	 * @param ann
+	 * @return
+	 */
 	private static List<ResolvableType> resolveDeclaredEventTypes(Method method, @Nullable EventListener ann) {
+		// TODO: 方法的参数只能有一个
 		int count = method.getParameterCount();
+		// TODO: 大于1个直接抛出异常
 		if (count > 1) {
 			throw new IllegalStateException(
 					"Maximum one parameter is allowed for event listener method: " + method);
 		}
-
+		// TODO: 注解不为空，然后解析注解里面指定的类型
 		if (ann != null) {
 			Class<?>[] classes = ann.classes();
 			if (classes.length > 0) {
 				List<ResolvableType> types = new ArrayList<>(classes.length);
+				// TODO: 添加事件类型
 				for (Class<?> eventType : classes) {
 					types.add(ResolvableType.forClass(eventType));
 				}
@@ -123,6 +133,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 			throw new IllegalStateException(
 					"Event parameter is mandatory for event listener method: " + method);
 		}
+		// TODO: 解析方法参数，第一个参数，其实就一个参数，然后去处理
 		return Collections.singletonList(ResolvableType.forMethodParameter(method, 0));
 	}
 

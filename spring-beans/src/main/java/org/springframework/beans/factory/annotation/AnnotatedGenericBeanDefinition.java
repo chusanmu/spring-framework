@@ -24,6 +24,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 在基于注解的现在，spring应用它，使用的非常多，因为获取注解信息非常的方便.
+ * TODO: 它只能用于已经被注册或被扫描到的类，否则自己new一个就不在 容器里了
  * Extension of the {@link org.springframework.beans.factory.support.GenericBeanDefinition}
  * class, adding support for annotation metadata exposed through the
  * {@link AnnotatedBeanDefinition} interface.
@@ -50,6 +52,7 @@ public class AnnotatedGenericBeanDefinition extends GenericBeanDefinition implem
 
 
 	/**
+	 * TODO: 已经加载进来的bean的class
 	 * Create a new AnnotatedGenericBeanDefinition for the given bean class.
 	 * @param beanClass the loaded bean class
 	 */
@@ -59,6 +62,7 @@ public class AnnotatedGenericBeanDefinition extends GenericBeanDefinition implem
 	}
 
 	/**
+	 * TODO: 此处传入AnnotationMetadata, 也得保证对应的class已经被loaded
 	 * Create a new AnnotatedGenericBeanDefinition for the given annotation metadata,
 	 * allowing for ASM-based processing and avoidance of early loading of the bean class.
 	 * Note that this constructor is functionally equivalent to
@@ -80,6 +84,7 @@ public class AnnotatedGenericBeanDefinition extends GenericBeanDefinition implem
 	}
 
 	/**
+	 * TODO: 可以由指定的工厂方法 产生这个bean
 	 * Create a new AnnotatedGenericBeanDefinition for the given annotation metadata,
 	 * based on an annotated class and a factory method on that class.
 	 * @param metadata the annotation metadata for the bean class in question

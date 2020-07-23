@@ -19,6 +19,7 @@ package org.springframework.beans;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 具有访问source配置源的能力
  * Interface to be implemented by bean metadata elements
  * that carry a configuration source object.
  *

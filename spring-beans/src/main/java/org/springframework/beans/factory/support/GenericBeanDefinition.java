@@ -21,6 +21,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * TODO: 标准的bean definition, 通用的
  * GenericBeanDefinition is a one-stop shop for standard bean definition purposes.
  * Like any bean definition, it allows for specifying a class plus optionally
  * constructor argument values and property values. Additionally, deriving from a
@@ -40,6 +41,9 @@ import org.springframework.util.ObjectUtils;
 @SuppressWarnings("serial")
 public class GenericBeanDefinition extends AbstractBeanDefinition {
 
+	/**
+	 * TODO: 可以通过parentName属性来灵活的设置parent bean definition, 而不是硬编码的去设置
+	 */
 	@Nullable
 	private String parentName;
 

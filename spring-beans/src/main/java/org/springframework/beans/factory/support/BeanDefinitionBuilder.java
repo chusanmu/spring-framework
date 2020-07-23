@@ -24,6 +24,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * TODO: 快速创建一个bean定义，使用它的好处是，可以进行方法的连缀
  * Programmatic means of constructing
  * {@link org.springframework.beans.factory.config.BeanDefinition BeanDefinitions}
  * using the builder pattern. Intended primarily for use when implementing Spring 2.0
@@ -37,6 +38,7 @@ import org.springframework.util.ObjectUtils;
 public final class BeanDefinitionBuilder {
 
 	/**
+	 * TODO: 创建一个builder， 没特殊指明，都是GenericBeanDefinition
 	 * Create a new {@code BeanDefinitionBuilder} used to construct a {@link GenericBeanDefinition}.
 	 */
 	public static BeanDefinitionBuilder genericBeanDefinition() {

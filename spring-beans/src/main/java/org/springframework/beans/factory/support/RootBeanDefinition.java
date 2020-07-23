@@ -34,6 +34,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 一个beanDefinition定义表明它是一个可合并的beanDefinition, 即在spring beanFactory运行期间，可以返回一个特定的bean, 但在spring 2.5以后
+ * TODO: 绝大部分是可以使用GenericBeanDefinition.
+ *  final RootBeanDefinition mbd = getMergeLocalBeanDefinition(beanName), 这句话就是去合并parent的属性进来，体现了继承的强大，属性也更完整
  * A root bean definition represents the merged bean definition that backs
  * a specific bean in a Spring BeanFactory at runtime. It might have been created
  * from multiple original bean definitions that inherit from each other,
@@ -53,25 +56,43 @@ import org.springframework.util.Assert;
  */
 @SuppressWarnings("serial")
 public class RootBeanDefinition extends AbstractBeanDefinition {
-
+	/**
+	 * TODO: 存储着bean的名称，别名，beanDefinition
+	 */
 	@Nullable
 	private BeanDefinitionHolder decoratedDefinition;
 
+	/**
+	 * TODO: 是java反射包的接口，通过它可以查看bean的注解信息
+	 */
 	@Nullable
 	private AnnotatedElement qualifiedElement;
 
 	boolean allowCaching = true;
 
+	/**
+	 * TODO: 工厂方法是否唯一
+	 */
 	boolean isFactoryMethodUnique = false;
 
+	/**
+	 * TODO: java.lang.reflect.Type, 提供了泛型相关的操作
+	 *
+	 */
 	@Nullable
 	volatile ResolvableType targetType;
 
 	/** Package-visible field for caching the determined Class of a given bean definition. */
+	/**
+	 * TODO: 表明rootBeanDefinition存储哪个类的信息
+	 */
 	@Nullable
 	volatile Class<?> resolvedTargetType;
 
 	/** Package-visible field for caching the return type of a generically typed factory method. */
+	/**
+	 * TODO:  缓存工厂方法的返回值
+	 */
 	@Nullable
 	volatile ResolvableType factoryMethodReturnType;
 
@@ -81,38 +102,59 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 
 	/** Common lock for the four constructor fields below. */
 	final Object constructorArgumentLock = new Object();
-
+	/**
+	 * 缓存已经解析的构造函数或是工厂方法，Executable是Method, Constructor类型的父类
+	 */
 	/** Package-visible field for caching the resolved constructor or factory method. */
 	@Nullable
 	Executable resolvedConstructorOrFactoryMethod;
-
+	/**
+	 * TODO: 表明构造函数参数是否解析完毕
+	 */
 	/** Package-visible field that marks the constructor arguments as resolved. */
 	boolean constructorArgumentsResolved = false;
 
+	/**
+	 * 缓存完全解析的构造函数参数
+	 */
 	/** Package-visible field for caching fully resolved constructor arguments. */
 	@Nullable
 	Object[] resolvedConstructorArguments;
 
+	/**
+	 * TODO: 缓存待解析的构造函数参数，即还没有找到对应的实例，可以理解为还没有注入依赖的形参
+	 */
 	/** Package-visible field for caching partly prepared constructor arguments. */
 	@Nullable
 	Object[] preparedConstructorArguments;
 
 	/** Common lock for the two post-processing fields below. */
 	final Object postProcessingLock = new Object();
-
+	/**
+	 * TODO: 表明是否被MergedBeanDefinitionPostProcessor处理过
+	 */
 	/** Package-visible field that indicates MergedBeanDefinitionPostProcessor having been applied. */
 	boolean postProcessed = false;
-
+	/**
+	 * TODO: 在生成代理的时候会使用，表明是否已经生成代理
+	 */
 	/** Package-visible field that indicates a before-instantiation post-processor having kicked in. */
 	@Nullable
 	volatile Boolean beforeInstantiationResolved;
-
+	/**
+	 * TODO: 实际缓存的类型是Constructor, field, method类型
+	 */
 	@Nullable
 	private Set<Member> externallyManagedConfigMembers;
-
+	/**
+	 * InitializingBean中的init回调函数名--afterPropertiesSet会在这里记录，以便进行生命周期回调
+	 */
 	@Nullable
 	private Set<String> externallyManagedInitMethods;
 
+	/**
+	 * TODO: DisposableBean的destroy回调函数名--destroy会在这里记录，以便进行生命周期回调
+	 */
 	@Nullable
 	private Set<String> externallyManagedDestroyMethods;
 
@@ -248,6 +290,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 		super(original);
 	}
 
+	/* ---------------- 由此可见，RootBeanDefinition是没有父类的 -------------- */
 
 	@Override
 	public String getParentName() {
@@ -314,6 +357,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	}
 
 	/**
+	 * TODO: 拿到class类型
 	 * Return the target type of this bean definition, if known
 	 * (either specified in advance or resolved on first instantiation).
 	 * @since 3.2.2

@@ -99,6 +99,10 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 		return bean;
 	}
 
+	/**
+	 * TODO: 如果这个bean实现了一些aware接口，那么开始对这个bean进行设置
+	 * @param bean
+	 */
 	private void invokeAwareInterfaces(Object bean) {
 		if (bean instanceof Aware) {
 			if (bean instanceof EnvironmentAware) {

@@ -171,12 +171,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	public AbstractAutowireCapableBeanFactory() {
 		super();
+		// TODO: 忽略自动装配，这里指定的都是接口。。。啥意思呢？
+		// TODO: ignoreDependencyInterface 在自动装配时，忽略指定接口的实现类中，对外的依赖
 		ignoreDependencyInterface(BeanNameAware.class);
 		ignoreDependencyInterface(BeanFactoryAware.class);
 		ignoreDependencyInterface(BeanClassLoaderAware.class);
 	}
 
 	/**
+	 * TODO: 给设置父的beanFactory，若存在的话
 	 * Create a new AbstractAutowireCapableBeanFactory with the given parent.
 	 * @param parentBeanFactory parent bean factory, or {@code null} if none
 	 */

@@ -58,13 +58,18 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 
 	@Nullable
 	private ClassLoader beanClassLoader;
-
+	/**
+	 * 有环境变量
+	 */
 	private Environment environment;
-
+	/**
+	 * 默认的名字生成器，类名首字母 小写
+	 */
 	private BeanNameGenerator beanNameGenerator = new DefaultBeanNameGenerator();
 
 
 	/**
+	 * TODO: 此构造函数，会完成一些参数的初始化
 	 * Create a new AbstractBeanDefinitionReader for the given bean factory.
 	 * <p>If the passed-in bean factory does not only implement the BeanDefinitionRegistry
 	 * interface but also the ResourceLoader interface, it will be used as default
@@ -94,6 +99,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		}
 
 		// Inherit Environment if possible
+		// TODO: 如果注册器 里面有环境变量，那就用它的，否则new一个标准的，也提供了set可以设置的
 		if (this.registry instanceof EnvironmentCapable) {
 			this.environment = ((EnvironmentCapable) this.registry).getEnvironment();
 		}

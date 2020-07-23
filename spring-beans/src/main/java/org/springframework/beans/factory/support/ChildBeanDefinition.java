@@ -22,6 +22,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * TODO：子bean定义信息，依赖于父类RootBeanDefinition
+ * 	TODO: 它可以继承它父类的设置，即ChildBeanDefinition对RootBeanDefinition有一定的依赖关系，建议使用GenericBeanDefinition
  * Bean definition for beans which inherit settings from their parent.
  * Child bean definitions have a fixed dependency on a parent bean definition.
  *

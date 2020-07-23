@@ -19,6 +19,8 @@ package org.springframework.core;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO:  定义了对对象元数据访问的抽象接口
+ * 说明它可以持有bean元数据元素，作用是可以持有xml文件的一个bean 标签对应的object
  * Interface defining a generic contract for attaching and accessing metadata
  * to/from arbitrary objects.
  *

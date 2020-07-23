@@ -40,6 +40,7 @@ import org.springframework.util.PropertiesPersister;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 直接从properties文件或者Map里加载bean
  * Bean definition reader for a simple properties format.
  *
  * <p>Provides bean definition registration methods for Map/Properties and

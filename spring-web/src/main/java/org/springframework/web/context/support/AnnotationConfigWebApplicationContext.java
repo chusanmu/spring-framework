@@ -173,6 +173,7 @@ public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWe
 
 
 	/**
+	 * TODO: 加载所有的bean定义信息，很重要
 	 * Register a {@link org.springframework.beans.factory.config.BeanDefinition} for
 	 * any classes specified by {@link #register(Class...)} and scan any packages
 	 * specified by {@link #scan(String...)}.
@@ -196,38 +197,43 @@ public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWe
 	 */
 	@Override
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) {
+		// TODO: 初始化这两个脚手架，辅助类，其实就是直接new出来的
 		AnnotatedBeanDefinitionReader reader = getAnnotatedBeanDefinitionReader(beanFactory);
 		ClassPathBeanDefinitionScanner scanner = getClassPathBeanDefinitionScanner(beanFactory);
-
+		// TODO: 生成bean的名称的生成器，如果没有setBeanNameGenerator(可以自定义), 这里目前为null
 		BeanNameGenerator beanNameGenerator = getBeanNameGenerator();
 		if (beanNameGenerator != null) {
 			reader.setBeanNameGenerator(beanNameGenerator);
 			scanner.setBeanNameGenerator(beanNameGenerator);
+			// TODO: 若我们注册了beanName生成器，那么就会注册进容器里面
 			beanFactory.registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNameGenerator);
 		}
-
+		// TODO: 这是给reader和scanner注册scope的解析器，此处为null
 		ScopeMetadataResolver scopeMetadataResolver = getScopeMetadataResolver();
 		if (scopeMetadataResolver != null) {
 			reader.setScopeMetadataResolver(scopeMetadataResolver);
 			scanner.setScopeMetadataResolver(scopeMetadataResolver);
 		}
-
+		// TODO: anntatedClasses和basePackages一般是选其一，我们可以指定annotatedClasses配置文件，同时也可以交给下面扫描
 		if (!this.componentClasses.isEmpty()) {
+			// TODO: 这里会把所有的配置文件输出
 			if (logger.isDebugEnabled()) {
 				logger.debug("Registering component classes: [" +
 						StringUtils.collectionToCommaDelimitedString(this.componentClasses) + "]");
 			}
+			// TODO: 若是指明的bean，就交给reader去处理
 			reader.register(ClassUtils.toClassArray(this.componentClasses));
 		}
-
+		// TODO: 也可以是包扫描的形式，扫描配置文件的bean
 		if (!this.basePackages.isEmpty()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Scanning base packages: [" +
 						StringUtils.collectionToCommaDelimitedString(this.basePackages) + "]");
 			}
+			// TODO: 利用扫描器去扫描
 			scanner.scan(StringUtils.toStringArray(this.basePackages));
 		}
-
+		// TODO: 此处的意思是,也可以以全类名的形式注册,比如可以调用setConfigLocations设置，可以是全类名，也可以是包路径
 		String[] configLocations = getConfigLocations();
 		if (configLocations != null) {
 			for (String configLocation : configLocations) {
@@ -243,6 +249,7 @@ public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWe
 						logger.trace("Could not load class for config location [" + configLocation +
 								"] - trying package scan. " + ex);
 					}
+					// TODO: 如果不是全类名，那就去包扫描去吧
 					int count = scanner.scan(configLocation);
 					if (count == 0 && logger.isDebugEnabled()) {
 						logger.debug("No component classes found for specified class/package [" + configLocation + "]");

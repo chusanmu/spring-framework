@@ -22,6 +22,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 该接口的作用就是加载bean
  * Simple interface for bean definition readers.
  * Specifies load methods with Resource and String location parameters.
  *
@@ -40,6 +41,7 @@ import org.springframework.lang.Nullable;
 public interface BeanDefinitionReader {
 
 	/**
+	 * TODO: 得到bean定义的register
 	 * Return the bean factory to register the bean definitions with.
 	 * <p>The factory is exposed through the BeanDefinitionRegistry interface,
 	 * encapsulating the methods that are relevant for bean definition handling.
@@ -47,6 +49,7 @@ public interface BeanDefinitionReader {
 	BeanDefinitionRegistry getRegistry();
 
 	/**
+	 * TODO: 返回用于加载资源的resourceLoader 可以为null
 	 * Return the resource loader to use for resource locations.
 	 * Can be checked for the <b>ResourcePatternResolver</b> interface and cast
 	 * accordingly, for loading multiple resources for a given resource pattern.
@@ -67,6 +70,7 @@ public interface BeanDefinitionReader {
 	ResourceLoader getResourceLoader();
 
 	/**
+	 * TODO: 加载bean的类加载器
 	 * Return the class loader to use for bean classes.
 	 * <p>{@code null} suggests to not load bean classes eagerly
 	 * but rather to just register bean definitions with class names,
@@ -76,11 +80,13 @@ public interface BeanDefinitionReader {
 	ClassLoader getBeanClassLoader();
 
 	/**
+	 * TODO: 生成bean名称的名字生成器----> 若没有指定名称的话，会调用生成它
 	 * Return the BeanNameGenerator to use for anonymous beans
 	 * (without explicit bean name specified).
 	 */
 	BeanNameGenerator getBeanNameGenerator();
 
+	/* ---------------- 下面几个是核心方法，loadBean定义进来，然后注册到上面的register里面去 -------------- */
 
 	/**
 	 * Load bean definitions from the specified resource.

@@ -22,6 +22,12 @@ import org.springframework.core.AttributeAccessor;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 一个beanDefinition描述了一个bean的实例，包括属性值，构造方法参数和继承自它的类的更多信息
+ * 		它的主要的功能是允许BeanFactoryPostProcessor 能够检索并修改属性值和别的bean的元数据
+ *
+ * 	TODO: Spring初始化时，会用GenericBeanDefinition或者是ConfigurationClassBeanDefinition 用@Bean注解注释的类，存储用户自定义的Bean,
+ * 			在初始化bean时，又会将其转换为RootBeanDefinition
+ *
  * A BeanDefinition describes a bean instance, which has property values,
  * constructor argument values, and further information supplied by
  * concrete implementations.
@@ -39,6 +45,8 @@ import org.springframework.lang.Nullable;
  */
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
+	/* ---------------- 表示这个bean是单例的还是多例的 -------------- */
+
 	/**
 	 * Scope identifier for the standard singleton scope: "singleton".
 	 * <p>Note that extended bean factories might support further scopes.
@@ -54,13 +62,17 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	String SCOPE_PROTOTYPE = ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
 
+	/* ---------------- bean的角色，这个会有用到，在框架内部 -------------- */
+
 	/**
+	 *  应用程序重要组成部分
 	 * Role hint indicating that a {@code BeanDefinition} is a major part
 	 * of the application. Typically corresponds to a user-defined bean.
 	 */
 	int ROLE_APPLICATION = 0;
 
 	/**
+	 * TODO: 作为大量配置的一部分，支持，扩展类，实际上就是说，这个bean是用户的，是从配置文件过来的
 	 * Role hint indicating that a {@code BeanDefinition} is a supporting
 	 * part of some larger configuration, typically an outer
 	 * {@link org.springframework.beans.factory.parsing.ComponentDefinition}.
@@ -72,6 +84,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	int ROLE_SUPPORT = 1;
 
 	/**
+	 * TODO: 指内部工作的基础构造，实际上是说，我这个bean 是 spring自己的，和你用户没有关系
 	 * Role hint indicating that a {@code BeanDefinition} is providing an
 	 * entirely background role and has no relevance to the end-user. This hint is
 	 * used when registering beans that are completely part of the internal workings
@@ -83,6 +96,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	// Modifiable attributes
 
 	/**
+	 * TODO: 若存在父类的话，就设置进去
 	 * Set the name of the parent definition of this bean definition, if any.
 	 */
 	void setParentName(@Nullable String parentName);
@@ -94,6 +108,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	String getParentName();
 
 	/**
+	 * TODO: 指定class类型，需要注意的是该类型还有可能被改变，在beanPostProcessing阶段
 	 * Specify the bean class name of this bean definition.
 	 * <p>The class name can be modified during bean factory post-processing,
 	 * typically replacing the original class name with a parsed variant of it.
@@ -118,6 +133,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	@Nullable
 	String getBeanClassName();
 
+	/* ---------------- 设置作用域 -------------- */
+
 	/**
 	 * Override the target scope of this bean, specifying a new scope name.
 	 * @see #SCOPE_SINGLETON
@@ -133,6 +150,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	String getScope();
 
 	/**
+	 * TODO: 是否需要懒加载，默认都是立马加载的
 	 * Set whether this bean should be lazily initialized.
 	 * <p>If {@code false}, the bean will get instantiated on startup by bean
 	 * factories that perform eager initialization of singletons.
@@ -146,6 +164,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	boolean isLazyInit();
 
 	/**
+	 * TODO: 此bean定义需要依赖的bean ,可以有多个
 	 * Set the names of the beans that this bean depends on being initialized.
 	 * The bean factory will guarantee that these beans get initialized first.
 	 */
@@ -158,6 +177,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	String[] getDependsOn();
 
 	/**
+	 * TODO: 这个bean是否允许被自动注入到别的地方去，默认都是被允许的，此标志只影响按类型装配，不影响byName的注入方式
 	 * Set whether this bean is a candidate for getting autowired into some other bean.
 	 * <p>Note that this flag is designed to only affect type-based autowiring.
 	 * It does not affect explicit references by name, which will get resolved even
@@ -172,6 +192,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	boolean isAutowireCandidate();
 
 	/**
+	 * TODO: 是否是首选的
 	 * Set whether this bean is a primary autowire candidate.
 	 * <p>If this value is {@code true} for exactly one bean among multiple
 	 * matching candidates, it will serve as a tie-breaker.
@@ -184,6 +205,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	boolean isPrimary();
 
 	/**
+	 * TODO: 指定使用的工厂bean
 	 * Specify the factory bean to use, if any.
 	 * This the name of the bean to call the specified factory method on.
 	 * @see #setFactoryMethodName
@@ -197,6 +219,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	String getFactoryBeanName();
 
 	/**
+	 * TODO: 指定工厂方法
 	 * Specify a factory method, if any. This method will be invoked with
 	 * constructor arguments, or with no arguments if none are specified.
 	 * The method will be invoked on the specified factory bean, if any,
@@ -213,6 +236,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	String getFactoryMethodName();
 
 	/**
+	 * TODO: 获取此bean的构造函数值们，持有构造函数们
 	 * Return the constructor argument values for this bean.
 	 * <p>The returned instance can be modified during bean factory post-processing.
 	 * @return the ConstructorArgumentValues object (never {@code null})
@@ -235,6 +259,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	MutablePropertyValues getPropertyValues();
 
 	/**
+	 * TODO: 获取普通属性集合
 	 * Return if there are property values values defined for this bean.
 	 * @since 5.0.2
 	 */
@@ -280,6 +305,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	void setRole(int role);
 
 	/**
+	 * TODO: 获取对应上面的role的值
 	 * Get the role hint for this {@code BeanDefinition}. The role hint
 	 * provides the frameworks as well as tools with an indication of
 	 * the role and importance of a particular {@code BeanDefinition}.
@@ -325,6 +351,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	boolean isAbstract();
 
 	/**
+	 * TODO: 返回该bean定义来自于的资源的描述
 	 * Return a description of the resource that this bean definition
 	 * came from (for the purpose of showing context in case of errors).
 	 */
@@ -332,6 +359,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	String getResourceDescription();
 
 	/**
+	 * TODO: 返回原始beanDefinition, 如果没有则返回null, 若这个bean定义被代理，修饰过，这个方法可以返回原始的
 	 * Return the originating BeanDefinition, or {@code null} if none.
 	 * Allows for retrieving the decorated bean definition, if any.
 	 * <p>Note that this method returns the immediate originator. Iterate through the

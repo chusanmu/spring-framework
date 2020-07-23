@@ -153,6 +153,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 	}
 
 	/**
+	 * TODO: 默认是StandardServletEnvironment
 	 * Create and return a new {@link StandardServletEnvironment}. Subclasses may override
 	 * in order to configure the environment or specialize the environment type returned.
 	 */
@@ -166,10 +167,11 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 	 */
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+		// TODO: 注册ServletContextAwareProcessor，这样任意的bean 都可以很方便的获取到ServletContext了，同时忽略另外两个,因为ServletContextAwareProcessor都把事情做了
 		beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.servletContext, this.servletConfig));
 		beanFactory.ignoreDependencyInterface(ServletContextAware.class);
 		beanFactory.ignoreDependencyInterface(ServletConfigAware.class);
-
+		// TODO: 注册web环境，包括 request, session, globalSession , application
 		WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.servletContext);
 		WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.servletContext, this.servletConfig);
 	}
@@ -208,6 +210,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 	@Override
 	protected void initPropertySources() {
 		ConfigurableEnvironment env = getEnvironment();
+		// TODO: 初始化web环境中的初始值，比如init等
 		if (env instanceof ConfigurableWebEnvironment) {
 			((ConfigurableWebEnvironment) env).initPropertySources(this.servletContext, this.servletConfig);
 		}

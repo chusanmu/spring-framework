@@ -26,6 +26,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 存储@Component， @Service, @Controller等注解 注释的类
+ * TODO: 实现了AnnotatedBeanDefinition，也继承了GenericBeanDefinition
  * Extension of the {@link org.springframework.beans.factory.support.GenericBeanDefinition}
  * class, based on an ASM ClassReader, with support for annotation metadata exposed
  * through the {@link AnnotatedBeanDefinition} interface.
@@ -48,10 +50,14 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 public class ScannedGenericBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {
 
+	/**
+	 * TODO: metadata,用来存储扫描进来的bean的一些注解信息
+	 */
 	private final AnnotationMetadata metadata;
 
 
 	/**
+	 * TODO: 它只有一个构造函数，必须传入MetadataReader
 	 * Create a new ScannedGenericBeanDefinition for the class that the
 	 * given MetadataReader describes.
 	 * @param metadataReader the MetadataReader for the scanned target class
