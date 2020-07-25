@@ -200,7 +200,7 @@ public abstract class AbstractApplicationEventMulticaster
 		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
 
 		// Quick check for existing entry on ConcurrentHashMap...
-		// TODO: 缓存里存在，则直接返回
+		// TODO: 缓存里存在，则直接返回，首次运行可能没有
 		ListenerRetriever retriever = this.retrieverCache.get(cacheKey);
 		if (retriever != null) {
 			return retriever.getApplicationListeners();
@@ -221,7 +221,9 @@ public abstract class AbstractApplicationEventMulticaster
 				// TODO: 需要缓存起来，所以才需要把retriever传过去，否则传null即可
 				Collection<ApplicationListener<?>> listeners =
 						retrieveApplicationListeners(eventType, sourceType, retriever);
+				// TODO: 把cacheKey, 和符合条件的retriever ，添加到缓存里面
 				this.retrieverCache.put(cacheKey, retriever);
+				// TODO: 然后 把合适的listeners返回
 				return listeners;
 			}
 		}
@@ -232,6 +234,7 @@ public abstract class AbstractApplicationEventMulticaster
 	}
 
 	/**
+	 * TODO: 根据事件类型和来源 查找事件监听器
 	 * Actually retrieve the application listeners for the given event and source type.
 	 * @param eventType the event type
 	 * @param sourceType the event source type
@@ -248,11 +251,15 @@ public abstract class AbstractApplicationEventMulticaster
 			listeners = new LinkedHashSet<>(this.defaultRetriever.applicationListeners);
 			listenerBeans = new LinkedHashSet<>(this.defaultRetriever.applicationListenerBeans);
 		}
+		// TODO: 把所有的监听器 listeners拿到
 		for (ApplicationListener<?> listener : listeners) {
+			// TODO: 如果该监听器listener支持处理此事件，
 			if (supportsEvent(listener, eventType, sourceType)) {
 				if (retriever != null) {
+					// TODO: 把该listener添加到retriever中的applicationListeners 缓存起来
 					retriever.applicationListeners.add(listener);
 				}
+				// TODO: 把listener添加进去
 				allListeners.add(listener);
 			}
 		}
@@ -260,6 +267,7 @@ public abstract class AbstractApplicationEventMulticaster
 			BeanFactory beanFactory = getBeanFactory();
 			for (String listenerBeanName : listenerBeans) {
 				try {
+					// TODO: 根据名称拿出来类型
 					Class<?> listenerType = beanFactory.getType(listenerBeanName);
 					if (listenerType == null || supportsEvent(listenerType, eventType)) {
 						ApplicationListener<?> listener =
@@ -273,6 +281,7 @@ public abstract class AbstractApplicationEventMulticaster
 									retriever.applicationListenerBeans.add(listenerBeanName);
 								}
 							}
+							// TODO: 也把它缓存起来
 							allListeners.add(listener);
 						}
 					}
@@ -283,6 +292,7 @@ public abstract class AbstractApplicationEventMulticaster
 				}
 			}
 		}
+		// TODO: 进行一个排序
 		AnnotationAwareOrderComparator.sort(allListeners);
 		if (retriever != null && retriever.applicationListenerBeans.isEmpty()) {
 			retriever.applicationListeners.clear();
@@ -386,12 +396,16 @@ public abstract class AbstractApplicationEventMulticaster
 
 
 	/**
+	 * TODO: Listener侦听器
 	 * Helper class that encapsulates a specific set of target listeners,
 	 * allowing for efficient retrieval of pre-filtered listeners.
 	 * <p>An instance of this helper gets cached per event type and source type.
 	 */
 	private class ListenerRetriever {
 
+		/**
+		 * TODO: 注意set是去重的
+		 */
 		public final Set<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 
 		public final Set<String> applicationListenerBeans = new LinkedHashSet<>();

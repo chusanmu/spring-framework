@@ -20,6 +20,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 接口中两个方法不能返回null, 如果返回null, 那么在后续初始化方法将报空指针异常或者通过getBean()方法获取不到bean实例对象，因为后置处理器从spring ioc容器中取出来bean实例对象，但是没有再次放回到ioc容器中
+ * TODO: spring可以注册多个bean的后置处理器，是按照注册的顺序进行调用的，若想定制顺序，可以用@Order或者实现Order接口
  * Factory hook that allows for custom modification of new bean instances,
  * e.g. checking for marker interfaces or wrapping them with proxies.
  *
@@ -43,6 +45,7 @@ import org.springframework.lang.Nullable;
 public interface BeanPostProcessor {
 
 	/**
+	 * TODO: 在bean实例化，依赖注入完毕以及自定义的初始化方法之前调用，init-method, 比如@PostConstruct标注，比如实现InitalztingBean接口的方法等等
 	 * Apply this BeanPostProcessor to the given new bean instance <i>before</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.
@@ -61,6 +64,7 @@ public interface BeanPostProcessor {
 	}
 
 	/**
+	 * TODO: 初始化方法之后调用
 	 * Apply this BeanPostProcessor to the given new bean instance <i>after</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.

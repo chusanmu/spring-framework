@@ -138,6 +138,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		// TODO: 如果有执行器executor, 那就会扔给线程池异步的去执行
 		// TODO: 默认情况下是没有的，spring默认情况下同步执行这些监听器的，我们可以调用set方法配置一个执行器(建议配置)
 		Executor executor = getTaskExecutor();
+		// TODO: 需要拿到所有符合条件的监听器
 		for (ApplicationListener<?> listener : getApplicationListeners(event, type)) {
 			// TODO: 绝大部分都是null
 			if (executor != null) {

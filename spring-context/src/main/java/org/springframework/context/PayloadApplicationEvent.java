@@ -32,6 +32,9 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 public class PayloadApplicationEvent<T> extends ApplicationEvent implements ResolvableTypeProvider {
 
+	/**
+	 * 具体发送的那个事件
+	 */
 	private final T payload;
 
 

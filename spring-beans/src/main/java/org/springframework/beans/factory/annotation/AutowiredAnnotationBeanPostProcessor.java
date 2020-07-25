@@ -238,12 +238,21 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		this.injectionMetadataCache.remove(beanName);
 	}
 
+	/**
+	 * TODO: 监测bean的构造器，可以监测出多个候选构造器，再用相应的策略决定使用哪一个，
+	 * 	  它将自动扫描通过@Autowired @Value注解的构造器 从而可以完成构造器注入
+	 * @param beanClass
+	 * @param beanName
+	 * @return
+	 * @throws BeanCreationException
+	 */
 	@Override
 	@Nullable
 	public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, final String beanName)
 			throws BeanCreationException {
 
 		// Let's check for lookup methods here...
+		// TODO: 监测Lookup注解，这个注解的注入方式，已经不推荐使用了
 		if (!this.lookupMethodsChecked.contains(beanName)) {
 			try {
 				ReflectionUtils.doWithMethods(beanClass, method -> {
@@ -270,14 +279,17 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		}
 
 		// Quick check on the concurrent map first, with minimal locking.
+		// TODO: 先去缓存里看看，看有没有解析过此类的构造函数，对每个类的构造函数只解析一次，解析完会存储结果，以备下次复用
 		Constructor<?>[] candidateConstructors = this.candidateConstructorsCache.get(beanClass);
 		if (candidateConstructors == null) {
 			// Fully synchronized resolution now...
 			synchronized (this.candidateConstructorsCache) {
+				// TODO: 为了线程安全，这里继续校验一次
 				candidateConstructors = this.candidateConstructorsCache.get(beanClass);
 				if (candidateConstructors == null) {
 					Constructor<?>[] rawCandidates;
 					try {
+						// TODO: 拿到此class所有的构造函数们，一般的类都只有一个空的构造函数，当然可以写多个
 						rawCandidates = beanClass.getDeclaredConstructors();
 					}
 					catch (Throwable ex) {
@@ -288,8 +300,10 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
 					Constructor<?> requiredConstructor = null;
 					Constructor<?> defaultConstructor = null;
+					// TODO: 兼容kotlin类型做的处理
 					Constructor<?> primaryConstructor = BeanUtils.findPrimaryConstructor(beanClass);
 					int nonSyntheticConstructors = 0;
+					// TODO: 遍历处理每个构造器
 					for (Constructor<?> candidate : rawCandidates) {
 						if (!candidate.isSynthetic()) {
 							nonSyntheticConstructors++;
@@ -297,11 +311,15 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						else if (primaryConstructor != null) {
 							continue;
 						}
+						// TODO: 找到构造器里有@Autowired或者@Value注解的直接信息们
 						AnnotationAttributes ann = findAutowiredAnnotation(candidate);
 						if (ann == null) {
+							// TODO: 此方法的目的是拿到目标类，比如若是cglib代理过的，那就拿父类.
 							Class<?> userClass = ClassUtils.getUserClass(beanClass);
+							// TODO: 说明确实是被cglib代理过的，那就再解析一次，看看父类是否有@Autowired这种注解
 							if (userClass != beanClass) {
 								try {
+									// TODO: 再处理一次，去父类中找找是否有@Autowired 这种构造器
 									Constructor<?> superCtor =
 											userClass.getDeclaredConstructor(candidate.getParameterTypes());
 									ann = findAutowiredAnnotation(superCtor);
@@ -311,14 +329,18 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 								}
 							}
 						}
+						// TODO: 如果没有存在注解标注的构造器
 						if (ann != null) {
+							// TODO: 表示要求的构造器最多只有一个，@Autowired标注的构造器数量最多只有一个, required= true的最多为1个
 							if (requiredConstructor != null) {
 								throw new BeanCreationException(beanName,
 										"Invalid autowire-marked constructor: " + candidate +
 										". Found constructor with 'required' Autowired annotation already: " +
 										requiredConstructor);
 							}
+							// TODO: 获取autowire注解中 required属性值
 							boolean required = determineRequiredStatus(ann);
+							// TODO: 只有是true,就往下走，默认值为true
 							if (required) {
 								if (!candidates.isEmpty()) {
 									throw new BeanCreationException(beanName,
@@ -326,20 +348,28 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 											". Found constructor with 'required' Autowired annotation: " +
 											candidate);
 								}
+								// TODO: 这个构造器就是必须的了，记录下来
 								requiredConstructor = candidate;
 							}
+							// TODO: 将标注有@Autowired注解的构造器，记录下来，作为候选的构造器
 							candidates.add(candidate);
 						}
+						// TODO: 如果这个构造器没有被标注@Autowired注解，但是它是无参构造器，那就当候选的构造器了，还是以@Autowired的为准
 						else if (candidate.getParameterCount() == 0) {
+							// TODO: 把默认的构造函数记录下来，但是并没有加进candidates里面
 							defaultConstructor = candidate;
 						}
 					}
+					// TODO: 如果能找到候选的构造器，这里需要注意，如果仅仅只有一个构造器的情况，并没有标注有@Autowired注解，这个判断会为false, 下面的else if 会去处理
 					if (!candidates.isEmpty()) {
 						// Add default constructor to list of optional constructors, as fallback.
+						// TODO: 这里是candidates里面有值了，并且还没有requiredConstructor 相当于标注了注解 @Autowired(required=false) 的情况了，会把默认的构造函数加进candidates中
 						if (requiredConstructor == null) {
 							if (defaultConstructor != null) {
+								// TODO: 把默认的构造函数加进去
 								candidates.add(defaultConstructor);
 							}
+							// TODO: 如果没有默认的无参构造函数，且有@Autowired(required=false)的构造函数，则发出警告
 							else if (candidates.size() == 1 && logger.isInfoEnabled()) {
 								logger.info("Inconsistent constructor declaration on bean with name '" + beanName +
 										"': single autowire-marked constructor flagged as optional - " +
@@ -349,9 +379,11 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						}
 						candidateConstructors = candidates.toArray(new Constructor<?>[0]);
 					}
+					// TODO: 这个意思是，有且仅有一个构造器，并且该构造器的参数个数大于0，那就是我们要找的构造器了
 					else if (rawCandidates.length == 1 && rawCandidates[0].getParameterCount() > 0) {
 						candidateConstructors = new Constructor<?>[] {rawCandidates[0]};
 					}
+					// TODO: 处理primaryConstructor以及nonSyntheticConstructors，兼容kotlin
 					else if (nonSyntheticConstructors == 2 && primaryConstructor != null &&
 							defaultConstructor != null && !primaryConstructor.equals(defaultConstructor)) {
 						candidateConstructors = new Constructor<?>[] {primaryConstructor, defaultConstructor};

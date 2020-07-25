@@ -823,6 +823,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		return (this.configurationFrozen || super.isBeanEligibleForMetadataCaching(beanName));
 	}
 
+	/**
+	 * TODO: 会把留下来的bean们，不是lazy懒加载的bean都实例化掉， bean真正实例化的时刻
+	 * @throws BeansException
+	 */
 	@Override
 	public void preInstantiateSingletons() throws BeansException {
 		if (logger.isTraceEnabled()) {
@@ -831,13 +835,17 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Iterate over a copy to allow for init methods which in turn register new bean definitions.
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+		// TODO: 把所有的bean定义信息名称，赋值到一个新的集合中
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			// TODO: 不是抽象类，是单例，不是懒加载
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				// TODO: 这是Spring提供的对工厂bean模式的支持，比如第三方 框架的继承经常采用这种方法，如果是工厂bean， 那就会把此工厂的bean放进去，feign用到了factoryBean
 				if (isFactoryBean(beanName)) {
+					// TODO: 拿到工厂bean本身，注意有前缀: factory_bean_prefix
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						final FactoryBean<?> factory = (FactoryBean<?>) bean;
@@ -851,18 +859,21 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							isEagerInit = (factory instanceof SmartFactoryBean &&
 									((SmartFactoryBean<?>) factory).isEagerInit());
 						}
+						// TODO: true 表示，立马初始化，那就进行初始化
 						if (isEagerInit) {
 							getBean(beanName);
 						}
 					}
 				}
 				else {
+					// TODO: 关于普通单例bean正式初始化，核心逻辑在 doGetBean
 					getBean(beanName);
 				}
 			}
 		}
 
 		// Trigger post-initialization callback for all applicable beans...
+		// TODO: 所有非lazy单例bean实例化完成后的回调方法 ，SmartInitializingSingleton 中的 afterSingletonsInstantiated 在所有的bean 都已经创建完成后执行
 		for (String beanName : beanNames) {
 			// TODO: 注意这里，getSingleton(beanName)这个方法，是直接去map里找，只有被实例化的单例bean才会返回true，否则是false, Spring这里没有用getBean可能是性能的考虑
 			Object singletonInstance = getSingleton(beanName);

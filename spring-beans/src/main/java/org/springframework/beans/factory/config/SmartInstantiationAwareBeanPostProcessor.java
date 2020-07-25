@@ -22,6 +22,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: AutowiredAnnotationBeanPostProcessor：依赖注入时的泛型依赖注入，就通过这个能智能判断类型来注入
  * Extension of the {@link InstantiationAwareBeanPostProcessor} interface,
  * adding a callback for predicting the eventual type of a processed bean.
  *
@@ -38,6 +39,7 @@ import org.springframework.lang.Nullable;
 public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationAwareBeanPostProcessor {
 
 	/**
+	 * TODO: 预测bean的类型，返回第一个预测成功的class类型，如果不能预测，返回null
 	 * Predict the type of the bean to be eventually returned from this
 	 * processor's {@link #postProcessBeforeInstantiation} callback.
 	 * <p>The default implementation returns {@code null}.
@@ -52,6 +54,9 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
 	}
 
 	/**
+	 * TODO: 选择合适的构造器，比如目标对象有多个构造器，在这里可以进行一些定制化，选择合适的构造器
+	 * TODO: beanClass参数表示目标实例的类型，beanName是目标实例在spring容器中的name
+	 * TODO: 返回值是个构造参数数组，如果返回null,会执行下一个postProcessor的determineCandidateConstructors 方法，否则选取该PostProcessor选择的构造器
 	 * Determine the candidate constructors to use for the given bean.
 	 * <p>The default implementation returns {@code null}.
 	 * @param beanClass the raw class of the bean (never {@code null})
@@ -67,6 +72,8 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
 	}
 
 	/**
+	 * TODO: 这个也很重要，获得提交暴露的bean引用，主要用于解决循环引用的问题
+	 * TODO: 只有单例对象才会调用此方法
 	 * Obtain a reference for early access to the specified bean,
 	 * typically for the purpose of resolving a circular reference.
 	 * <p>This callback gives post-processors a chance to expose a wrapper
