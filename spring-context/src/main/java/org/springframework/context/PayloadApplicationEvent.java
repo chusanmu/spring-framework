@@ -50,6 +50,10 @@ public class PayloadApplicationEvent<T> extends ApplicationEvent implements Reso
 	}
 
 
+	/**
+	 * TODO: 解析泛型，这时候可以拿到 T 这个类型，那如果T里面还有个泛型怎么取呢？ResolvableType.forInstance(getPayload()) 就是它做的事了.
+	 * @return
+	 */
 	@Override
 	public ResolvableType getResolvableType() {
 		return ResolvableType.forClassWithGenerics(getClass(), ResolvableType.forInstance(getPayload()));

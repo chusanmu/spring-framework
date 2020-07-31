@@ -391,7 +391,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		else {
 			// TODO: 第一个参数为source ,第二个是 payload, 才传的是事件本身
 			applicationEvent = new PayloadApplicationEvent<>(this, event);
-			// TODO: 若没有指定类型，就交给payloadApplicationEvent<T> 它会根据泛型类型生成出来的
+			// TODO: 若没有指定类型，就交给payloadApplicationEvent<T> 它会根据泛型类型生成出来的, 但是有时候可能泛型里面包含 泛型message, 例如 event 为 EventMessage<AddEvent>  这时候可以解析出 EventMessage, 但是拿不到AddEvent了
 			if (eventType == null) {
 				eventType = ((PayloadApplicationEvent<?>) applicationEvent).getResolvableType();
 			}

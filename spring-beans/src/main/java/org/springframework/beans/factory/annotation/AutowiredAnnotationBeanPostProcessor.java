@@ -329,7 +329,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 								}
 							}
 						}
-						// TODO: 如果没有存在注解标注的构造器
+						// TODO: 如果存在注解标注的构造器
 						if (ann != null) {
 							// TODO: 表示要求的构造器最多只有一个，@Autowired标注的构造器数量最多只有一个, required= true的最多为1个
 							if (requiredConstructor != null) {

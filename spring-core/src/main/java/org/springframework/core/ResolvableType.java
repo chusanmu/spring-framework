@@ -1086,6 +1086,7 @@ public class ResolvableType implements Serializable {
 	}
 
 	/**
+	 * TODO: 通过实例解析出泛型，如果实例是ResolvableTypeProvider类型的，那么可以再调用实例中的getResolvableType这个方法再取一次泛型，从而拿到最终泛型，可谓是非常巧妙了.
 	 * Return a {@link ResolvableType} for the specified instance. The instance does not
 	 * convey generic information but if it implements {@link ResolvableTypeProvider} a
 	 * more precise {@link ResolvableType} can be used than the simple one based on
@@ -1097,12 +1098,14 @@ public class ResolvableType implements Serializable {
 	 */
 	public static ResolvableType forInstance(Object instance) {
 		Assert.notNull(instance, "Instance must not be null");
+		// TODO: 如果实例是ResolvableTypeProvider类型的, 再取一次泛型
 		if (instance instanceof ResolvableTypeProvider) {
 			ResolvableType type = ((ResolvableTypeProvider) instance).getResolvableType();
 			if (type != null) {
 				return type;
 			}
 		}
+		// TODO: 否则拿到的就是 EventMessage<?> 这种类型的了...
 		return ResolvableType.forClass(instance.getClass());
 	}
 

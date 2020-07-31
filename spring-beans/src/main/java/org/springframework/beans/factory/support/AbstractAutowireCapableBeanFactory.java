@@ -1363,6 +1363,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
+	 * TODO: 通过factory bean的方式产生bean，一般在Configuration配置文件里写的method方法上加@Bean注解 会通过这种方式产生bean
 	 * Instantiate the bean using a named factory method. The method may be static, if the
 	 * mbd parameter specifies a class, rather than a factoryBean, or an instance variable
 	 * on a factory object itself configured using Dependency Injection.
