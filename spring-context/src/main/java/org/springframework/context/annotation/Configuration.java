@@ -418,7 +418,7 @@ import org.springframework.stereotype.Component;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Component
+@Component // TODO: 它也是个spring的组件，会被扫描
 public @interface Configuration {
 
 	/**
@@ -434,6 +434,6 @@ public @interface Configuration {
 	 * @see AnnotationBeanNameGenerator
 	 */
 	@AliasFor(annotation = Component.class)
-	String value() default "";
+	String value() default ""; // TODO: 可以自定义bean的名称
 
 }

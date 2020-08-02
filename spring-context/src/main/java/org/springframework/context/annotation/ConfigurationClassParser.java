@@ -163,7 +163,9 @@ class ConfigurationClassParser {
 		for (BeanDefinitionHolder holder : configCandidates) {
 			BeanDefinition bd = holder.getBeanDefinition();
 			try {
+				// TODO: 我们使用的注解驱动，所以会到这个parse进行处理，其实内部调用的都是processConfigurationClass进行解析的
 				if (bd instanceof AnnotatedBeanDefinition) {
+					// TODO: 但凡有注解标注的，都会走这里来解析
 					parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());
 				}
 				else if (bd instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) bd).hasBeanClass()) {
@@ -181,7 +183,7 @@ class ConfigurationClassParser {
 						"Failed to parse configuration class [" + bd.getBeanClassName() + "]", ex);
 			}
 		}
-
+		// TODO: 最最最后面才处理实现了DeferredImportSelector接口的类，最最后面
 		this.deferredImportSelectorHandler.process();
 	}
 
@@ -215,10 +217,13 @@ class ConfigurationClassParser {
 
 
 	protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
+		// TODO: ConfigurationCondition 继承自 Condition接口 ConfigurationPhase 枚举类型的作用: ConfigurationPhase的作用就是根据条件来判断是否加载这个配置类
+		// TODO: 两个值PARSE_CONFIGURATION 若条件不匹配，就不加载此@Configuration
+		// TODO: REGISTER_BEAN: 无论如何，所有@Configurations都将被解析
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
-
+		// TODO: 如果这个配置类已经存在了，后面又被@Import进来了，会走这里，然后做属性合并
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
 			if (configClass.isImported()) {
@@ -237,16 +242,19 @@ class ConfigurationClassParser {
 		}
 
 		// Recursively process the configuration class and its superclass hierarchy.
+		// TODO: 到这里就开始递归了，while递归，只要方法不返回null，就会一直do下去
 		SourceClass sourceClass = asSourceClass(configClass);
 		do {
+			// TODO: doProcessConfigurationClass 这个方法是解析配置文件的核心方法
 			sourceClass = doProcessConfigurationClass(configClass, sourceClass);
 		}
 		while (sourceClass != null);
-
+		// TODO: 保存我们所有的配置类，它是一个LinkedHashMap，所以是有序的
 		this.configurationClasses.put(configClass, configClass);
 	}
 
 	/**
+	 * TODO: 解析@Configuration配置文件，然后加载进bean的定义信息们，这个方法很重要，可以看到它加载bean定义信息的一个顺序
 	 * Apply processing and build a complete {@link ConfigurationClass} by reading the
 	 * annotations, members and methods from the source class. This method can be called
 	 * multiple times as relevant sources are discovered.
@@ -257,9 +265,12 @@ class ConfigurationClassParser {
 	@Nullable
 	protected final SourceClass doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
 			throws IOException {
-
+		// TODO: 先去看看内部类，这个If判断是spring5.x加上去的，因为@Import, @ImportResource这种属于Lite模式的配置类
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			// Recursively process any member (nested) classes first
+			// TODO: 基本逻辑: 内部类可以有多个，支持lite模式和full模式，也支持order排序
+			// TODO: 若不是被import过的，那就顺便直接解析它 processConfigurationClass
+			// TODO: 该内部class是可以private，也可以是static的，所以可以看到把 bean定义在内部类里面，是有助于提升bean的优先级的
 			processMemberClasses(configClass, sourceClass);
 		}
 
@@ -277,6 +288,7 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @ComponentScan annotations
+		// TODO: 注意@ComponentScans 扫描到的 就直接加到 beanDefinitions中了
 		Set<AnnotationAttributes> componentScans = AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), ComponentScans.class, ComponentScan.class);
 		if (!componentScans.isEmpty() &&
@@ -299,6 +311,7 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @Import annotations
+		// TODO: 处理@Import
 		processImports(configClass, sourceClass, getImports(sourceClass), true);
 
 		// Process any @ImportResource annotations

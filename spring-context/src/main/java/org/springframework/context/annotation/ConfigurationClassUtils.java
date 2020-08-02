@@ -39,6 +39,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 /**
+ * TODO: FULL模式和lite模式的不同在于，Full模式的配置组件会被enhance 加强代理，而lite模式不会，其余使用方式都一样，比如@Bean , @Import,
+ * TODO: 和full模式不同的是，lite模式不能声明bean之间的依赖关系，也就是说入参 java方法调用，都不能达到直接注入的效果，特别是java方法调用，就直接进方法体了
  * Utilities for identifying {@link Configuration} classes.
  *
  * @author Chris Beams
@@ -132,6 +134,7 @@ abstract class ConfigurationClassUtils {
 	}
 
 	/**
+	 * TODO: 不管是full模式 还是 lite模式，都被认为是候选的配置类，是上面两个方法的接合
 	 * Check the given metadata for a configuration class candidate
 	 * (or nested component class declared within a configuration/component class).
 	 * @param metadata the metadata of the annotated class
@@ -143,6 +146,7 @@ abstract class ConfigurationClassUtils {
 	}
 
 	/**
+	 * TODO: 这个类只要标注了@Configuration注解就行，哪怕是接口，抽象类都是没有问题的
 	 * Check the given metadata for a full configuration class candidate
 	 * (i.e. a class annotated with {@code @Configuration}).
 	 * @param metadata the metadata of the annotated class
@@ -154,6 +158,10 @@ abstract class ConfigurationClassUtils {
 	}
 
 	/**
+	 * TODO: 判断lite模式, 首先肯定没有@Configuration注解
+	 * 1. 不能是接口
+	 * 2. 但凡只有标注了一个下面注解，都算lite模式 @Component, @ComponentScan @Import @ImportResource
+	 * 3. 只有存在有一个方法标注了@Bean注解都算是lite模式。
 	 * Check the given metadata for a lite configuration class candidate
 	 * (e.g. a class annotated with {@code @Component} or just having
 	 * {@code @Import} declarations or {@code @Bean methods}).
@@ -163,11 +171,13 @@ abstract class ConfigurationClassUtils {
 	 */
 	public static boolean isLiteConfigurationCandidate(AnnotationMetadata metadata) {
 		// Do not consider an interface or an annotation...
+		// TODO: 不能是接口
 		if (metadata.isInterface()) {
 			return false;
 		}
 
 		// Any of the typical annotations found?
+		// TODO: 但凡只要被下面的一个注解标注，都算作lite模式
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
 				return true;
@@ -176,6 +186,7 @@ abstract class ConfigurationClassUtils {
 
 		// Finally, let's look for @Bean methods...
 		try {
+			// TODO: 只有存在有一个方法标注了@Bean注解，那就是lite模式
 			return metadata.hasAnnotatedMethods(Bean.class.getName());
 		}
 		catch (Throwable ex) {
@@ -187,6 +198,7 @@ abstract class ConfigurationClassUtils {
 	}
 
 	/**
+	 * TODO: 如果类上有@Configuration注解，说明是一个完全 full 的配置类， 如果类上有@Configuration注解说明是一个完全full的配置类, 判断bean定义信息是否有这个属性，判断它的属性值
 	 * Determine whether the given bean definition indicates a full {@code @Configuration}
 	 * class, through checking {@link #checkConfigurationClassCandidate}'s metadata marker.
 	 */
@@ -195,6 +207,7 @@ abstract class ConfigurationClassUtils {
 	}
 
 	/**
+	 * TODO: 如果类上面有@Component, @ComponentScan, @Import @ImportResource 这些注解，那么就是一个简化的配置类，如果不是上面两种情况，那么有@Bean注解修饰的方法也是简化配置类
 	 * Determine whether the given bean definition indicates a lite {@code @Configuration}
 	 * class, through checking {@link #checkConfigurationClassCandidate}'s metadata marker.
 	 */

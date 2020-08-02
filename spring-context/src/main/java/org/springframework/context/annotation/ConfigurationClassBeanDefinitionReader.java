@@ -112,19 +112,24 @@ class ConfigurationClassBeanDefinitionReader {
 	 * with the registry based on its contents.
 	 */
 	public void loadBeanDefinitions(Set<ConfigurationClass> configurationModel) {
+		// TODO: TrackedConditionEvaluator 是个内部类,是去解析@Conditional相关注解的，借助了conditionEvaluator去计算处理，主要是看要不要shouldSkip()
 		TrackedConditionEvaluator trackedConditionEvaluator = new TrackedConditionEvaluator();
+		// TODO: 对每个@Configuration 类文件，做遍历，所以@Config配置文件的顺序还是很重要的
 		for (ConfigurationClass configClass : configurationModel) {
 			loadBeanDefinitionsForConfigurationClass(configClass, trackedConditionEvaluator);
 		}
 	}
 
 	/**
+	 * TODO: 用来解析每一个已经解析好的Configuration配置文件
+	 * TODO: 从指定的一个配置类ConfigurationClass中提取bean定义信息并注册bean定义到bean容器
+	 * 1.配置类本身要注册为bean定义，2.配置类中的@Bean注解方法要注册为配置类
 	 * Read a particular {@link ConfigurationClass}, registering bean definitions
 	 * for the class itself and all of its {@link Bean} methods.
 	 */
 	private void loadBeanDefinitionsForConfigurationClass(
 			ConfigurationClass configClass, TrackedConditionEvaluator trackedConditionEvaluator) {
-
+		// TODO: 这里判断是否需要跳过，与之前解析@Configuration判断是否跳过的逻辑是相同的，借助了conditionEvaluator
 		if (trackedConditionEvaluator.shouldSkip(configClass)) {
 			String beanName = configClass.getBeanName();
 			if (StringUtils.hasLength(beanName) && this.registry.containsBeanDefinition(beanName)) {
@@ -133,15 +138,17 @@ class ConfigurationClassBeanDefinitionReader {
 			this.importRegistry.removeImportingClass(configClass.getMetadata().getClassName());
 			return;
 		}
-
+		// TODO: 最先处理注册@Import进来的bean定义，判断依据是 configClass.isImported()
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
+		// TODO: 第二步开始处理 @Bean的方式进来的，方法访问权限无要求，private无所谓，static的也可以
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
-
+		// TODO: 注册importedResources进来的bean们
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+		// TODO: 执行ImportBeanDefinitionRegistrar#registerBeanDefinitions() 注册bean定义信息，也就是此处执行ImportBeanDefinitionRegistrar的接口方法
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 

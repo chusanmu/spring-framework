@@ -67,6 +67,7 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 	}
 
 	/**
+	 * TODO: 把所有的ApplicationListener的bean，都加入到addApplicationListener里面，放到广播器里面
 	 * bean初始化之后会被调用
 	 * @param bean the new bean instance
 	 * @param beanName the name of the bean
