@@ -233,10 +233,18 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return null;
 	}
 
+	/**
+	 * TODO: 提前暴露代理对象的引用，它肯定是在postProcessAfterInitialization之前执行，所有它不需要判断啥的，创建好后放进缓存earlyProxyReferences里
+	 * @param bean the raw bean instance
+	 * @param beanName the name of the bean
+	 * @return
+	 */
 	@Override
 	public Object getEarlyBeanReference(Object bean, String beanName) {
 		Object cacheKey = getCacheKey(bean.getClass(), beanName);
+		// TODO: 此处的value也就是bean，是原始bean
 		this.earlyProxyReferences.put(cacheKey, bean);
+		// TODO: 返回的是个代理对象
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
@@ -287,6 +295,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	/**
+	 * TODO: 因为它会在getEarlyBeanReference之后执行，所以此处的重要逻辑是下面的判断
 	 * Create a proxy with the configured interceptors if the bean is
 	 * identified as one to proxy by the subclass.
 	 * @see #getAdvicesAndAdvisorsForBean
@@ -295,6 +304,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
 		if (bean != null) {
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
+			// TODO: remove 方法返回被移除的value, 若被循环引用了，那就是执行了上面的getEarlyBeanReference，所以此时remove返回值肯定是==bean的，注意此时方法入参的bean还是原始对象
+			// TODO: 若没有被循环引用，getEarlyBeanReference不执行，所以remove方法返回Null，所以就进入if 执行此处的创建代理对象方法
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}

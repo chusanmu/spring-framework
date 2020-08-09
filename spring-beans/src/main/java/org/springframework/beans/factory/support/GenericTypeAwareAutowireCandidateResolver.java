@@ -66,6 +66,8 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 			// If explicitly false, do not proceed with any other checks...
 			return false;
 		}
+		// TODO: 检查泛型是否匹配，若泛型都不匹配，就直接返回false了
+		// TODO: 1.从descriptor里拿泛型类型
 		return checkGenericTypeMatch(bdHolder, descriptor);
 	}
 

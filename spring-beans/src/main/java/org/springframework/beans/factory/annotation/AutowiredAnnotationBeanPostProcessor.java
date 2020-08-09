@@ -410,6 +410,8 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	 */
 	@Override
 	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+		// TODO: 找到所有的@Autowired元数据,InjectionMetadata中有个Collection<InjectedElement> 表示需要注入处理的属性们
+		// TODO: 最终都是InjectionMetadata去处理
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
 		try {
 			metadata.inject(bean, beanName, pvs);
@@ -627,14 +629,17 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				value = resolvedCachedArgument(beanName, this.cachedFieldValue);
 			}
 			else {
+				// TODO: 把field和required属性，包装成desc描述类
 				DependencyDescriptor desc = new DependencyDescriptor(field, this.required);
 				desc.setContainingClass(bean.getClass());
+				// TODO: 装载注入的名称，最后会被注册，缓存起来
 				Set<String> autowiredBeanNames = new LinkedHashSet<>(1);
 				Assert.state(beanFactory != null, "No BeanFactory available");
 				// TODO: 转换器，没有手动注册，默认都是SimpleTypeConverter
 				TypeConverter typeConverter = beanFactory.getTypeConverter();
 				try {
 					// TODO: 把当前bean所依赖的这个bean解析出来，从spring容器里面拿，或者从别的地方获取吧
+					// TODO: 把desc传进去，里面还有注解信息，元信息等等，这个方法是根据注解信息寻找到依赖的bean的核心逻辑
 					value = beanFactory.resolveDependency(desc, beanName, autowiredBeanNames, typeConverter);
 				}
 				catch (BeansException ex) {

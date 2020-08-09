@@ -87,6 +87,7 @@ public class InjectionMetadata {
 	 */
 	public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
 		Collection<InjectedElement> checkedElements = this.checkedElements;
+		// TODO: 这里是待遍历，待处理的属性Element们
 		Collection<InjectedElement> elementsToIterate =
 				(checkedElements != null ? checkedElements : this.injectedElements);
 		if (!elementsToIterate.isEmpty()) {
@@ -94,7 +95,7 @@ public class InjectionMetadata {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Processing injected element of bean '" + beanName + "': " + element);
 				}
-				// TODO: 最主要的方法
+				// TODO: 最主要的方法，最终是委托给了InjectedElement 去处理
 				element.inject(target, beanName, pvs);
 			}
 		}

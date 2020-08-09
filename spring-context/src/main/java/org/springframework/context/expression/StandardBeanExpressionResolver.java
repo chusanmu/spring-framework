@@ -37,6 +37,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 语言解析器的标准实现，支持解析spel语言
  * Standard implementation of the
  * {@link org.springframework.beans.factory.config.BeanExpressionResolver}
  * interface, parsing and evaluating Spring EL using Spring's expression module.
@@ -49,6 +50,9 @@ import org.springframework.util.StringUtils;
  */
 public class StandardBeanExpressionResolver implements BeanExpressionResolver {
 
+	/**
+	 * TODO: spel是支持自定义前缀，后缀的，此处保持了和Spel默认值的统一
+	 */
 	/** Default expression prefix: "#{". */
 	public static final String DEFAULT_EXPRESSION_PREFIX = "#{";
 
@@ -61,11 +65,18 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
 	private String expressionSuffix = DEFAULT_EXPRESSION_SUFFIX;
 
 	private ExpressionParser expressionParser;
-
+	/**
+	 * TODO: 每个表达式都对应一个Expression，这样就不用重复解析了
+	 */
 	private final Map<String, Expression> expressionCache = new ConcurrentHashMap<>(256);
-
+	/**
+	 * TODO: 每个beanExpressionContext都对应一着一个取值上下文
+	 */
 	private final Map<BeanExpressionContext, StandardEvaluationContext> evaluationCache = new ConcurrentHashMap<>(8);
 
+	/**
+	 * TODO: 匿名内部类，解析上下文
+	 */
 	private final ParserContext beanExpressionParserContext = new ParserContext() {
 		@Override
 		public boolean isTemplate() {
@@ -83,6 +94,7 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
 
 
 	/**
+	 * TODO: 空构造函数，默认就是使用的SpelExpressionParser
 	 * Create a new {@code StandardBeanExpressionResolver} with default settings.
 	 */
 	public StandardBeanExpressionResolver() {
@@ -142,19 +154,28 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
 				expr = this.expressionParser.parseExpression(value, this.beanExpressionParserContext);
 				this.expressionCache.put(value, expr);
 			}
+			// TODO: 构建getValue计算时的执行上下文
 			StandardEvaluationContext sec = this.evaluationCache.get(evalContext);
 			if (sec == null) {
 				sec = new StandardEvaluationContext(evalContext);
+				// TODO: 此处新增了4个，加上一个默认的，所以一共就有5个属性访问器了
+				// TODO: 这样spel就能访问beanFactory, map environment扥组件了
+				// TODO: BeanExpressionContextAccessor 表示调用bean的方法 最终执行者为beanExpressionContext，它持有beanFactory的引用
+				// TODO: 如果是单纯的bean注入，那么最终使用的也是beanExpressionContextAccessor
 				sec.addPropertyAccessor(new BeanExpressionContextAccessor());
 				sec.addPropertyAccessor(new BeanFactoryAccessor());
 				sec.addPropertyAccessor(new MapAccessor());
 				sec.addPropertyAccessor(new EnvironmentAccessor());
+				// TODO: setBeanResolver不是接口方法，仅仅辅助StandardEvaluationContext去获取bean
 				sec.setBeanResolver(new BeanFactoryResolver(evalContext.getBeanFactory()));
 				sec.setTypeLocator(new StandardTypeLocator(evalContext.getBeanFactory().getBeanClassLoader()));
+				// TODO: 若conversionService不为null,就使用工厂的，否则就使用spel里默认的DefaultConverterService那个
+				// TODO: 最后包装成TypeConverter给set进去
 				ConversionService conversionService = evalContext.getBeanFactory().getConversionService();
 				if (conversionService != null) {
 					sec.setTypeConverter(new StandardTypeConverter(conversionService));
 				}
+				// TODO: 这是一个空方法,若我们自己要自定义BeanExpressionResolver，完全可以继承自StandardBeanExpressionResolver
 				customizeEvaluationContext(sec);
 				this.evaluationCache.put(evalContext, sec);
 			}

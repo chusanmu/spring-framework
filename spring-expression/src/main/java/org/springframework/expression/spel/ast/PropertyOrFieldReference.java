@@ -308,6 +308,7 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
 			Class<?>[] targets = resolver.getSpecificTargetClasses();
 			if (targets == null) {
 				// generic resolver that says it can be used for any type
+				// TODO: 如果为null,没指定类型，那就相当于这个处理器可以处理任意的type
 				generalAccessors.add(resolver);
 			}
 			else if (targetType != null) {

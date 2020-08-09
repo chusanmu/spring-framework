@@ -145,9 +145,13 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	@Override
 	public boolean isAutowireCandidate(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
 		boolean match = super.isAutowireCandidate(bdHolder, descriptor);
+		// TODO: 到了这，如果是false,说明泛型没有匹配上，那就不用继续往下走了
+		// TODO: 如果为true,那就继续，解析@Qualifier注解了，
 		if (match) {
+			// TODO: 看看有没有标注@Qualifier注解，没有标注也是返回true
 			match = checkQualifiers(bdHolder, descriptor.getAnnotations());
 			if (match) {
+				// TODO: 兼容到方法级别的注入
 				MethodParameter methodParam = descriptor.getMethodParameter();
 				if (methodParam != null) {
 					Method method = methodParam.getMethod();
@@ -161,9 +165,11 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	}
 
 	/**
+	 * TODO: 将给定的Qualifier注解与候选bean定义匹配
 	 * Match the given qualifier annotations against the candidate bean definition.
 	 */
 	protected boolean checkQualifiers(BeanDefinitionHolder bdHolder, Annotation[] annotationsToSearch) {
+		// TODO: 这里一般会有两个注解，一个@Autowired 一个@Qualifier，或者还有其余的组合注解
 		if (ObjectUtils.isEmpty(annotationsToSearch)) {
 			return true;
 		}
@@ -172,6 +178,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 			Class<? extends Annotation> type = annotation.annotationType();
 			boolean checkMeta = true;
 			boolean fallbackToMeta = false;
+			// TODO: 最重要的方法就是它了
 			if (isQualifier(type)) {
 				if (!checkQualifier(bdHolder, annotation, typeConverter)) {
 					fallbackToMeta = true;

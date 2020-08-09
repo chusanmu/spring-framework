@@ -614,6 +614,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 			// TODO: 这里面主要是解决循环引用问题，借助了这个工厂
 			// TODO: 这里主要是调用处理器 SmartInstantiationAwareBeanPostProcessor#getEarlyBeanReference方法去寻找前期的bean们(若存在这种处理器的话)
+
+			// TODO: 调用此方法放进一个objectFactory, 二级缓存会对应删除的， getEarlyBeanReference() 去调用 SmartInstantiationAwareBeanPostProcessor.getEarlyBeanReference() 也就是给调用者一个机会，自己去实现暴露这个bean的应用的逻辑
+			// TODO: 比如在getEarlyBeanReference()里面可以实现AOP的逻辑，若不需要AOP的逻辑，则直接返回bean
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -640,22 +643,29 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 		// TODO: 如果earlySingletonExposure 为true，尝试从缓存获取该bean(一般存放在singletonFactories对象通过调用getObject把对象存入earlySingletonObjects)
+		// TODO: 如果你的bean允许被早起暴露出去，也就是说可以被循环引用，那这里就会进行检查，此段代码很重要
 		if (earlySingletonExposure) {
-			// TODO: 分别从singletonObjects和earlySingletonObjects获取对象，这里依然是处理循环依赖相关问题的
+			// TODO: 分别从singletonObjects和earlySingletonObjects获取对象，这里依然是处理循环依赖相关问题的, 注意此处一级缓存还没数据，二级缓存earlySingletonObjects也没数据，第二个参数为null, 表示不会再去三级缓存里面去查了
+			// TODO: 非常巧妙的一点: 因为上面各种各样的实例化，初始化的后置处理器都执行了
 			Object earlySingletonReference = getSingleton(beanName, false);
 			// TODO: 如果获取到了对象
 			if (earlySingletonReference != null) {
+				// TODO: 如果经过了initializeBean()后，exposedObject还是没有变，那就可以大胆的返回了，initializeBean会调用后置处理器，这个时候生成一个代理对象，这时候，就会产生一个新的
 				if (exposedObject == bean) {
 					exposedObject = earlySingletonReference;
 				}
+				// TODO: allowRawInjectionDespiteWrapping 默认是false，若它有依赖的bean，那就需要继续校验了
 				else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
+					// TODO: 拿到它所依赖的bean们
 					String[] dependentBeans = getDependentBeans(beanName);
 					Set<String> actualDependentBeans = new LinkedHashSet<>(dependentBeans.length);
 					for (String dependentBean : dependentBeans) {
+						// TODO: 一个个的检查
 						if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
 							actualDependentBeans.add(dependentBean);
 						}
 					}
+					// TODO: 若存在真正依赖，那就报错
 					if (!actualDependentBeans.isEmpty()) {
 						throw new BeanCurrentlyInCreationException(beanName,
 								"Bean with name '" + beanName + "' has been injected into other beans [" +
@@ -1204,7 +1214,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (instanceSupplier != null) {
 			return obtainFromSupplier(instanceSupplier, beanName);
 		}
-		// TODO: spring支持的又一种方式，使用工厂方法来进行bean的实例化
+		// TODO: spring支持的又一种方式，使用工厂方法来进行bean的实例化, 这里主要是 我们自己在配置文件中配置的bean,都是经过这种方式去初始化的，工厂方法，来进行 直接使用我们给定的方法去创建对象，也就是
+		// TODO: 我们配置文件里面配了@Bean的方式，它去反射那个方法，然后会返回一个对象
 		if (mbd.getFactoryMethodName() != null) {
 			return instantiateUsingFactoryMethod(beanName, mbd, args);
 		}

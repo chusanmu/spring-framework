@@ -74,18 +74,31 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private static final int SUPPRESSED_EXCEPTIONS_LIMIT = 100;
 
 
+	/* ---------------- 从上到下，代表着三级缓存 -------------- */
+
+	/**
+	 * 一级缓存, 用于存放完全初始化好的bean，从该缓存中取出的bean可以直接使用
+	 */
 	/** Cache of singleton objects: bean name to bean instance. */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
-
+	/**
+	 * 三级缓存，单例对象工厂的cache，存放bean工厂对象，用于解决循环依赖问题
+	 */
 	/** Cache of singleton factories: bean name to ObjectFactory. */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
+	/**
+	 * 二级缓存，提前曝光的单例对象的cache，存放原始的bean对象，尚未填补属性，用于解决循环依赖问题
+	 */
 	/** Cache of early singleton objects: bean name to bean instance. */
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
 	/** Set of registered singletons, containing the bean names in registration order. */
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
+	/**
+	 * 这个缓存也很重要，它表示bean创建过程中都会在里面呆着，它在bean开始创建时放值，创建完成后会将其移出
+	 */
 	/** Names of beans that are currently in creation. */
 	private final Set<String> singletonsCurrentlyInCreation =
 			Collections.newSetFromMap(new ConcurrentHashMap<>(16));
@@ -178,10 +191,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
-		// TODO: 此处是先从已经缓存好了的 singletonObjects的Map中，查看有没有
+		// TODO: 此处是先从已经缓存好了的 singletonObjects的Map中，查看有没有,先从一级缓存 singletonObjects中去获取，如果获取到了 就直接return
 		Object singletonObject = this.singletonObjects.get(beanName);
 		// TODO: 若缓存里面没有，并且并且，这个bean必须在创建中，才会进来，singletonsCurrentlyInCreation 会缓存下来所有的正在创建中的bean，如果有bean是循环引用的，会把这种bean先放进去，这里才会有值
+		// TODO: 如果获取不到，或者对象正在创建中，isSingletonCurrentlyInCreation， 那就再从二级缓存earlySingletonObjects中获取，如果获取到就直接return
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			// TODO: 如果还是获取不到，且允许singletonFactories，通过getObject获取，就从三级缓存singletonFactory.getObject()获取，如果获取到了就从singletonFactories中移除，并且放进earlySingletonObjects，其实就是从
+			// TODO: 三级缓存 移动 到了二级缓存
 			synchronized (this.singletonObjects) {
 				singletonObject = this.earlySingletonObjects.get(beanName);
 				if (singletonObject == null && allowEarlyReference) {
@@ -189,6 +205,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (singletonFactory != null) {
 						singletonObject = singletonFactory.getObject();
 						this.earlySingletonObjects.put(beanName, singletonObject);
+						// TODO: 进行移除
 						this.singletonFactories.remove(beanName);
 					}
 				}
