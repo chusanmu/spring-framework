@@ -43,6 +43,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 它不进京能够处理 @Value @Qualifier 等还能处理泛型依赖注入，因此功能已经很完善了，它不仅仅能够处理@Qualifier注解，也能够处理通过@Value注解解析表达式得到的 suggested  value，也就是说它还实现了接口方法 getSuggestedValue()
  * {@link AutowireCandidateResolver} implementation that matches bean definition qualifiers
  * against {@link Qualifier qualifier annotations} on the field or parameter to be autowired.
  * Also supports suggested expression values through a {@link Value value} annotation.
@@ -59,6 +60,9 @@ import org.springframework.util.StringUtils;
  */
 public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwareAutowireCandidateResolver {
 
+	/**
+	 * TODO: 支持的注解的类型，默认支持@Qualifier和JSR-330的javax.inject.Qualifier注解
+	 */
 	private final Set<Class<? extends Annotation>> qualifierTypes = new LinkedHashSet<>(2);
 
 	private Class<? extends Annotation> valueAnnotationType = Value.class;
@@ -82,6 +86,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	}
 
 	/**
+	 * 	TODO: 可以通过构造函数，增加自定义的注解的支持
 	 * Create a new QualifierAnnotationAutowireCandidateResolver
 	 * for the given qualifier annotation type.
 	 * @param qualifierType the qualifier annotation to look for
@@ -117,6 +122,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	}
 
 	/**
+	 * TODO: value注解类型 spring也是允许我们改成自己的类型的
 	 * Set the 'value' annotation type, to be used on fields, method parameters
 	 * and constructor parameters.
 	 * <p>The default value annotation type is the Spring-provided
@@ -148,12 +154,13 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 		// TODO: 到了这，如果是false,说明泛型没有匹配上，那就不用继续往下走了
 		// TODO: 如果为true,那就继续，解析@Qualifier注解了，
 		if (match) {
-			// TODO: 看看有没有标注@Qualifier注解，没有标注也是返回true
+			// TODO: 看看有没有标注@Qualifier注解，没有标注也是返回true，@Qualifier注解在此处生效，最终可能匹配出一个或者0个出来
 			match = checkQualifiers(bdHolder, descriptor.getAnnotations());
 			if (match) {
-				// TODO: 兼容到方法级别的注入
+				// TODO: 兼容到方法级别的注入，这里处理的是方法入参们，只有方法有入参才需要继续解析
 				MethodParameter methodParam = descriptor.getMethodParameter();
 				if (methodParam != null) {
+					// TODO: 表示这个入参所属于的方法，如果它不属于任何方法或者属于方法的返回值void，才去看它头上标注的@Qualifier注解
 					Method method = methodParam.getMethod();
 					if (method == null || void.class == method.getReturnType()) {
 						match = checkQualifiers(bdHolder, methodParam.getMethodAnnotations());
@@ -333,6 +340,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	}
 
 	/**
+	 * TODO: 看标注的所有注解，是否有@Qualifier这个注解
 	 * Determine whether the given dependency declares a qualifier annotation.
 	 * @see #isQualifier(Class)
 	 * @see Qualifier
@@ -348,14 +356,18 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	}
 
 	/**
+	 * TODO: 解析@Value注解，需要注意此类它不负责解析占位符啥的，只负责把字符串返回
+	 * TODO: 最终是交给value = evaluateBeanDefinitionString(strValue,bd) 它处理
 	 * Determine whether the given dependency declares a value annotation.
 	 * @see Value
 	 */
 	@Override
 	@Nullable
 	public Object getSuggestedValue(DependencyDescriptor descriptor) {
+		// TODO: 拿到value注解，当然不一定是@Value注解，可以自定义的，并且拿到他的注解属性value值
 		Object value = findValue(descriptor.getAnnotations());
 		if (value == null) {
+			// TODO: 相当于@Value注解标注在方法入参上，也是可以的
 			MethodParameter methodParam = descriptor.getMethodParameter();
 			if (methodParam != null) {
 				value = findValue(methodParam.getMethodAnnotations());

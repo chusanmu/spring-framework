@@ -93,8 +93,14 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 
 	private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
+	/**
+	 * 满足过滤规则的
+	 */
 	private final List<TypeFilter> includeFilters = new LinkedList<>();
 
+	/**
+	 * 不满足过滤规则的
+	 */
 	private final List<TypeFilter> excludeFilters = new LinkedList<>();
 
 	@Nullable
@@ -203,6 +209,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 */
 	@SuppressWarnings("unchecked")
 	protected void registerDefaultFilters() {
+		// TODO: 默认情况下都是添加了@Component这个注解的
 		this.includeFilters.add(new AnnotationTypeFilter(Component.class));
 		ClassLoader cl = ClassPathScanningCandidateComponentProvider.class.getClassLoader();
 		try {
@@ -263,6 +270,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
 		this.resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(resourceLoader);
 		this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
+		// TODO: 优化了bean的扫描
 		this.componentsIndex = CandidateComponentsIndexLoader.loadIndex(this.resourcePatternResolver.getClassLoader());
 	}
 
@@ -312,6 +320,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 			return addCandidateComponentsFromIndex(this.componentsIndex, basePackage);
 		}
 		else {
+			// TODO: 绝大部分都是此方式
 			return scanCandidateComponents(basePackage);
 		}
 	}
@@ -415,21 +424,31 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private Set<BeanDefinition> scanCandidateComponents(String basePackage) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
+			// TODO: 1.根据指定包名，生成包搜索路径
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
+			// TODO: 2.资源加载器，加载搜索路径下的所有class,转换为Resource[] 拿着上面的路径，就可以getResources获取出所有的.class类，真正干事的是PathMatchingResourcePatternResolver#getResources方法
+			// TODO: 这里会拿到类路径下所有的.class文件，可能有上百个，然后后面再交给后面进行筛选
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
+			// TODO: 记录日志
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
+			// TODO: 把一个个的resource进行组装
 			for (Resource resource : resources) {
 				if (traceEnabled) {
 					logger.trace("Scanning " + resource);
 				}
+				// TODO: 文件必须可读啊，否则啥都不做
 				if (resource.isReadable()) {
 					try {
+						// TODO: 读取类的注解信息和类信息，两大信息存储到MetadataReader
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
+						// TODO: 根据typeFilter过滤排除组件，这里一般默认编著了默认注解的才会是true，就是@Component，否则不合法
 						if (isCandidateComponent(metadataReader)) {
+							// TODO: 符合条件的转换为BeanDefinition
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setSource(resource);
+							// TODO: 再次判断，如果是实体类，返回true,如果是抽象类，但是抽象方法被@Lookup注解注释返回true
 							if (isCandidateComponent(sbd)) {
 								if (debugEnabled) {
 									logger.debug("Identified candidate component class: " + resource);

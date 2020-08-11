@@ -1208,7 +1208,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	public Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
 			@Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
 		// TODO: 把当前bean工厂的名字发现器赋值给传进来DependencyDescriptor类
-		// TODO: bean工厂的默认值为DefaultParameterNameDiscover
+		// TODO: bean工厂的默认值为DefaultParameterNameDiscover, 这就是我们使用@Autowired注入， 即使有多个同类型的bean，也可以通过field属性名进行区分的根本原因，可以不需要使用@Qualifier注解
 		descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
 		// TODO: 支持到Optional类型的注入，对于java8中Optional类的处理
 		if (Optional.class == descriptor.getDependencyType()) {
@@ -1227,6 +1227,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		else {
 			// TODO: 拿到autowireCandidateResolver，根据依赖注解信息，找到对应的bean值信息，getLazyResolutionProxyIfNecessary它也是唯一实现
 			// TODO: 如果字段上带有@Lazy注解，表示进行懒加载，Spring不会立即创建属性注入属性的实例，而是生成代理对象，来代替实例
+			// TODO: 如果标注@Lazy注解，这里result就不为空喽
 			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
 					descriptor, requestingBeanName);
 			// TODO: 如果在@Autowired上面还有个注解的@Lazy，那就是懒加载，是另外一种处理方式，这里如果不是懒加载，绝大部分情况会进入这里，就进入核心的方法

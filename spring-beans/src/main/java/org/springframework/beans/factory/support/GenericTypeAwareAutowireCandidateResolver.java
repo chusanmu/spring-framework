@@ -31,6 +31,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 /**
+ * TODO: 和泛型有关，spring4.0后的泛型依赖注入主要是用它来实现的，所以这个类也是spring 4.0后出现的
  * Basic {@link AutowireCandidateResolver} that performs a full generic type
  * match with the candidate's type if the dependency is declared as a generic type
  * (e.g. Repository&lt;Customer&gt;).
@@ -44,7 +45,9 @@ import org.springframework.util.ClassUtils;
  */
 public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCandidateResolver
 		implements BeanFactoryAware {
-
+	/**
+	 * 它能够处理类型，@Autowired都是按照类型匹配的
+	 */
 	@Nullable
 	private BeanFactory beanFactory;
 
@@ -59,9 +62,15 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 		return this.beanFactory;
 	}
 
-
+	/**
+	 * TODO: 是否允许被依赖，因为bean定义里默认是true, 绝大多数情况下不会修改它，所以继续执行 checkGenericTypeMatch看看 泛型类型是否能够匹配上, 若能匹配上，这个就会被当做候选的bean了
+	 * @param bdHolder
+	 * @param descriptor
+	 * @return
+	 */
 	@Override
 	public boolean isAutowireCandidate(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
+		// TODO: 如果bean定义里面已经不允许了，那就不往下走了
 		if (!super.isAutowireCandidate(bdHolder, descriptor)) {
 			// If explicitly false, do not proceed with any other checks...
 			return false;

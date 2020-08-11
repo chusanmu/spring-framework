@@ -161,11 +161,13 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 		this.registry = registry;
-
+		// TODO: 此处一般都会执行
 		if (useDefaultFilters) {
 			registerDefaultFilters();
 		}
+		// TODO: 设置环境
 		setEnvironment(environment);
+		// TODO: resourceLoader传值
 		setResourceLoader(resourceLoader);
 	}
 
@@ -270,23 +272,33 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 */
 	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
+		// TODO: 装载扫描到的bean
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 		for (String basePackage : basePackages) {
+			// TODO: 这个方法是重点，把扫描到的bean都放进来
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
+				// TODO: 拿到scope元数据，此处为singleton
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
+				// TODO: 生成bean的名称，默认为首字母小写
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
+				// TODO: 此处为扫描的bean，为ScannedGenericBeanDefinition 所以肯定为true,因此进来，执行postProcessBeanDefinition
+				// TODO: 注意。只是添加一些默认的bean定义信息，并不是执行后置处理器
 				if (candidate instanceof AbstractBeanDefinition) {
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
+				// TODO: 显然此处也是true，也是完善bean的一些注解信息，比如@Lazy, @Primary, @DependsOn
 				if (candidate instanceof AnnotatedBeanDefinition) {
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
+				// TODO: 检查这个bean，检查第三方的bean的时候有必要检查一下
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
+					// TODO: 根据注解bean定义类中的配置的作用域@Scope注解的值，为bean定义应用相应的代理模式，主要在spring面向切面aop编程时用
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+					// TODO: 注意这里已经把bean注册进去工厂了，所以doScan方法不接受返回值，也是没有任何问题的
 					beanDefinitions.add(definitionHolder);
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
@@ -302,7 +314,9 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param beanName the generated bean name for the given bean
 	 */
 	protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
+		// TODO: 为bean定义，执行些默认的信息，beanDefinitionDefault是一个标准的javaBean，有一些默认值
 		beanDefinition.applyDefaults(this.beanDefinitionDefaults);
+		// TODO: 自动依赖注入，匹配路径，此处为null，不进来
 		if (this.autowireCandidatePatterns != null) {
 			beanDefinition.setAutowireCandidate(PatternMatchUtils.simpleMatch(this.autowireCandidatePatterns, beanName));
 		}

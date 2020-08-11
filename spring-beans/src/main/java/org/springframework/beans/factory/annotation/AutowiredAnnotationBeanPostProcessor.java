@@ -120,10 +120,19 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * TODO: 该处理器支持解析的注解们，这里长度设置为了4，默认支持的是3个，也可以添加自定义的依赖注入注解
+	 */
 	private final Set<Class<? extends Annotation>> autowiredAnnotationTypes = new LinkedHashSet<>(4);
 
+	/**
+	 * 注解的一个属性值
+	 */
 	private String requiredParameterName = "required";
 
+	/**
+	 * 一般不要修改这个值
+	 */
 	private boolean requiredParameterValue = true;
 
 	private int order = Ordered.LOWEST_PRECEDENCE - 2;
@@ -131,14 +140,24 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	@Nullable
 	private ConfigurableListableBeanFactory beanFactory;
 
+	/**
+	 * TODO: 对lookup方法的支持
+	 */
 	private final Set<String> lookupMethodsChecked = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
+	/**
+	 * 构造函数注入
+	 */
 	private final Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<>(256);
 
+	/**
+	 * 方法注入，字段field注入
+	 */
 	private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
 
 
 	/**
+	 * TODO: 唯一的构造函数，默认支持下面三种注解，
 	 * Create a new {@code AutowiredAnnotationBeanPostProcessor} for Spring's
 	 * standard {@link Autowired @Autowired} annotation.
 	 * <p>Also supports JSR-330's {@link javax.inject.Inject @Inject} annotation,
@@ -157,6 +176,8 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 			// JSR-330 API not available - simply skip.
 		}
 	}
+
+	/* ---------------- 可以自定义支持的依赖注入注解类型 -------------- */
 
 
 	/**
@@ -226,8 +247,17 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	}
 
 
+	/**
+	 * TODO: 第一个非常重要的方法, 它负责解析@Autowired等注解，然后转换，把注解信息转换为InjectionMetadata 然后缓存到上面的injectionMetadataCache里面
+	 * TODO: postProcessMergedBeanDefinition的执行时机非常早，在doCreateBean前部分完成bean定义信息的合并，完成了对该bean中所有的依赖注入的属性，方法完成了原始元信息的转换，已经把依赖注入相关的注解转换成了InjectionMetadata,这样
+	 * TODO: 后面的使用过程中将不再需要再和具体注解打交道，而是做一些和业务无关的动作即可
+	 * @param beanDefinition the merged bean definition for the bean
+	 * @param beanType the actual type of the managed bean instance
+	 * @param beanName the name of the bean
+	 */
 	@Override
 	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+		// TODO: 完成了解析注解，缓存下来的操作
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, beanType, null);
 		metadata.checkConfigMembers(beanDefinition);
 	}
@@ -411,7 +441,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	@Override
 	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
 		// TODO: 找到所有的@Autowired元数据,InjectionMetadata中有个Collection<InjectedElement> 表示需要注入处理的属性们
-		// TODO: 最终都是InjectionMetadata去处理
+		// TODO: 最终都是InjectionMetadata去处理, 从缓存中取出这个bean对应的依赖注入的元信息
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
 		try {
 			metadata.inject(bean, beanName, pvs);
@@ -454,7 +484,13 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		}
 	}
 
-
+	/**
+	 * TODO: 查找到该bean的依赖注入元信息，内部只要查到了就会加入到缓存内，下次没必要再重复查找了
+	 * @param beanName
+	 * @param clazz
+	 * @param pvs
+	 * @return
+	 */
 	private InjectionMetadata findAutowiringMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
 		// Fall back to class name as cache key, for backwards compatibility with custom callers.
 		String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
@@ -467,6 +503,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					if (metadata != null) {
 						metadata.clear(pvs);
 					}
+					// TODO: 真正做事的方法，他负责把标注有@Autowired注解的属性转换为Metadata元数据信息，从而消除注解的定义
 					metadata = buildAutowiringMetadata(clazz);
 					this.injectionMetadataCache.put(cacheKey, metadata);
 				}
@@ -475,22 +512,30 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		return metadata;
 	}
 
+	/**
+	 * 它把依赖注入都转换为InjectionMetadata元信息，待后续使用
+	 * TODO: 这里会处理字段注入，方法注入
+	 * @param clazz
+	 * @return
+	 */
 	private InjectionMetadata buildAutowiringMetadata(final Class<?> clazz) {
 		List<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
 		Class<?> targetClass = clazz;
 
 		do {
 			final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
-
+			// TODO: 即使在父类，父父类上依赖注入依旧是好使的
 			ReflectionUtils.doWithLocalFields(targetClass, field -> {
 				AnnotationAttributes ann = findAutowiredAnnotation(field);
 				if (ann != null) {
+					// TODO: static属性不好使
 					if (Modifier.isStatic(field.getModifiers())) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Autowired annotation is not supported on static fields: " + field);
 						}
 						return;
 					}
+					// TODO: 解析required属性，若存在，最终封装成AutowiredFieldElement
 					boolean required = determineRequiredStatus(ann);
 					currElements.add(new AutowiredFieldElement(field, required));
 				}
@@ -503,12 +548,14 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				}
 				AnnotationAttributes ann = findAutowiredAnnotation(bridgedMethod);
 				if (ann != null && method.equals(ClassUtils.getMostSpecificMethod(method, clazz))) {
+					// TODO: static方法不好使
 					if (Modifier.isStatic(method.getModifiers())) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Autowired annotation is not supported on static methods: " + method);
 						}
 						return;
 					}
+					// TODO: 方法没有入参不好使
 					if (method.getParameterCount() == 0) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Autowired annotation should only be used on methods with parameters: " +
@@ -517,18 +564,24 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					}
 					boolean required = determineRequiredStatus(ann);
 					PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
+					// TODO: AutowiredMethodElement里封装了一个PropertyDescriptor 比字段多了个参数
 					currElements.add(new AutowiredMethodElement(method, required, pd));
 				}
 			});
-
+			// TODO: 父类的都放在第一位，所以父类是最先完成依赖注入的
 			elements.addAll(0, currElements);
 			targetClass = targetClass.getSuperclass();
 		}
 		while (targetClass != null && targetClass != Object.class);
-
+		// TODO: 对clazz和elements的一个包装而已
 		return new InjectionMetadata(clazz, elements);
 	}
 
+	/**
+	 * 只要方法，属性上有一个注解，就立马返回了
+	 * @param ao
+	 * @return
+	 */
 	@Nullable
 	private AnnotationAttributes findAutowiredAnnotation(AccessibleObject ao) {
 		if (ao.getAnnotations().length > 0) {  // autowiring annotations have to be local
@@ -614,6 +667,11 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		@Nullable
 		private volatile Object cachedFieldValue;
 
+		/**
+		 * 唯一构造方法
+		 * @param field
+		 * @param required
+		 */
 		public AutowiredFieldElement(Field field, boolean required) {
 			super(field, null);
 			this.required = required;
@@ -629,13 +687,13 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				value = resolvedCachedArgument(beanName, this.cachedFieldValue);
 			}
 			else {
-				// TODO: 把field和required属性，包装成desc描述类
+				// TODO: 把field和required属性，包装成desc描述类， 此处包装成它厚，显然和元数据都无关了，只和field有关了，完全隔离
 				DependencyDescriptor desc = new DependencyDescriptor(field, this.required);
 				desc.setContainingClass(bean.getClass());
 				// TODO: 装载注入的名称，最后会被注册，缓存起来
 				Set<String> autowiredBeanNames = new LinkedHashSet<>(1);
 				Assert.state(beanFactory != null, "No BeanFactory available");
-				// TODO: 转换器，没有手动注册，默认都是SimpleTypeConverter
+				// TODO: 转换器，没有手动注册，默认都是SimpleTypeConverter，使用的bean工厂的转换器
 				TypeConverter typeConverter = beanFactory.getTypeConverter();
 				try {
 					// TODO: 把当前bean所依赖的这个bean解析出来，从spring容器里面拿，或者从别的地方获取吧
@@ -646,6 +704,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					throw new UnsatisfiedDependencyException(null, beanName, new InjectionPoint(field), ex);
 				}
 				synchronized (this) {
+					// TODO: 把缓存值缓存起来，让同一个field注入多次能提高效率
 					if (!this.cached) {
 						// TODO: 如果已经拿到了这个bean实例
 						if (value != null || this.required) {
