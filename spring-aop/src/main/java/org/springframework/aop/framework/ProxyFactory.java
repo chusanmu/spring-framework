@@ -140,6 +140,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	}
 
 	/**
+	 * TODO: 若调用此方法生成代理，就直接使用的是CGLIB的方式
 	 * Create a proxy for the specified {@code TargetSource} that extends
 	 * the target class of the {@code TargetSource}.
 	 * @param targetSource the TargetSource that the proxy should invoke

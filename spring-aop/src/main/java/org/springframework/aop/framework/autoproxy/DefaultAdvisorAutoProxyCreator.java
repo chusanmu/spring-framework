@@ -20,6 +20,7 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 它就是BeanNameAutoProxyCreator的加强版
  * {@code BeanPostProcessor} implementation that creates AOP proxies based on all
  * candidate {@code Advisor}s in the current {@code BeanFactory}. This class is
  * completely generic; it contains no special code to handle any particular aspects,
@@ -93,15 +94,18 @@ public class DefaultAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCrea
 
 
 	/**
+	 * TODO: 仅仅重写了这一个方法
 	 * Consider {@code Advisor} beans with the specified prefix as eligible, if activated.
 	 * @see #setUsePrefix
 	 * @see #setAdvisorBeanNamePrefix
 	 */
 	@Override
 	protected boolean isEligibleAdvisorBean(String beanName) {
+		// TODO: 用到了前缀之类的，主要是考虑可以通过前缀匹配某一类bean，而其他的advisor就不进行匹配了
 		if (!isUsePrefix()) {
 			return true;
 		}
+		// TODO: 用到了前缀匹配
 		String prefix = getAdvisorBeanNamePrefix();
 		return (prefix != null && beanName.startsWith(prefix));
 	}

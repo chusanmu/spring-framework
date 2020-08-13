@@ -17,6 +17,7 @@
 package org.springframework.aop;
 
 /**
+ * TODO: 它的作用就是定义切面的匹配点，简单来说，就是去切哪些类，哪些方法
  * Core Spring pointcut abstraction.
  *
  * <p>A pointcut is composed of a {@link ClassFilter} and a {@link MethodMatcher}.
@@ -33,12 +34,14 @@ package org.springframework.aop;
 public interface Pointcut {
 
 	/**
+	 * TODO: 类过滤器，可以知道哪些类需要拦截
 	 * Return the ClassFilter for this pointcut.
 	 * @return the ClassFilter (never {@code null})
 	 */
 	ClassFilter getClassFilter();
 
 	/**
+	 * TODO: 方法匹配器，可以知道哪些方法需要拦截
 	 * Return the MethodMatcher for this pointcut.
 	 * @return the MethodMatcher (never {@code null})
 	 */
@@ -46,6 +49,7 @@ public interface Pointcut {
 
 
 	/**
+	 * TODO: 匹配所有对象的pointcut
 	 * Canonical Pointcut instance that always matches.
 	 */
 	Pointcut TRUE = TruePointcut.INSTANCE;

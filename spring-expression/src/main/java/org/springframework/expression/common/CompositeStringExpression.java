@@ -45,6 +45,9 @@ public class CompositeStringExpression implements Expression {
 	private final String expressionString;
 
 	/** The array of expressions that make up the composite expression. */
+	/**
+	 * TODO: 内部持有多个Expression
+	 */
 	private final Expression[] expressions;
 
 
@@ -63,6 +66,11 @@ public class CompositeStringExpression implements Expression {
 		return this.expressions;
 	}
 
+	/**
+	 * TODO： 它是把每个表达式的值都拼接起来了
+	 * @return
+	 * @throws EvaluationException
+	 */
 	@Override
 	public String getValue() throws EvaluationException {
 		StringBuilder sb = new StringBuilder();

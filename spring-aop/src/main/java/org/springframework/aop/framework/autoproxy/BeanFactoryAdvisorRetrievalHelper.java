@@ -31,6 +31,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 从bean工厂检索出advisor们
  * Helper for retrieving standard Spring Advisors from a BeanFactory,
  * for use with auto-proxying.
  *
@@ -44,6 +45,9 @@ public class BeanFactoryAdvisorRetrievalHelper {
 
 	private final ConfigurableListableBeanFactory beanFactory;
 
+	/**
+	 * 本地会做一个简单的字段缓存
+	 */
 	@Nullable
 	private volatile String[] cachedAdvisorBeanNames;
 
@@ -59,6 +63,7 @@ public class BeanFactoryAdvisorRetrievalHelper {
 
 
 	/**
+	 * TODO: 核心方法
 	 * Find all eligible Advisor beans in the current bean factory,
 	 * ignoring FactoryBeans and excluding beans that are currently in creation.
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
@@ -70,17 +75,21 @@ public class BeanFactoryAdvisorRetrievalHelper {
 		if (advisorNames == null) {
 			// Do not initialize FactoryBeans here: We need to leave all regular beans
 			// uninitialized to let the auto-proxy creator apply to them!
+			// TODO: 这里不会实例化FactoryBeans，去容器里拿Advisor类型的bean, 连祖先容器里面的bean都会拿出来
 			advisorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 					this.beanFactory, Advisor.class, true, false);
 			this.cachedAdvisorBeanNames = advisorNames;
 		}
+		// TODO: 如果容器里面没有任何的advisor，那就算了吧
 		if (advisorNames.length == 0) {
 			return new ArrayList<>();
 		}
 
 		List<Advisor> advisors = new ArrayList<>();
 		for (String name : advisorNames) {
+			// TODO: 表示这个bean是否是合格的
 			if (isEligibleBean(name)) {
+				// TODO: 如果当前bean正在创建中，那就啥都不做了
 				if (this.beanFactory.isCurrentlyInCreation(name)) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Skipping currently created advisor '" + name + "'");
@@ -88,6 +97,7 @@ public class BeanFactoryAdvisorRetrievalHelper {
 				}
 				else {
 					try {
+						// TODO: 否则就把这个bean加入到list里面，是个合法的
 						advisors.add(this.beanFactory.getBean(name, Advisor.class));
 					}
 					catch (BeanCreationException ex) {

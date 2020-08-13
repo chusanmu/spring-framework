@@ -42,6 +42,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 	/**
 	 * This should run after all other processors, so that it can just add
 	 * an advisor to existing proxies rather than double-proxy.
+	 * TODO: AOP的自动代理创建器必须在所有的别的processor之后执行，以确保它可以代理到所有的beans，即使需要双重代理的那种
 	 */
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
@@ -52,6 +53,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 
 
 	/**
+	 * TODO: 可以修改order
 	 * Set the ordering which will apply to this processor's implementation
 	 * of {@link Ordered}, used when applying multiple processors.
 	 * <p>The default value is {@code Ordered.LOWEST_PRECEDENCE}, meaning non-ordered.
@@ -94,6 +96,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 
 
 	/**
+	 * TODO；这是它提供的一个最为核心的方法: 这里决定了如果目标类没有实现接口，就是CGLIB代理，检查给定beanClass上的接口们，并交给ProxyFactory处理
 	 * Check the interfaces on the given bean class and apply them to the {@link ProxyFactory},
 	 * if appropriate.
 	 * <p>Calls {@link #isConfigurationCallbackInterface} and {@link #isInternalLanguageInterface}
@@ -102,10 +105,13 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 	 * @param proxyFactory the ProxyFactory for the bean
 	 */
 	protected void evaluateProxyInterfaces(Class<?> beanClass, ProxyFactory proxyFactory) {
+		// TODO: 找到该类实现的所有接口们
 		Class<?>[] targetInterfaces = ClassUtils.getAllInterfacesForClass(beanClass, getProxyClassLoader());
 		boolean hasReasonableProxyInterface = false;
 		for (Class<?> ifc : targetInterfaces) {
+			// TODO: 标记是否存在合理接口
 			if (!isConfigurationCallbackInterface(ifc) && !isInternalLanguageInterface(ifc) &&
+					// TODO: 该接口必须还有方法才行
 					ifc.getMethods().length > 0) {
 				hasReasonableProxyInterface = true;
 				break;
@@ -114,15 +120,18 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 		if (hasReasonableProxyInterface) {
 			// Must allow for introductions; can't just set interfaces to the target's interfaces only.
 			for (Class<?> ifc : targetInterfaces) {
+				// TODO: 把接口加进去
 				proxyFactory.addInterface(ifc);
 			}
 		}
 		else {
+			// TODO: 否则去使用cglib代理吧
 			proxyFactory.setProxyTargetClass(true);
 		}
 	}
 
 	/**
+	 * TODO: 判断此接口是否属于 容器去回调的类型，这里列举处理一些接口，初始化，销毁，自动刷新，Aware感知等
 	 * Determine whether the given interface is just a container callback and
 	 * therefore not to be considered as a reasonable proxy interface.
 	 * <p>If no reasonable proxy interface is found for a given bean, it will get
@@ -136,6 +145,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 	}
 
 	/**
+	 * TODO: 是否是如下通用的接口，若实现的是这些接口也会被排除，不认为它是实现了接口的类
 	 * Determine whether the given interface is a well-known internal language interface
 	 * and therefore not to be considered as a reasonable proxy interface.
 	 * <p>If no reasonable proxy interface is found for a given bean, it will get

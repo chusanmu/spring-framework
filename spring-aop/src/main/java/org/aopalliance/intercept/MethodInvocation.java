@@ -19,6 +19,7 @@ package org.aopalliance.intercept;
 import java.lang.reflect.Method;
 
 /**
+ * TODO: 它表示方法的执行器
  * Description of an invocation to a method, given to an interceptor
  * upon method-call.
  *
@@ -31,6 +32,7 @@ import java.lang.reflect.Method;
 public interface MethodInvocation extends Invocation {
 
 	/**
+	 * TODO: 返回正在被调用的方法，返回的是当前的method对象
 	 * Get the method being called.
 	 * <p>This method is a friendly implementation of the
 	 * {@link Joinpoint#getStaticPart()} method (same result).

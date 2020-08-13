@@ -109,6 +109,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
 
 
 	/**
+	 * TODO: 它能够处理所有的类型，所以spring把它当作默认的处理器，放在最后一个
 	 * Returns {@code null} which means this is a general purpose accessor.
 	 */
 	@Override

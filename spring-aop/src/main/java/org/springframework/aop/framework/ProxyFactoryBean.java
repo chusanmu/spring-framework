@@ -247,8 +247,11 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	@Override
 	@Nullable
 	public Object getObject() throws BeansException {
+		// TODO: 根据我们配置的interceptorNames来获取对应的bean，并转换为advisor
 		initializeAdvisorChain();
+		// TODO: 生成代理对象时，要判断单例和多例
 		if (isSingleton()) {
+			// TODO: 入口点
 			return getSingletonInstance();
 		}
 		else {
@@ -313,8 +316,11 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 * @return the shared singleton proxy
 	 */
 	private synchronized Object getSingletonInstance() {
+		// TODO: 如果是单例的，现在这里持有这个缓存，就不会创建了
 		if (this.singletonInstance == null) {
+			// TODO: 根据targetName， 去工厂里面拿到这个bean对象 （普通bean被包装成了SingletonTargetSource）
 			this.targetSource = freshTargetSource();
+			// TODO: 如果你手动没有设置需要被代理的接口，spring还是会帮你去看看有没有实现啥接口，然后全部帮你代理上，所以spring的容错性还是蛮强的
 			if (this.autodetectInterfaces && getProxiedInterfaces().length == 0 && !isProxyTargetClass()) {
 				// Rely on AOP infrastructure to tell us what interfaces to proxy.
 				Class<?> targetClass = getTargetClass();
@@ -325,6 +331,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 			}
 			// Initialize the shared singleton instance.
 			super.setFrozen(this.freezeProxy);
+			// TODO: createAopProxy 方法就是父类ProxyCreatorSupport的方法
 			this.singletonInstance = getProxy(createAopProxy());
 		}
 		return this.singletonInstance;
@@ -421,6 +428,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 * are unaffected by such changes.
 	 */
 	private synchronized void initializeAdvisorChain() throws AopConfigException, BeansException {
+		// TODO: advisorChainInitialized 标记是否已进行过初始化，若已初始化，则不再初始化
 		if (this.advisorChainInitialized) {
 			return;
 		}
@@ -438,6 +446,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 			}
 
 			// Materialize interceptor chain from bean names.
+			// TODO: 遍历所有的interceptorNames
 			for (String name : this.interceptorNames) {
 				if (name.endsWith(GLOBAL_SUFFIX)) {
 					if (!(this.beanFactory instanceof ListableBeanFactory)) {
@@ -454,6 +463,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 					Object advice;
 					if (this.singleton || this.beanFactory.isSingleton(name)) {
 						// Add the real Advisor/Advice to the chain.
+						// TODO: 把advice从容器中拎出来
 						advice = this.beanFactory.getBean(name);
 					}
 					else {
@@ -461,6 +471,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 						// Avoid unnecessary creation of prototype bean just for advisor chain initialization.
 						advice = new PrototypePlaceholderAdvisor(name);
 					}
+					// TODO: 加载到执行链路中
 					addAdvisorOnChainCreation(advice);
 				}
 			}

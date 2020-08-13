@@ -34,6 +34,7 @@ import org.springframework.core.Ordered;
 import org.springframework.util.ClassUtils;
 
 /**
+ * TODO: 该类 主要来处理aspectJ切面的，这也是当下最流行，也是功能最为强大的一种方式
  * {@link org.springframework.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator}
  * subclass that exposes AspectJ's invocation context and understands AspectJ's rules
  * for advice precedence when multiple pieces of advice come from the same aspect.
@@ -46,10 +47,14 @@ import org.springframework.util.ClassUtils;
 @SuppressWarnings("serial")
 public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator {
 
+	/**
+	 * TODO: 默认的排序器，它就不是根据order来了，而是根据@After @Before类似的标注来判断
+	 */
 	private static final Comparator<Advisor> DEFAULT_PRECEDENCE_COMPARATOR = new AspectJPrecedenceComparator();
 
 
 	/**
+	 * TODO: 核心逻辑，它重写了排序
 	 * Sort the rest by AspectJ precedence. If two pieces of advice have
 	 * come from the same aspect they will have the same order.
 	 * Advice from the same aspect is then further ordered according to the
@@ -86,6 +91,9 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 	}
 
 	/**
+	 * TODO: 对已有的advisor做了一个扩展，它的作用，若存在aspectJ的advice，就会在advisors的第一个位置加入ExposeInvocationInterceptor.ADVISOR这个advisor
+	 * TODO: ExposeInvocationInterceptor的作用，用于暴露MthodInvocation对象到ThreadLocal中，其名字也体现了这一点，如果其他地方需要当前的MethodInvocation对象，那么直接调用
+	 * TODO: ExposeInvocationInterceptor.currentInvocation方法取出
 	 * Adds an {@link ExposeInvocationInterceptor} to the beginning of the advice chain.
 	 * These additional advices are needed when using AspectJ expression pointcuts
 	 * and when using AspectJ-style advice.
@@ -100,11 +108,13 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 		// TODO: Consider optimization by caching the list of the aspect names
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
 		for (Advisor advisor : candidateAdvisors) {
+			// TODO: 相当于AspectJPointcutAdvisor的子类不需要拦截，AspectJ切面自己的方法不要去拦截
 			if (advisor instanceof AspectJPointcutAdvisor &&
 					((AspectJPointcutAdvisor) advisor).getAspectName().equals(beanName)) {
 				return true;
 			}
 		}
+		// TODO: 父类返回的false
 		return super.shouldSkip(beanClass, beanName);
 	}
 

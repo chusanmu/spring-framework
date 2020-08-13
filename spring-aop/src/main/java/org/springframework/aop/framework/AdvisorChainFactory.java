@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 主要定义了从Advised中获取Advisor 并判断其是否与对应的Method相匹配，最终返回的是MethodInterceptor
  * Factory interface for advisor chains.
  *
  * @author Rod Johnson

@@ -17,6 +17,7 @@
 package org.springframework.aop.framework;
 
 /**
+ * TODO: 免被AOP代理的标记接口，是一个标记接口，若bean实现了此接口，表明它是一个Spring AOP的基础类，那么这个类是不会被AOP给代理的，即使它能被切进去
  * Marker interface that indicates a bean that is part of Spring's
  * AOP infrastructure. In particular, this implies that any such bean
  * is not subject to auto-proxying, even if a pointcut would match.

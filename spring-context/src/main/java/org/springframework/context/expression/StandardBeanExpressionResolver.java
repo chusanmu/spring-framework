@@ -64,6 +64,9 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
 
 	private String expressionSuffix = DEFAULT_EXPRESSION_SUFFIX;
 
+	/**
+	 * TODO: spelExpressParser
+	 */
 	private ExpressionParser expressionParser;
 	/**
 	 * TODO: 每个表达式都对应一个Expression，这样就不用重复解析了

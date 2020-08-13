@@ -17,6 +17,7 @@
 package org.aopalliance.aop;
 
 /**
+ * TODO: 主要分成两类，普通advice, 与 Interceptor/MethodInterceptor
  * Tag interface for Advice. Implementations can be any type
  * of advice, such as Interceptors.
  *

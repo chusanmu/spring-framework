@@ -21,6 +21,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 这是spring给自己内部使用的一个自动代理创建器，主要是读取advisors类，并对符合条件的bean进行二次代理
  * Auto-proxy creator that considers infrastructure Advisor beans only,
  * ignoring any application-defined Advisors.
  *
@@ -42,7 +43,9 @@ public class InfrastructureAdvisorAutoProxyCreator extends AbstractAdvisorAutoPr
 
 	@Override
 	protected boolean isEligibleAdvisorBean(String beanName) {
+		// TODO: 判断是否是合格的advisor bean，如果beanFactory不为空，并且beanFactory中包含这个bean的 beanDefinition
 		return (this.beanFactory != null && this.beanFactory.containsBeanDefinition(beanName) &&
+				// TODO: 并且该bean的角色是内部使用， 才返回true
 				this.beanFactory.getBeanDefinition(beanName).getRole() == BeanDefinition.ROLE_INFRASTRUCTURE);
 	}
 

@@ -38,6 +38,7 @@ import org.springframework.lang.Nullable;
 public interface PropertyAccessor {
 
 	/**
+	 * TODO: 这个接口返回的类型相当于告诉SPEL它能够处理的targetType，若返回null, 表示它能处理所有的type
 	 * Return an array of classes for which this resolver should be called.
 	 * <p>>Returning {@code null} indicates this is a general resolver that
 	 * can be called in an attempt to resolve a property on any type.

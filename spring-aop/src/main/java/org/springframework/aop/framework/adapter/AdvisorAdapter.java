@@ -22,6 +22,8 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.Advisor;
 
 /**
+ * TODO: spring aop框架对beforeAdvice, AfterAdvice, ThrowsAdvice 三种通知类型的支持实际上是借助适配器模式来实现的，这样的好处是使得框架允许用户向框架中加入自己想要支持的任何一种通知类型
+ * TODO: 是一个适配器接口，它定义了自己支持的advice类型，并且能把一个advisor适配成MethodInterceptor这也是aop联盟定义的接口
  * Interface allowing extension to the Spring AOP framework to allow
  * handling of new Advisors and Advice types.
  *
@@ -37,6 +39,7 @@ import org.springframework.aop.Advisor;
 public interface AdvisorAdapter {
 
 	/**
+	 * TODO: 判断此适配器是否支持特定的advice
 	 * Does this adapter understand this advice object? Is it valid to
 	 * invoke the {@code getInterceptors} method with an Advisor that
 	 * contains this advice as an argument?
@@ -48,6 +51,7 @@ public interface AdvisorAdapter {
 	boolean supportsAdvice(Advice advice);
 
 	/**
+	 * TODO: 将一个advisor适配成MethodInterceptor
 	 * Return an AOP Alliance MethodInterceptor exposing the behavior of
 	 * the given advice to an interception-based AOP framework.
 	 * <p>Don't worry about any Pointcut contained in the Advisor;

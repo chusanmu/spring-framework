@@ -39,6 +39,7 @@ public class EnvironmentAccessor implements PropertyAccessor {
 	}
 
 	/**
+	 * TODO: 永远返回true
 	 * Can read any {@link Environment}, thus always returns true.
 	 * @return true
 	 */

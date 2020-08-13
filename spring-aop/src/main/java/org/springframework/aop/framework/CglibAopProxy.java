@@ -732,10 +732,11 @@ class CglibAopProxy implements AopProxy, Serializable {
 		public CglibMethodInvocation(Object proxy, @Nullable Object target, Method method,
 				Object[] arguments, @Nullable Class<?> targetClass,
 				List<Object> interceptorsAndDynamicMethodMatchers, MethodProxy methodProxy) {
-
+			// TODO: 调用父类的构造，完成基本的初始化
 			super(proxy, target, method, arguments, targetClass, interceptorsAndDynamicMethodMatchers);
-
+			// TODO: 自己的个性化参数
 			// Only use method proxy for public methods not derived from java.lang.Object
+			// TODO: 如果是public方法 毕竟不是object类里面的
 			this.methodProxy = (Modifier.isPublic(method.getModifiers()) &&
 					method.getDeclaringClass() != Object.class && !AopUtils.isEqualsMethod(method) &&
 					!AopUtils.isHashCodeMethod(method) && !AopUtils.isToStringMethod(method) ?
@@ -748,6 +749,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		 */
 		@Override
 		protected Object invokeJoinpoint() throws Throwable {
+			// TODO: 去执行目标方法，否则直接执行method即可
 			if (this.methodProxy != null) {
 				return this.methodProxy.invoke(this.target, this.arguments);
 			}

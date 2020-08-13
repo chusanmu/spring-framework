@@ -16,8 +16,6 @@
 
 package org.springframework.aop.framework.autoproxy;
 
-import java.util.List;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.support.AopUtils;
@@ -27,7 +25,10 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import java.util.List;
+
 /**
+ * TODO: 从名字可以看出来 它和advisor有关，只有被切入的类，才会给它创建一个代理类
  * Generic auto proxy creator that builds AOP proxies for specific beans
  * based on detected Advisors for each bean.
  *
@@ -49,10 +50,17 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyCreator {
 
+	/**
+	 * 此类是个重点
+	 */
 	@Nullable
 	private BeanFactoryAdvisorRetrievalHelper advisorRetrievalHelper;
 
 
+	/**
+	 * TODO: 重写了setBeanFactory方法，是需要保证bean工厂必须是ConfigurableListableBeanFactory
+	 * @param beanFactory
+	 */
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) {
 		super.setBeanFactory(beanFactory);
@@ -60,6 +68,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 			throw new IllegalArgumentException(
 					"AdvisorAutoProxyCreator requires a ConfigurableListableBeanFactory: " + beanFactory);
 		}
+		// TODO: 对helper进行初始化，找advisor最终是委托给它了的
 		initBeanFactory((ConfigurableListableBeanFactory) beanFactory);
 	}
 
@@ -68,11 +77,18 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	}
 
 
+	/**
+	 * TODO: 重写父类的方法，也是实现代理方式，找到作用在这个bean里面的切点方法，最终是委托给BeanFactoryRetrievalHelper去做的
+	 * @param beanClass the class of the bean to advise
+	 * @param beanName the name of the bean
+	 * @param targetSource
+	 * @return
+	 */
 	@Override
 	@Nullable
 	protected Object[] getAdvicesAndAdvisorsForBean(
 			Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
-
+		// TODO: 这个是具体的实现方法喽
 		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
 		if (advisors.isEmpty()) {
 			return DO_NOT_PROXY;
@@ -91,9 +107,16 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #extendAdvisors
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
+		// TODO: 分两步，找出合适的advisor们
+		// TODO: 1. 首先找出所有的候选的advisors，根据名字判断
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
+		// TODO: 对上面找到的候选的advisors们，进行过滤操作，看看advisor能否被用在bean上，根据advisor的pointcut去判断
+		// TODO: 简单的逻辑就是，看目标类是不是符合代理的条件，如果符合，就把advisor加入到集合中，然后返回集合，主要根据pointcut去做匹配，也就是classFilter以及MethodMatcher
+		// TODO: 因此哪怕是私有方法，如果匹配上了，也会给创建一个代理对象
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
+		// TODO: 提供一个钩子，子类可以复写此方法，然后对eligibleAdvisors进行处理
 		extendAdvisors(eligibleAdvisors);
+		// TODO: 如果最终还有，那就排个序吧，由此可见advisors支持排序
 		if (!eligibleAdvisors.isEmpty()) {
 			eligibleAdvisors = sortAdvisors(eligibleAdvisors);
 		}
@@ -101,6 +124,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	}
 
 	/**
+	 * TODO: 找到候选的advisor们，抽象类自己的实现，直接把这件事委托给了advisorRetrievalHelper
 	 * Find all candidate Advisors to use in auto-proxying.
 	 * @return the List of candidate Advisors
 	 */
@@ -131,6 +155,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	}
 
 	/**
+	 * TODO : 判断给定的beanName这个bean，是否是合格的, DefaultAdvisorAutoProxyCreator和InfrastructureAdvisorAutoProxyCreator里面有复写
 	 * Return whether the Advisor bean with the given name is eligible
 	 * for proxying in the first place.
 	 * @param beanName the name of the Advisor bean

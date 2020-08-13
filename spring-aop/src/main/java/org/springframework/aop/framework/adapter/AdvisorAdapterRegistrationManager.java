@@ -20,6 +20,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 /**
+ * TODO: 专门用于注册advisorAdapter到容器中
  * BeanPostProcessor that registers {@link AdvisorAdapter} beans in the BeanFactory with
  * an {@link AdvisorAdapterRegistry} (by default the {@link GlobalAdvisorAdapterRegistry}).
  *

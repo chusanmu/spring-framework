@@ -56,6 +56,7 @@ public class BeanExpressionContext {
 
 	@Nullable
 	public Object getObject(String key) {
+		// TODO: 直接把bean取出来了
 		if (this.beanFactory.containsBean(key)) {
 			return this.beanFactory.getBean(key);
 		}

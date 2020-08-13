@@ -20,6 +20,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 策略接口，用于通过将值作为表达式进行评估来解析值
  * Strategy interface for resolving a value through evaluating it
  * as an expression, if applicable.
  *
@@ -34,6 +35,7 @@ import org.springframework.lang.Nullable;
 public interface BeanExpressionResolver {
 
 	/**
+	 * TODO: 持有beanFactory, scope的引用
 	 * Evaluate the given value as an expression, if applicable;
 	 * return the value as-is otherwise.
 	 * @param value the value to check

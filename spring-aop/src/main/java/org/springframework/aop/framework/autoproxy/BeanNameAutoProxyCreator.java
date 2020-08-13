@@ -28,6 +28,7 @@ import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 它和Advisor无关，只和beanName有关，只有名字匹配上了，就会给创建一个代理类
  * Auto proxy creator that identifies beans to proxy via a list of names.
  * Checks for direct, "xxx*", and "*xxx" matches.
  *
@@ -66,12 +67,14 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
 		Assert.notEmpty(beanNames, "'beanNames' must not be empty");
 		this.beanNames = new ArrayList<>(beanNames.length);
 		for (String mappedName : beanNames) {
+			// TODO: 对name去除空格
 			this.beanNames.add(StringUtils.trimWhitespace(mappedName));
 		}
 	}
 
 
 	/**
+	 * TODO: 根据名字去容器里查找
 	 * Identify as bean to proxy if the bean name is in the configured list of names.
 	 */
 	@Override
@@ -81,12 +84,14 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
 
 		if (this.beanNames != null) {
 			for (String mappedName : this.beanNames) {
+				// TODO: 对factoryBean也是兼容的
 				if (FactoryBean.class.isAssignableFrom(beanClass)) {
 					if (!mappedName.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
 						continue;
 					}
 					mappedName = mappedName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length());
 				}
+				// TODO: 如果名字匹配
 				if (isMatch(beanName, mappedName)) {
 					return PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS;
 				}
@@ -94,6 +99,7 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
 				if (beanFactory != null) {
 					String[] aliases = beanFactory.getAliases(beanName);
 					for (String alias : aliases) {
+						// TODO: 如果别名匹配上了也是可以的
 						if (isMatch(alias, mappedName)) {
 							return PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS;
 						}
@@ -101,6 +107,7 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
 				}
 			}
 		}
+		// TODO: 没匹配上 则说明不需要代理
 		return DO_NOT_PROXY;
 	}
 
@@ -114,6 +121,7 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
 	 * @see org.springframework.util.PatternMatchUtils#simpleMatch(String, String)
 	 */
 	protected boolean isMatch(String beanName, String mappedName) {
+		// TODO: simpleMatch 并不是完整的正则，但是支持*这种通配符
 		return PatternMatchUtils.simpleMatch(mappedName, beanName);
 	}
 

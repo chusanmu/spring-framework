@@ -19,6 +19,7 @@ package org.springframework.aop;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 其实是动态代理作用的对象, 在aop调用目标对象的时候，使用该接口返回真实的对象
  * A {@code TargetSource} is used to obtain the current "target" of
  * an AOP invocation, which will be invoked via reflection if no around
  * advice chooses to end the interceptor chain itself.

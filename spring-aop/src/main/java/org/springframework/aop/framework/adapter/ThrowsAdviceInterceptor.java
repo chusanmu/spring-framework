@@ -114,6 +114,7 @@ public class ThrowsAdviceInterceptor implements MethodInterceptor, AfterAdvice {
 		catch (Throwable ex) {
 			Method handlerMethod = getExceptionHandler(ex);
 			if (handlerMethod != null) {
+				// TODO: 遇到了异常才去执行
 				invokeHandlerMethod(mi, ex, handlerMethod);
 			}
 			throw ex;

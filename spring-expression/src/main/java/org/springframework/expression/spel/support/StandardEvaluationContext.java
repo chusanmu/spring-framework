@@ -38,6 +38,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 公开支持全套SPEL语言功能和配置选项，可以使用它来制定默认的根对象并配置每个可用的评估相关策略
  * A powerful and highly configurable {@link EvaluationContext} implementation.
  * This context uses standard implementations of all applicable strategies,
  * based on reflection to resolve properties, methods and fields.
@@ -88,6 +89,9 @@ public class StandardEvaluationContext implements EvaluationContext {
 
 	private OperatorOverloader operatorOverloader = new StandardOperatorOverloader();
 
+	/**
+	 * TODO: 上下文变量，就是一个Map
+	 */
 	private final Map<String, Object> variables = new ConcurrentHashMap<>();
 
 

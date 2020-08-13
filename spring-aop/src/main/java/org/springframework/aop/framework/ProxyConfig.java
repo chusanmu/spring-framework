@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: aop配置类，用于创建代理的配置的父类，以确保所有代理创建者具有一致的属性
  * Convenience superclass for configuration used in creating proxies,
  * to ensure that all proxy creators have consistent properties.
  *
@@ -33,15 +34,29 @@ public class ProxyConfig implements Serializable {
 	/** use serialVersionUID from Spring 1.2 for interoperability. */
 	private static final long serialVersionUID = -8409359707199703185L;
 
-
+	/**
+	 * TODO: 标记是否直接对目标类进行代理，而不是通过接口产生代理
+	 */
 	private boolean proxyTargetClass = false;
 
+	/**
+	 * TODO: 标记是否对代理进行优化，true, 那么在生成代理对象之后，如果对代理配置进行了修改，已经创建的代理对象也不会获取修改之后的代理配置
+	 */
 	private boolean optimize = false;
 
+	/**
+	 * TODO: 标记是否需要阻止通过配置创建代理对象转换为Advised类型，默认值为false，表示代理对象可以被转换为Advised类型
+	 */
 	boolean opaque = false;
 
+	/**
+	 * TODO: 标记代理对象是否应该被aop框架以AopContext, ThreadLocal的形式暴露出去，当一个代理对象需要调用它自己的另外一个代理方法时，这个属性将非常有用
+	 */
 	boolean exposeProxy = false;
 
+	/**
+	 * TODO: 标记是否需要冻结代理对象，即在代理对象生成后，是否允许对其进行修改，默认为false
+	 */
 	private boolean frozen = false;
 
 

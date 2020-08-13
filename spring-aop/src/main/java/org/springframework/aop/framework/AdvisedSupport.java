@@ -120,6 +120,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 
 	/**
+	 * TODO; setTarget最终的效果其实也是转换成了TargetSource，也就是说spring最终代理的，是放进去的TargetSource让它去处理
 	 * Set the given object as target.
 	 * Will create a SingletonTargetSource for the object.
 	 * @see #setTargetSource
@@ -392,6 +393,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	}
 
 	/**
+	 * TODO: advice最终都会转换为一个advisor，DefaultPointcutAdvisor，表示切面+通知，它使用的切面是Pointcut.TRUE
+	 * Pointcut.TRUE: 表示啥都返回true, 也就是说这个增强通知将作用于所有的方法上
+	 * TODO: 若自己指定切面，可以使用它的另外的构造函数
 	 * Cannot add introductions this way unless the advice implements IntroductionInfo.
 	 */
 	@Override
@@ -470,6 +474,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 
 	/**
+	 * TODO: 通过此方法 来获取 对应代理方法对应有效的拦截器链
+	 * TODO: 将之前注入到advisorChain中的advisors转换为MethodInterceptor和InterceptorAndDynamicMethodMatcher集合，放置了两种类型的数据，这些MethodInterceptor们最终在执行目标方法
+	 * TODO: 的时候 都是会执行的
 	 * Determine a list of {@link org.aopalliance.intercept.MethodInterceptor} objects
 	 * for the given method, based on this configuration.
 	 * @param method the proxied method
@@ -477,11 +484,15 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 * @return a List of MethodInterceptors (may also include InterceptorAndDynamicMethodMatchers)
 	 */
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(Method method, @Nullable Class<?> targetClass) {
+		// TODO: 以这个method生成一个key,准备缓存
 		MethodCacheKey cacheKey = new MethodCacheKey(method);
 		List<Object> cached = this.methodCache.get(cacheKey);
 		if (cached == null) {
+			// TODO: 这个方法最终在DefaultAdvisorChainFactory#getInterceptorAndDynamicInterceptionAdvice
+			// TODO: DefaultAdvisorChainFactory 生成通知器链的工厂，实现了interceptor链的获取过程
 			cached = this.advisorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(
 					this, method, targetClass);
+			// TODO: 为了提高效率，相当于把该方法对应的拦截器们都缓存起来，加速后续调用的速度
 			this.methodCache.put(cacheKey, cached);
 		}
 		return cached;

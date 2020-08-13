@@ -200,6 +200,10 @@ public class MapAccessTests extends AbstractExpressionTests {
 			((Map<Object,Object>) target).put(name, newValue);
 		}
 
+		/**
+		 * 只支持Map类型。
+		 * @return
+		 */
 		@Override
 		public Class<?>[] getSpecificTargetClasses() {
 			return new Class<?>[] {Map.class};

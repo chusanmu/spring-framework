@@ -20,6 +20,7 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 表达式计算的通用抽象，该接口提供的方法非常多
  * An expression capable of evaluating itself against context objects.
  * Encapsulates the details of a previously parsed expression string.
  * Provides a common abstraction for expression evaluation.
@@ -32,12 +33,14 @@ import org.springframework.lang.Nullable;
 public interface Expression {
 
 	/**
+	 * TODO: 返回原始表达式的字符串
 	 * Return the original string used to create this expression (unmodified).
 	 * @return the original expression string
 	 */
 	String getExpressionString();
 
 	/**
+	 * TODO: 使用一个默认的标准的context执行计算
 	 * Evaluate this expression in the default standard context.
 	 * @return the evaluation result
 	 * @throws EvaluationException if there is a problem during evaluation
@@ -57,6 +60,7 @@ public interface Expression {
 	<T> T getValue(@Nullable Class<T> desiredResultType) throws EvaluationException;
 
 	/**
+	 * TODO: 根据指定的根对象计算此表达式
 	 * Evaluate this expression against the specified root object.
 	 * @param rootObject the root object against which to evaluate the expression
 	 * @return the evaluation result
@@ -78,6 +82,7 @@ public interface Expression {
 	<T> T getValue(Object rootObject, @Nullable Class<T> desiredResultType) throws EvaluationException;
 
 	/**
+	 * TODO: 根据指定的上下文EvaluationContext 来计算值
 	 * Evaluate this expression in the provided context and return the result
 	 * of evaluation.
 	 * @param context the context in which to evaluate the expression
@@ -88,6 +93,7 @@ public interface Expression {
 	Object getValue(EvaluationContext context) throws EvaluationException;
 
 	/**
+	 * TODO: 以rootObject作为表达式的root对象来计算表达式的值
 	 * Evaluate this expression in the provided context and return the result
 	 * of evaluation, but use the supplied root context as an override for any
 	 * default root object specified in the context.

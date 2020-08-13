@@ -123,7 +123,9 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 
 		try {
 			this.expressionString = expressionString;
+			// TODO: Tokenizer 就是分词器，把待解析的表达式交给它去分词
 			Tokenizer tokenizer = new Tokenizer(expressionString);
+			// TODO: process处理，得到tokenStream，并且记录上它的总长度，并且标记当前处理点为0
 			this.tokenStream = tokenizer.process();
 			this.tokenStreamLength = this.tokenStream.size();
 			this.tokenStreamPointer = 0;

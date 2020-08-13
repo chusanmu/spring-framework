@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 主要有三个作用，1.设置被代理对象target, 2.设置代理接口，3.设置通知advice
  * Base class for proxy factories.
  * Provides convenient access to a configurable AopProxyFactory.
  *
@@ -41,6 +42,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 
 
 	/**
+	 * TODO: 直接new了一个DefaultAopProxyFactory
 	 * Create a new ProxyCreatorSupport instance.
 	 */
 	public ProxyCreatorSupport() {
@@ -95,6 +97,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 
 
 	/**
+	 * TODO: 主要提供了这个方法，用来得到 生成代理对象的AopProxy对象
 	 * Subclasses should call this to get a new AOP proxy. They should <b>not</b>
 	 * create an AOP proxy with {@code this} as an argument.
 	 */

@@ -37,6 +37,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 表达式可以独立计算，也可以在指定的上下文中计算
  * A {@code SpelExpression} represents a parsed (valid) expression that is ready to be
  * evaluated in a specified context. An expression can be evaluated standalone or in a
  * specified context. During expression evaluation the context may be asked to resolve
@@ -49,23 +50,29 @@ import org.springframework.util.Assert;
 public class SpelExpression implements Expression {
 
 	// Number of times to interpret an expression before compiling it
+	// TODO: 在编译表达式之前解释该表达式的次数
 	private static final int INTERPRETED_COUNT_THRESHOLD = 100;
 
 	// Number of times to try compiling an expression before giving up
+	// TODO: 放弃前尝试编译表达式的次数
 	private static final int FAILED_ATTEMPTS_THRESHOLD = 100;
 
 
 	private final String expression;
-
+	// TODO: 抽象语法树
 	private final SpelNodeImpl ast;
 
 	private final SpelParserConfiguration configuration;
 
 	// The default context is used if no override is supplied by the user
+	// TODO: 如果没有指定，就会用默认的上下文
 	@Nullable
 	private EvaluationContext evaluationContext;
 
 	// Holds the compiled form of the expression (if it has been compiled)
+	/**
+	 * 如果该表达式已经被编译了
+	 */
 	@Nullable
 	private volatile CompiledExpression compiledAst;
 
@@ -97,6 +104,7 @@ public class SpelExpression implements Expression {
 	}
 
 	/**
+	 * TODO: 若没有指定，就会使用默认的StandardEvaluationContext上下文
 	 * Return the default evaluation context that will be used if none is supplied on an evaluation call.
 	 * @return the default evaluation context
 	 */
@@ -118,6 +126,7 @@ public class SpelExpression implements Expression {
 	@Override
 	@Nullable
 	public Object getValue() throws EvaluationException {
+		// TODO: 如果已经被编译过，那么就直接从编译后的里getValue即可
 		CompiledExpression compiledAst = this.compiledAst;
 		if (compiledAst != null) {
 			try {
@@ -139,6 +148,7 @@ public class SpelExpression implements Expression {
 
 		ExpressionState expressionState = new ExpressionState(getEvaluationContext(), this.configuration);
 		Object result = this.ast.getValue(expressionState);
+		// TODO: 检查是否需要去编译它
 		checkCompile(expressionState);
 		return result;
 	}

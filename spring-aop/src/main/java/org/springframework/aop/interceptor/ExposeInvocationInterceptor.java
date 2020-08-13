@@ -27,6 +27,7 @@ import org.springframework.core.NamedThreadLocal;
 import org.springframework.core.PriorityOrdered;
 
 /**
+ * TODO: 将当前MethodInterceptor放到当前线程对应的ThreadLocalMap里面的，这是一个默认的Interceptor
  * Interceptor that exposes the current {@link org.aopalliance.intercept.MethodInvocation}
  * as a thread-local object. We occasionally need to do this; for example, when a pointcut
  * (e.g. an AspectJ expression pointcut) needs to know the full invocation context.

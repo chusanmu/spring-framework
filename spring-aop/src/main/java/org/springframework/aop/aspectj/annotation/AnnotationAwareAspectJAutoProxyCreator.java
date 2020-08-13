@@ -28,6 +28,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 从名字看出来 它和注解有关，@EnableAspectJAutoProxy它导入的就是这个自动代理创建器，去帮我们创建和aspectJ相关的代理对象的
  * {@link AspectJAwareAdvisorAutoProxyCreator} subclass that processes all AspectJ
  * annotation aspects in the current application context, as well as Spring Advisors.
  *
@@ -52,14 +53,22 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 	@Nullable
 	private List<Pattern> includePatterns;
 
+	/**
+	 * TODO: 唯一实现类，ReflectiveAspectJAdvisorFactory，作用，基于@Aspect时，创建spring aop的advice，里面会标注这些注解Around.class, Before.class, After.class, AfterReturning.class的方法进行排序
+	 * TODO: 然后把它们变成advisor
+	 */
 	@Nullable
 	private AspectJAdvisorFactory aspectJAdvisorFactory;
 
+	/**
+	 * TODO: 该工具类用来从bean容器，也就是beanFactory中获取所有使用了@AspectJ注解的bean，就是这个方法 aspectJAdvisorBuilder.buildAspectJAdvisors()
+	 */
 	@Nullable
 	private BeanFactoryAspectJAdvisorsBuilder aspectJAdvisorsBuilder;
 
 
 	/**
+	 * TODO: 它支持我们自定义一个正则的模板
 	 * Set a list of regex patterns, matching eligible @AspectJ bean names.
 	 * <p>Default is to consider all @AspectJ beans as eligible.
 	 */
@@ -89,6 +98,8 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 	@Override
 	protected List<Advisor> findCandidateAdvisors() {
 		// Add all the Spring advisors found according to superclass rules.
+		// TODO: 拿到所有的候选的advisor们，注意，这里没有先调用了父类的super.findCandidateAdvisors() 去容器里找出来一些，然后自己又通过aspectJAdvisorsBuilder.buildAspectJAdvisors()
+		// TODO: 解析@Aspect的方法 得到一些advisor
 		List<Advisor> advisors = super.findCandidateAdvisors();
 		// Build Advisors for all AspectJ aspects in the bean factory.
 		if (this.aspectJAdvisorsBuilder != null) {
@@ -108,10 +119,12 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 		// defined on the interface. We could potentially relax the restriction about
 		// not advising aspects in the future.
 		return (super.isInfrastructureClass(beanClass) ||
+				// TODO: 加了中类型，如果该bean本身就是一个@Aspect, 那也认为是基础组件了，不用切了
 				(this.aspectJAdvisorFactory != null && this.aspectJAdvisorFactory.isAspect(beanClass)));
 	}
 
 	/**
+	 * TODO: 拿传入的正则模板进行匹配，没传就返回true, 所有的advisor都会生效
 	 * Check whether the given aspect bean is eligible for auto-proxying.
 	 * <p>If no &lt;aop:include&gt; elements were used then "includePatterns" will be
 	 * {@code null} and all beans are included. If "includePatterns" is non-null,

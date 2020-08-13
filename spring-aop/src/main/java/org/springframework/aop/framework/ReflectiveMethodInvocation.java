@@ -61,11 +61,20 @@ import org.springframework.lang.Nullable;
  */
 public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Cloneable {
 
+	/**
+	 * TODO: 代理对象
+	 */
 	protected final Object proxy;
 
+	/**
+	 * 目标对象
+	 */
 	@Nullable
 	protected final Object target;
 
+	/**
+	 * 被拦截的方法
+	 */
 	protected final Method method;
 
 	protected Object[] arguments;
@@ -93,6 +102,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 
 
 	/**
+	 * 唯一的构造函数
 	 * Construct a new ReflectiveMethodInvocation with the given arguments.
 	 * @param proxy the proxy object that the invocation was made on
 	 * @param target the target object to invoke
@@ -112,7 +122,9 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		this.proxy = proxy;
 		this.target = target;
 		this.targetClass = targetClass;
+		// TODO: 找到桥接方法，作为最后执行的方法
 		this.method = BridgeMethodResolver.findBridgedMethod(method);
+		// TODO: 对参数进行适配
 		this.arguments = AopProxyUtils.adaptArgumentsIfNecessary(method, arguments);
 		this.interceptorsAndDynamicMethodMatchers = interceptorsAndDynamicMethodMatchers;
 	}
@@ -135,6 +147,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	}
 
 	/**
+	 * TODO: 注意这里返回的可能是桥接方法
 	 * Return the method invoked on the proxied interface.
 	 * May or may not correspond with a method invoked on an underlying
 	 * implementation of that interface.
@@ -155,14 +168,22 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	}
 
 
+	/**
+	 * 这里就是核心了，这里运用了递归调用的方式
+	 * @return
+	 * @throws Throwable
+	 */
 	@Override
 	@Nullable
 	public Object proceed() throws Throwable {
 		// We start with an index of -1 and increment early.
+		// TODO: 如果执行到了链条的末尾，则直接调用连接点方法，即直接调用目标方法
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
+			// TODO: 这个方法相当于 调用了目标方法
 			return invokeJoinpoint();
 		}
 
+		// TODO: 获取集合中的methodInterceptor，并且角标+1
 		Object interceptorOrInterceptionAdvice =
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
 		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
@@ -171,23 +192,27 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 			InterceptorAndDynamicMethodMatcher dm =
 					(InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;
 			Class<?> targetClass = (this.targetClass != null ? this.targetClass : this.method.getDeclaringClass());
+			// TODO: 这里会进行动态匹配啊， 如果匹配上了 就接着执行
 			if (dm.methodMatcher.matches(this.method, targetClass, this.arguments)) {
 				return dm.interceptor.invoke(this);
 			}
 			else {
 				// Dynamic matching failed.
 				// Skip this interceptor and invoke the next in the chain.
+				// TODO: 如果不匹配，就跳过此拦截器，而继续执行下一个拦截器，注意，这里是递归调用，而并不是循环调用
 				return proceed();
 			}
 		}
 		else {
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
+			// TODO: 直接执行此拦截器，说明之前已经匹配好了，只有匹配上的方法才会被拦截进来的
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
 		}
 	}
 
 	/**
+	 * TODO: 其实就是简单的一个method.invoke(target, args)
 	 * Invoke the joinpoint using reflection.
 	 * Subclasses can override this to use custom invocation.
 	 * @return the return value of the joinpoint
@@ -195,6 +220,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	 */
 	@Nullable
 	protected Object invokeJoinpoint() throws Throwable {
+		// TODO: 此处传入的target,而不能是proxy,否则进入死循环
 		return AopUtils.invokeJoinpointUsingReflection(this.target, this.method, this.arguments);
 	}
 
