@@ -149,7 +149,11 @@ class CglibAopProxy implements AopProxy, Serializable {
 		this.constructorArgTypes = constructorArgTypes;
 	}
 
-
+	/**
+	 * TODO: 它的两个getProxy()相对来说比较简单，就是使用cglib的方式，利用enhancer创建一个增强的实例
+	 * TODO: setCallbackFilter就是看看哪些方法需要拦截，哪些不需要
+	 * @return
+	 */
 	@Override
 	public Object getProxy() {
 		return getProxy(null);
@@ -308,6 +312,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		Callback targetDispatcher = (isStatic ?
 				new StaticDispatcher(this.advised.getTargetSource().getTarget()) : new SerializableNoOp());
 
+		// TODO: 哈哈 开始放callback拦截器了
 		Callback[] mainCallbacks = new Callback[] {
 				aopInterceptor,  // for normal advice
 				targetInterceptor,  // invoke target without considering advice, if optimized
@@ -647,6 +652,8 @@ class CglibAopProxy implements AopProxy, Serializable {
 
 
 	/**
+	 * TODO: 最后所有的被代理的类的所有的方法调用，都会进入DynamicAdvisedInterceptor#intercept这个方法里面 相当于JDK动态代理的invoke方法
+	 * TODO: 实现了MethodInterceptor接口
 	 * General purpose AOP callback. Used when the target is dynamic or when the
 	 * proxy is not frozen.
 	 */
@@ -664,6 +671,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 			Object oldProxy = null;
 			boolean setProxyContext = false;
 			Object target = null;
+			// TODO: 目标对象源
 			TargetSource targetSource = this.advised.getTargetSource();
 			try {
 				if (this.advised.exposeProxy) {
@@ -672,12 +680,15 @@ class CglibAopProxy implements AopProxy, Serializable {
 					setProxyContext = true;
 				}
 				// Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
+				// TODO: 拿到目标对象，这里就是使用targetSource的意义，它提供了多个实现类，从而实现了更多的可能性
 				target = targetSource.getTarget();
 				Class<?> targetClass = (target != null ? target.getClass() : null);
+				// TODO: 一样的，也是拿到和这个方法匹配的，所有的增强器，通知们，和JDK proxy中是一样的
 				List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 				Object retVal;
 				// Check whether we only have one InvokerInterceptor: that is,
 				// no real advice, but just reflective invocation of the target.
+				// TODO: 没有增强器，同时该方法是public，就直接调用目标方法，不拦截了.....
 				if (chain.isEmpty() && Modifier.isPublic(method.getModifiers())) {
 					// We can skip creating a MethodInvocation: just invoke the target directly.
 					// Note that the final invoker must be an InvokerInterceptor, so we know
@@ -688,6 +699,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 				}
 				else {
 					// We need to create a method invocation...
+					// TODO: 这里采用的是CglibMethodInvocation，它是ReflectiveMethodInvocation的子类
 					retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();
 				}
 				retVal = processReturnType(proxy, target, method, retVal);

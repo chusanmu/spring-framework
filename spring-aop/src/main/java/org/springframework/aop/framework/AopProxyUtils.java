@@ -65,6 +65,7 @@ public abstract class AopProxyUtils {
 	}
 
 	/**
+	 * TODO：根据给定的对象，拿到它的最终类型，会逐层往上找
 	 * Determine the ultimate target class of the given bean instance, traversing
 	 * not only a top-level proxy but any number of nested proxies as well &mdash;
 	 * as long as possible without side effects, that is, just for singleton targets.
@@ -78,6 +79,7 @@ public abstract class AopProxyUtils {
 		Assert.notNull(candidate, "Candidate object must not be null");
 		Object current = candidate;
 		Class<?> result = null;
+		// TODO: 这里会进行一个循环 往上找的过程
 		while (current instanceof TargetClassAware) {
 			result = ((TargetClassAware) current).getTargetClass();
 			current = getSingletonTarget(current);
@@ -99,6 +101,7 @@ public abstract class AopProxyUtils {
 	 * @see Advised
 	 */
 	public static Class<?>[] completeProxiedInterfaces(AdvisedSupport advised) {
+		// TODO: 拿到完整的代理接口
 		return completeProxiedInterfaces(advised, false);
 	}
 
@@ -130,7 +133,9 @@ public abstract class AopProxyUtils {
 				specifiedInterfaces = advised.getProxiedInterfaces();
 			}
 		}
+		// TODO: 如果没有SpringProxy接口，则给加上
 		boolean addSpringProxy = !advised.isInterfaceProxied(SpringProxy.class);
+		// TODO: 如果允许强转为Advised，则最后会加一个Advised接口 给代理上
 		boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);
 		boolean addDecoratingProxy = (decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class));
 		int nonUserIfcCount = 0;

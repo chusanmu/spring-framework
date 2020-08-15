@@ -52,6 +52,7 @@ public abstract class AopConfigUtils {
 			"org.springframework.aop.config.internalAutoProxyCreator";
 
 	/**
+	 * TODO: 维护了spring，默认的自动代理创建器
 	 * Stores the auto proxy creator classes in escalation order.
 	 */
 	private static final List<Class<?>> APC_PRIORITY_LIST = new ArrayList<>(3);
@@ -119,10 +120,13 @@ public abstract class AopConfigUtils {
 			Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {
 
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
-
+		// TODO: 很显然，这里如果我们自己定义了这样一个自动代理创建器，也是OK的，会进行向高优先级的自动代理创建器 进行提升
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
+			// TODO: 如果我们自定义的并不是cls这个class类型的bean，那就做如下处理一下
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
+				// TODO: 这地方挺有意思的，有一个优先级，然后优先级的顺序维护在了static代码块里面
+				// TODO: 如果当前用户注册进来的aop代理类的级别，是低于我们要求的级别的，spring内部也会对它进行提升成我们要求的那个class类型，最好不要自己去使用低级别的自动代理创建器
 				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
 				int requiredPriority = findPriorityForClass(cls);
 				if (currentPriority < requiredPriority) {
@@ -131,12 +135,14 @@ public abstract class AopConfigUtils {
 			}
 			return null;
 		}
-
+		// TODO: 若用户自己没有定义，那就用系统定义好了的吧 AnnotationAwareAspectJAutoProxyCreator
 		RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);
 		beanDefinition.setSource(source);
 		// TODO: 将order 优先级改为 高优先级，这也解释了 @Async与@Transactional 同时使用的时候，先增强@Transactional，之后再增强@Async的原理
 		beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
+		// TODO: 角色为Spring自己使用
 		beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		// TODO: 注册此bean定义信息
 		registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
 		return beanDefinition;
 	}

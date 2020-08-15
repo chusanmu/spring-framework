@@ -730,6 +730,7 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * TODO: 拿到当前class的所有的实现接口
 	 * Return all interfaces that the given class implements as a Set,
 	 * including ones implemented by superclasses.
 	 * <p>If the class itself is an interface, it gets returned as sole interface.
@@ -754,8 +755,10 @@ public abstract class ClassUtils {
 		if (clazz.isInterface() && isVisible(clazz, classLoader)) {
 			return Collections.singleton(clazz);
 		}
+		// TODO: 最后加入到一个set中
 		Set<Class<?>> interfaces = new LinkedHashSet<>();
 		Class<?> current = clazz;
+		// TODO: 会不断的循环 往上找
 		while (current != null) {
 			Class<?>[] ifcs = current.getInterfaces();
 			for (Class<?> ifc : ifcs) {

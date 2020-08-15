@@ -58,6 +58,7 @@ import org.springframework.util.ReflectionUtils;
 public abstract class AopUtils {
 
 	/**
+	 * TODO: 判断该对象是否经过Aop代理产生的
 	 * Check whether the given object is a JDK dynamic proxy or a CGLIB proxy.
 	 * <p>This method additionally checks if the given object is an instance
 	 * of {@link SpringProxy}.
@@ -71,6 +72,7 @@ public abstract class AopUtils {
 	}
 
 	/**
+	 * TODO: 判断该对象是否是经过JDK动态代理产生的
 	 * Check whether the given object is a JDK dynamic proxy.
 	 * <p>This method goes beyond the implementation of
 	 * {@link Proxy#isProxyClass(Class)} by additionally checking if the
@@ -83,6 +85,7 @@ public abstract class AopUtils {
 	}
 
 	/**
+	 * TODO: 判断该对象是否是cglib产生的
 	 * Check whether the given object is a CGLIB proxy.
 	 * <p>This method goes beyond the implementation of
 	 * {@link ClassUtils#isCglibProxy(Object)} by additionally checking if
@@ -95,6 +98,7 @@ public abstract class AopUtils {
 	}
 
 	/**
+	 * TODO: 拿到被代理的目标class对象
 	 * Determine the target class of the given bean instance which might be an AOP proxy.
 	 * <p>Returns the target class for an AOP proxy or the plain class otherwise.
 	 * @param candidate the instance to check (might be an AOP proxy)
@@ -106,10 +110,12 @@ public abstract class AopUtils {
 	public static Class<?> getTargetClass(Object candidate) {
 		Assert.notNull(candidate, "Candidate object must not be null");
 		Class<?> result = null;
+		// TODO: 看是否实现了TargetClassAware接口，如果是，则转为TargetClassAware
 		if (candidate instanceof TargetClassAware) {
 			result = ((TargetClassAware) candidate).getTargetClass();
 		}
 		if (result == null) {
+			// TODO: 如果是cglib代理，把它的父类拿到
 			result = (isCglibProxy(candidate) ? candidate.getClass().getSuperclass() : candidate.getClass());
 		}
 		return result;
@@ -193,8 +199,10 @@ public abstract class AopUtils {
 	 */
 	public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
 		Class<?> specificTargetClass = (targetClass != null ? ClassUtils.getUserClass(targetClass) : null);
+		// TODO: 根据传进来的class,和method, 拿到最终执行的那个方法
 		Method resolvedMethod = ClassUtils.getMostSpecificMethod(method, specificTargetClass);
 		// If we are dealing with method with generic parameters, find the original method.
+		// TODO: 如果有泛型，则去拿到原始的那个方法，不要桥接方法，把原始方法拿到
 		return BridgeMethodResolver.findBridgedMethod(resolvedMethod);
 	}
 
@@ -222,11 +230,13 @@ public abstract class AopUtils {
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
+		// TODO: 如果目标类 不匹配classFilter, 那就没什么说的了，直接返回false.
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
-
+		// TODO: 从pointcut中拿出MethodMatcher
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
+		// TODO: 如果方法匹配器是true,就是全部匹配，那就返回true,就是代理目标类是可以匹配的
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
 			return true;
@@ -236,16 +246,19 @@ public abstract class AopUtils {
 		if (methodMatcher instanceof IntroductionAwareMethodMatcher) {
 			introductionAwareMethodMatcher = (IntroductionAwareMethodMatcher) methodMatcher;
 		}
-
+		// TODO: 存目标类，如果目标class是一个代理 是经过代理的
 		Set<Class<?>> classes = new LinkedHashSet<>();
 		if (!Proxy.isProxyClass(targetClass)) {
+			// TODO: 把代理类拿出来
 			classes.add(ClassUtils.getUserClass(targetClass));
 		}
+		// TODO: 再去把它的接口拿出来，所有的接口拿出来
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
-
+		// TODO: 遍历所有的class, 包括它所实现的一些接口，然后再把里面所有，也就是它本类的所有方法拿到
 		for (Class<?> clazz : classes) {
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
 			for (Method method : methods) {
+				// TODO: 逐个方法去进行匹配
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
 						methodMatcher.matches(method, targetClass)) {
@@ -270,6 +283,7 @@ public abstract class AopUtils {
 	}
 
 	/**
+	 * TODO: 判断给定的advisor能否应用到目标class上面
 	 * Can the given advisor apply at all on the given class?
 	 * <p>This is an important test as it can be used to optimize out a advisor for a class.
 	 * This version also takes into account introductions (for IntroductionAwareMethodMatchers).
@@ -284,6 +298,7 @@ public abstract class AopUtils {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
 		else if (advisor instanceof PointcutAdvisor) {
+			// TODO: 转为pointcutAdvisor 然后利用pointcut去判断
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
 		}
@@ -294,6 +309,7 @@ public abstract class AopUtils {
 	}
 
 	/**
+	 * TODO: 通过一堆advisors 找出可以应用到 clazz上面的
 	 * Determine the sublist of the {@code candidateAdvisors} list
 	 * that is applicable to the given class.
 	 * @param candidateAdvisors the Advisors to evaluate
@@ -302,9 +318,11 @@ public abstract class AopUtils {
 	 * (may be the incoming List as-is)
 	 */
 	public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
+		// TODO: 如果为空，那就直接返回空吧
 		if (candidateAdvisors.isEmpty()) {
 			return candidateAdvisors;
 		}
+		// TODO: 创建一个List,用来存放合适的advisors
 		List<Advisor> eligibleAdvisors = new ArrayList<>();
 		for (Advisor candidate : candidateAdvisors) {
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
@@ -313,10 +331,12 @@ public abstract class AopUtils {
 		}
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
 		for (Advisor candidate : candidateAdvisors) {
+			// TODO: 已经处理过了，就不再去处理了
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
 				continue;
 			}
+			// TODO: 然后再继续匹配
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}
@@ -325,6 +345,7 @@ public abstract class AopUtils {
 	}
 
 	/**
+	 * TODO：直接用反射的方式，直接调用目标对象的目标方法
 	 * Invoke the given target via reflection, as part of an AOP method invocation.
 	 * @param target the target object
 	 * @param method the method to invoke
