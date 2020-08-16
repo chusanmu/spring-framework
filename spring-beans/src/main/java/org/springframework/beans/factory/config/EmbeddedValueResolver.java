@@ -20,6 +20,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringValueResolver;
 
 /**
+ * TODO: 帮助ConfigurableBeanFactory处理placeholders占位符的，支持spel
  * {@link StringValueResolver} adapter for resolving placeholders and
  * expressions against a {@link ConfigurableBeanFactory}.
  *
@@ -36,6 +37,9 @@ import org.springframework.util.StringValueResolver;
  */
 public class EmbeddedValueResolver implements StringValueResolver {
 
+	/**
+	 * TODO: 它支持的是Spel，可以说非常的强大，并且它有beanExpressionContext就能拿到beanFactory工厂，就能使用它的 resolveEmbeddedValue来处理占位符
+	 */
 	private final BeanExpressionContext exprContext;
 
 	@Nullable
@@ -51,7 +55,9 @@ public class EmbeddedValueResolver implements StringValueResolver {
 	@Override
 	@Nullable
 	public String resolveStringValue(String strVal) {
+		// TODO: 先使用bean工厂处理占位符 resolveEmbeddedValue
 		String value = this.exprContext.getBeanFactory().resolveEmbeddedValue(strVal);
+		// TODO: 再使用el表达式参与计算
 		if (this.exprResolver != null && value != null) {
 			Object evaluated = this.exprResolver.evaluate(value, this.exprContext);
 			value = (evaluated != null ? evaluated.toString() : null);

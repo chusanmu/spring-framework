@@ -19,6 +19,7 @@ package org.springframework.core.env;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 它主要是提供数据源
  * {@link PropertyResolver} implementation that resolves property values against
  * an underlying set of {@link PropertySources}.
  *
@@ -31,11 +32,15 @@ import org.springframework.lang.Nullable;
  */
 public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
+	/**
+	 * TODO:  数据源们
+	 */
 	@Nullable
 	private final PropertySources propertySources;
 
 
 	/**
+	 * TODO: 必须指定数据源
 	 * Create a new resolver against the given property sources.
 	 * @param propertySources the set of {@link PropertySource} objects to use
 	 */
@@ -74,15 +79,25 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 		return getProperty(key, String.class, false);
 	}
 
+	/**
+	 * TODO: 最终依赖的都是propertySource.getProperty(key), 方法拿到如果是字符串的话，就继续交给value=resolveNestedPlaceholders(value)处理
+	 * @param key
+	 * @param targetValueType
+	 * @param resolveNestedPlaceholders
+	 * @param <T>
+	 * @return
+	 */
 	@Nullable
 	protected <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
 		if (this.propertySources != null) {
+			// TODO: 由此可见，propertySources的顺序很重要，并且还能处理占位符，resolveNestedPlaceholders 支持内嵌占位符
 			for (PropertySource<?> propertySource : this.propertySources) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Searching for key '" + key + "' in PropertySource '" +
 							propertySource.getName() + "'");
 				}
 				Object value = propertySource.getProperty(key);
+				// TODO: 若值不为空，并且是字符串的话，就去处理一下占位符
 				if (value != null) {
 					if (resolveNestedPlaceholders && value instanceof String) {
 						value = resolveNestedPlaceholders((String) value);

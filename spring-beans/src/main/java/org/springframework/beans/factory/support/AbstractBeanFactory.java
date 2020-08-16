@@ -863,6 +863,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		String result = value;
 		for (StringValueResolver resolver : this.embeddedValueResolvers) {
 			result = resolver.resolveStringValue(result);
+			// TODO: 一旦处理结果返回null了 就返回了，不为null的话，则所有的处理器都会执行到
 			if (result == null) {
 				return null;
 			}

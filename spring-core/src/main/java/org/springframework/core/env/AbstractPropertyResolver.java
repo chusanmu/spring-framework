@@ -33,6 +33,7 @@ import org.springframework.util.PropertyPlaceholderHelper;
 import org.springframework.util.SystemPropertyUtils;
 
 /**
+ * TODO: 抽象实现
  * Abstract base class for resolving properties against any underlying source.
  *
  * @author Chris Beams
@@ -46,6 +47,9 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	@Nullable
 	private volatile ConfigurableConversionService conversionService;
 
+	/**
+	 * TODO: PropertyPlaceholderHelper是一个及其独立的类，专门用来解析占位符, 项目中可以单独使用
+	 */
 	@Nullable
 	private PropertyPlaceholderHelper nonStrictHelper;
 
@@ -54,6 +58,9 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 
 	private boolean ignoreUnresolvableNestedPlaceholders = false;
 
+	/**
+	 * TODO: 注意它的前缀是${
+	 */
 	private String placeholderPrefix = SystemPropertyUtils.PLACEHOLDER_PREFIX;
 
 	private String placeholderSuffix = SystemPropertyUtils.PLACEHOLDER_SUFFIX;
@@ -64,6 +71,10 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	private final Set<String> requiredProperties = new LinkedHashSet<>();
 
 
+	/**
+	 * TODO: 默认使用的DefaultConversionService
+	 * @return
+	 */
 	@Override
 	public ConfigurableConversionService getConversionService() {
 		// Need to provide an independent DefaultConversionService, not the
@@ -140,6 +151,9 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 		Collections.addAll(this.requiredProperties, requiredProperties);
 	}
 
+	/**
+	 * TODO: 校验这些key
+	 */
 	@Override
 	public void validateRequiredProperties() {
 		MissingRequiredPropertiesException ex = new MissingRequiredPropertiesException();
@@ -194,6 +208,11 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 		return value;
 	}
 
+	/**
+	 * TODO: 处理占位符
+	 * @param text the String to resolve
+	 * @return
+	 */
 	@Override
 	public String resolvePlaceholders(String text) {
 		if (this.nonStrictHelper == null) {
@@ -235,6 +254,12 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 				this.valueSeparator, ignoreUnresolvablePlaceholders);
 	}
 
+	/**
+	 * TODO： 最终都是委托给PropertyPlaceholderHelper去做，而getPropertyAsRawString是抽象方法，根据key返回一个字符串即可
+	 * @param text
+	 * @param helper
+	 * @return
+	 */
 	private String doResolvePlaceholders(String text, PropertyPlaceholderHelper helper) {
 		return helper.replacePlaceholders(text, this::getPropertyAsRawString);
 	}

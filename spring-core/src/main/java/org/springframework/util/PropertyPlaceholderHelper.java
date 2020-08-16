@@ -41,6 +41,9 @@ public class PropertyPlaceholderHelper {
 
 	private static final Log logger = LogFactory.getLog(PropertyPlaceholderHelper.class);
 
+	/**
+	 * TODO: 这里保存着 通用的属性的开闭的符号们
+	 */
 	private static final Map<String, String> wellKnownSimplePrefixes = new HashMap<>(4);
 
 	static {
@@ -59,6 +62,9 @@ public class PropertyPlaceholderHelper {
 	@Nullable
 	private final String valueSeparator;
 
+	/**
+	 * TODO: 是否采用严格模式
+	 */
 	private final boolean ignoreUnresolvablePlaceholders;
 
 
@@ -101,6 +107,7 @@ public class PropertyPlaceholderHelper {
 
 
 	/**
+	 * TODO: 从properties里取值，若有就直接从Properties里取值
 	 * Replaces all placeholders of format {@code ${name}} with the corresponding
 	 * property from the supplied {@link Properties}.
 	 * @param value the value containing the placeholders to be replaced

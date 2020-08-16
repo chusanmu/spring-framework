@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: propertySource的唯一实现类
  * The default implementation of the {@link PropertySources} interface.
  * Allows manipulation of contained property sources and provides a constructor
  * for copying an existing {@code PropertySources} instance.
@@ -41,6 +42,9 @@ import org.springframework.lang.Nullable;
  */
 public class MutablePropertySources implements PropertySources {
 
+	/**
+	 * TODO: 持有了多个propertySource
+	 */
 	private final List<PropertySource<?>> propertySourceList = new CopyOnWriteArrayList<>();
 
 

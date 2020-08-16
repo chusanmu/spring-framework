@@ -70,6 +70,8 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 	 */
 	public ApplicationContextAwareProcessor(ConfigurableApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
+		// TODO: 这里new的一个EmbeddedValueResolver，它持有对beanFactory的引用，所以调用者直接使用的是EmbeddedValueResolver
+		// TODO: 它支持解析占位符，依赖于Environment，并且支持spel的解析
 		this.embeddedValueResolver = new EmbeddedValueResolver(applicationContext.getBeanFactory());
 	}
 

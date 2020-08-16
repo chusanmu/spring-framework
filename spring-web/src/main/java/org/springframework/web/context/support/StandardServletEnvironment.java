@@ -30,6 +30,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.context.ConfigurableWebEnvironment;
 
 /**
+ * TODO: WEB环境应用的标准环境
  * {@link Environment} implementation to be used by {@code Servlet}-based web
  * applications. All web-related (servlet-based) {@code ApplicationContext} classes
  * initialize an instance by default.
@@ -43,6 +44,9 @@ import org.springframework.web.context.ConfigurableWebEnvironment;
  * @see StandardEnvironment
  */
 public class StandardServletEnvironment extends StandardEnvironment implements ConfigurableWebEnvironment {
+
+	/* ---------------- 放置三个web相关的配置源 -------------- */
+
 
 	/** Servlet context init parameters property source name: {@value}. */
 	public static final String SERVLET_CONTEXT_PROPERTY_SOURCE_NAME = "servletContextInitParams";
@@ -90,6 +94,12 @@ public class StandardServletEnvironment extends StandardEnvironment implements C
 		super.customizePropertySources(propertySources);
 	}
 
+
+	/**
+	 * TODO: 注册ServletContextInitParams和ServletConfigInitParams到属性配置源头里
+	 * @param servletContext the {@link ServletContext} (may not be {@code null})
+	 * @param servletConfig the {@link ServletConfig} ({@code null} if not available)
+	 */
 	@Override
 	public void initPropertySources(@Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig) {
 		WebApplicationContextUtils.initServletPropertySources(getPropertySources(), servletContext, servletConfig);

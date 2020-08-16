@@ -34,6 +34,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 它是对环境的一个抽象实现
  * Abstract base class for {@link Environment} implementations. Supports the notion of
  * reserved default profile names and enables specifying active and default profiles
  * through the {@link #ACTIVE_PROFILES_PROPERTY_NAME} and
@@ -107,13 +108,20 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 
 	private final Set<String> defaultProfiles = new LinkedHashSet<>(getReservedDefaultProfiles());
 
+	/**
+	 * TODO: 直接new了一个MutablePropertySources 来管理属性源们
+	 */
 	private final MutablePropertySources propertySources = new MutablePropertySources();
 
+	/**
+	 * TODO: 使用PropertySourcesPropertyResolver 来处理里面可能的占位符
+	 */
 	private final ConfigurablePropertyResolver propertyResolver =
 			new PropertySourcesPropertyResolver(this.propertySources);
 
 
 	/**
+	 * TODO: 构造方法
 	 * Create a new {@code Environment} instance, calling back to
 	 * {@link #customizePropertySources(MutablePropertySources)} during construction to
 	 * allow subclasses to contribute or manipulate {@link PropertySource} instances as
@@ -235,8 +243,10 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	protected Set<String> doGetActiveProfiles() {
 		synchronized (this.activeProfiles) {
 			if (this.activeProfiles.isEmpty()) {
+				// TODO: 若目前是empty的，那就去获取spring.profiles.active
 				String profiles = getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
 				if (StringUtils.hasText(profiles)) {
+					// TODO: 支持,分隔表示多个，且空格啥的都无所谓
 					setActiveProfiles(StringUtils.commaDelimitedListToStringArray(
 							StringUtils.trimAllWhitespace(profiles)));
 				}
@@ -254,6 +264,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 		synchronized (this.activeProfiles) {
 			this.activeProfiles.clear();
 			for (String profile : profiles) {
+				// TODO: 进行简单的valid，不为空且不以!打头
 				validateProfile(profile);
 				this.activeProfiles.add(profile);
 			}
@@ -347,6 +358,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	}
 
 	/**
+	 * TODO: 要么active包含，要么是default的，那么这个profile就被认为是激活了的
 	 * Return whether the given profile is active, or if active profiles are empty
 	 * whether the profile should be active by default.
 	 * @throws IllegalArgumentException per {@link #validateProfile(String)}
@@ -452,6 +464,10 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 		return SpringProperties.getFlag(IGNORE_GETENV_PROPERTY_NAME);
 	}
 
+	/**
+	 * TODO: 把父环境的属性合并进来
+	 * @param parent the environment to merge with
+	 */
 	@Override
 	public void merge(ConfigurableEnvironment parent) {
 		for (PropertySource<?> ps : parent.getPropertySources()) {
