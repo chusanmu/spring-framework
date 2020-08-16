@@ -115,6 +115,15 @@ public abstract class AopConfigUtils {
 		}
 	}
 
+
+	/**
+	 * TODO: 这里有一个很巧妙的处理，会对自动代理创建器进行一个升级，如果第一次进来的是InfrastructureAdvisorAutoProxyCreator(@EnableTransactionManagement), 第二次进来的是 AnnotationAwareAspectJAutoProxyCreator(@EnableAspectJAutoProxy)，那就会取第二个进来的Class, 反之则不行
+	 * TODO: 这里面是维护了一个优先级顺序的，AnnotationAwareAspectJAutoProxyCreator 是最为强大的
+	 * @param cls
+	 * @param registry
+	 * @param source
+	 * @return
+	 */
 	@Nullable
 	private static BeanDefinition registerOrEscalateApcAsRequired(
 			Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {

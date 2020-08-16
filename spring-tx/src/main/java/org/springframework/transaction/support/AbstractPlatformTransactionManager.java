@@ -37,6 +37,7 @@ import org.springframework.transaction.TransactionSuspensionNotSupportedExceptio
 import org.springframework.transaction.UnexpectedRollbackException;
 
 /**
+ * TODO: 它对platformTransactionManager的一个抽象实现，实现spring标准事务工作流
  * Abstract base class that implements Spring's standard transaction workflow,
  * serving as basis for concrete platform transaction managers like
  * {@link org.springframework.transaction.jta.JtaTransactionManager}.
@@ -83,6 +84,7 @@ import org.springframework.transaction.UnexpectedRollbackException;
 public abstract class AbstractPlatformTransactionManager implements PlatformTransactionManager, Serializable {
 
 	/**
+	 * TODO: 始终激活事务同步
 	 * Always activate transaction synchronization, even for "empty" transactions
 	 * that result from PROPAGATION_SUPPORTS with no existing backend transaction.
 	 * @see org.springframework.transaction.TransactionDefinition#PROPAGATION_SUPPORTS
@@ -92,6 +94,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	public static final int SYNCHRONIZATION_ALWAYS = 0;
 
 	/**
+	 * TODO: 仅对实际事务，不针对由传播导致的空事务，激活事务同步/不支持现有后端事务
 	 * Activate transaction synchronization only for actual transactions,
 	 * that is, not for empty ones that result from PROPAGATION_SUPPORTS with
 	 * no existing backend transaction.
@@ -102,29 +105,46 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	public static final int SYNCHRONIZATION_ON_ACTUAL_TRANSACTION = 1;
 
 	/**
+	 * TODO: 永远不激活事务同步
 	 * Never active transaction synchronization, not even for actual transactions.
 	 */
 	public static final int SYNCHRONIZATION_NEVER = 2;
 
 
 	/** Constants instance for AbstractPlatformTransactionManager. */
+	/**
+	 * TODO: 相当于把本类所有的public static final 的常量都收集到此处
+	 */
 	private static final Constants constants = new Constants(AbstractPlatformTransactionManager.class);
 
 
 	protected transient Log logger = LogFactory.getLog(getClass());
+	/* ---------------- 默认值 -------------- */
 
 	private int transactionSynchronization = SYNCHRONIZATION_ALWAYS;
 
+	/**
+	 * TODO: 事务的默认超时时间 ，默认为-1 表示不超时
+	 */
 	private int defaultTimeout = TransactionDefinition.TIMEOUT_DEFAULT;
 
 	private boolean nestedTransactionAllowed = false;
 
 	private boolean validateExistingTransaction = false;
 
+	/**
+	 * TODO: 设置是否仅在参与事务失败后 将现有事务 全局标记为回滚，默认值是true，需要注意，这个属性强制不建议设置为false
+	 */
 	private boolean globalRollbackOnParticipationFailure = true;
 
+	/**
+	 * TODO: 如果事务被全局标记为仅回滚，则设置是否及早失败
+	 */
 	private boolean failEarlyOnGlobalRollbackOnly = false;
 
+	/**
+	 * TODO: 在doCommit()调用失败时，是否执行doRollback，通常不需要，因此应避免
+	 */
 	private boolean rollbackOnCommitFailure = false;
 
 
@@ -330,6 +350,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	//---------------------------------------------------------------------
 
 	/**
+	 * TODO: 最为重要的一个方法，根据事务定义，获取到一个事务TransactionStatus
 	 * This implementation handles propagation behavior. Delegates to
 	 * {@code doGetTransaction}, {@code isExistingTransaction}
 	 * and {@code doBegin}.
@@ -343,53 +364,66 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 		// Cache debug flag to avoid repeated checks.
 		boolean debugEnabled = logger.isDebugEnabled();
-
+		// TODO: 如果没有配置事务属性，则使用默认的事务属性
 		if (definition == null) {
 			// Use defaults if no transaction definition given.
 			definition = new DefaultTransactionDefinition();
 		}
-
+		// TODO: 检查当前线程是否存在事务 ,isExistingTransaction 默认返回了false,但子类都复写了此方法
 		if (isExistingTransaction(transaction)) {
 			// Existing transaction found -> check propagation behavior to find out how to behave.
+			// TODO: 处理已经存在事务的情况，这个方法实现也很复杂，对一些事务传播属性进行解析，各种情况的考虑，如果有新的事务产生doBegin()就会被调用
 			return handleExistingTransaction(definition, transaction, debugEnabled);
 		}
 
 		// Check definition settings for new transaction.
+		// TODO: 超时时间的校验
 		if (definition.getTimeout() < TransactionDefinition.TIMEOUT_DEFAULT) {
 			throw new InvalidTimeoutException("Invalid transaction timeout", definition.getTimeout());
 		}
 
 		// No existing transaction found -> check propagation behavior to find out how to proceed.
+		/* ---------------- 处理事务属性中配置的事务传播特性 -------------- */
+		// TODO: PROPAGATION_MANDATORY 如果已经存在一个事务，支持当前事务，如果没有一个活动的事务，则抛出异常
 		if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_MANDATORY) {
 			throw new IllegalTransactionStateException(
 					"No existing transaction found for transaction marked with propagation 'mandatory'");
 		}
+		// TODO: 如果事务的传播行为为required, required_new,或nested
 		else if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED ||
 				definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW ||
 				definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NESTED) {
+			// TODO: 挂起，但是doSuspend()由子类去实现，挂起操作，触发相关的挂起注册的事件，把当前线程事务的所有属性都封装好，放到一个SuspendedResourceHolder，然后清空一下当前线程事务
 			SuspendedResourcesHolder suspendedResources = suspend(null);
 			if (debugEnabled) {
 				logger.debug("Creating new transaction with name [" + definition.getName() + "]: " + definition);
 			}
 			try {
+				// TODO: 此处开始创建事务
 				boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+				// TODO: 创建一个新的事务状态，就是new DefaultTransactionStatus() 把各个属性都赋值上
 				DefaultTransactionStatus status = newTransactionStatus(
 						definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
+				// TODO: 开始事务，抽象方法，由子类去实现
 				doBegin(transaction, definition);
+				// TODO: 初始化和同步事务状态，是TransactionSynchronizationManager这个类，它内部维护了很多的ThreadLocal
 				prepareSynchronization(status, definition);
 				return status;
 			}
 			catch (RuntimeException | Error ex) {
+				// TODO: 重新开始，doResume由子类去实现
 				resume(null, suspendedResources);
 				throw ex;
 			}
 		}
 		else {
+			// TODO: 走到这里，传播属性就是不需要事务的，那就直接创建一个
 			// Create "empty" transaction: no actual transaction, but potentially synchronization.
 			if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT && logger.isWarnEnabled()) {
 				logger.warn("Custom isolation level specified but no actual transaction initiated; " +
 						"isolation level will effectively be ignored: " + definition);
 			}
+			// TODO: 这个方法相当于先newTransactionStatus，再prepareSynchronization这两步，显然和上面的区别是，中间不会插入调用doBegin()方法，应为没有事务，就不会begin喽
 			boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
 			return prepareTransactionStatus(definition, null, true, newSynchronization, debugEnabled, null);
 		}
@@ -680,6 +714,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 
 	/**
+	 * TODO: commit提交事务
 	 * This implementation of commit handles participating in existing
 	 * transactions and programmatic rollback requests.
 	 * Delegates to {@code isRollbackOnly}, {@code doCommit}
@@ -690,12 +725,14 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	@Override
 	public final void commit(TransactionStatus status) throws TransactionException {
+		// TODO: 如果是一个已经完成的事务，不可重复提交
 		if (status.isCompleted()) {
 			throw new IllegalTransactionStateException(
 					"Transaction is already completed - do not call commit or rollback more than once per transaction");
 		}
 
 		DefaultTransactionStatus defStatus = (DefaultTransactionStatus) status;
+		// TODO: 如果已经标记了需要回滚，那就执行回滚吧
 		if (defStatus.isLocalRollbackOnly()) {
 			if (defStatus.isDebug()) {
 				logger.debug("Transactional code has requested rollback");
@@ -711,7 +748,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			processRollback(defStatus, true);
 			return;
 		}
-		// TODO: 处理事务提交
+		// TODO: 处理事务提交，这里还是比较复杂的
 		processCommit(defStatus);
 	}
 

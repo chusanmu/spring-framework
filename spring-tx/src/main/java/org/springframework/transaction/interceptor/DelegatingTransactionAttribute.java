@@ -22,6 +22,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.support.DelegatingTransactionDefinition;
 
 /**
+ * TODO: 它就是一个简单的代理，内部持有一个TransactionAttribute的引用，自己也是个抽象类，没做啥事
  * {@link TransactionAttribute} implementation that delegates all calls to a given target
  * {@link TransactionAttribute} instance. Abstract because it is meant to be subclassed,
  * with subclasses overriding specific methods that are not supposed to simply delegate

@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 事务属性源，它对TransactionAttribute进行了一层包装
  * Strategy interface used by {@link TransactionInterceptor} for metadata retrieval.
  *
  * <p>Implementations know how to source transaction attributes, whether from configuration,
@@ -36,6 +37,9 @@ import org.springframework.lang.Nullable;
 public interface TransactionAttributeSource {
 
 	/**
+	 * TODO: 通过method和目标类，拿到事务属性，比如@Transactional是标注在方法上的，可以自定义方法级别的事务属性，用它就很方便
+	 * TODO: 1.method的所属类不一定是targetClass，比如，method是代理对象的方法，它的所属类是代理出来的类
+	 * TODO: 但是 targetClass一定会有一个方法和method的方法签名一样
 	 * Return the transaction attribute for the given method,
 	 * or {@code null} if the method is non-transactional.
 	 * @param method the method to introspect

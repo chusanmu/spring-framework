@@ -24,6 +24,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.TransactionUsageException;
 
 /**
+ * TODO: 它是对接口进行了一些默认实现
  * Abstract base implementation of the
  * {@link org.springframework.transaction.TransactionStatus} interface.
  *
@@ -46,10 +47,15 @@ import org.springframework.transaction.TransactionUsageException;
  */
 public abstract class AbstractTransactionStatus implements TransactionStatus {
 
+	/* ---------------- 两个标志位 -------------- */
+
 	private boolean rollbackOnly = false;
 
 	private boolean completed = false;
 
+	/**
+	 * 一个还原点
+	 */
 	@Nullable
 	private Object savepoint;
 
@@ -58,12 +64,16 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 	// Handling of current transaction state
 	//---------------------------------------------------------------------
 
+	/**
+	 * TODO: 把该属性保存为true
+	 */
 	@Override
 	public void setRollbackOnly() {
 		this.rollbackOnly = true;
 	}
 
 	/**
+	 * TODO: 此处并不是直接读取的
 	 * Determine the rollback-only flag via checking both the local rollback-only flag
 	 * of this TransactionStatus and the global rollback-only flag of the underlying
 	 * transaction, if any.
@@ -85,6 +95,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 	}
 
 	/**
+	 * 子类DefaultTransactionStatus复写了此方法
 	 * Template method for determining the global rollback-only flag of the
 	 * underlying transaction, if any.
 	 * <p>This implementation always returns {@code false}.

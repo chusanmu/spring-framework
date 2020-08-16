@@ -34,6 +34,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.PatternMatchUtils;
 
 /**
+ * TODO: 它的使用和NameMatchTransactionAttributeSource基本相同，但是有一个不同在于: 如果使用NameMatchTransactionAttributeSource配置属性源 ，比如get*配置为执行事务，那么所有的bean的get方法都会被加上事务，这可能
+ * 就不是我们想要的了，因此对于自动代理，我们更好的选择是MethodMapTransactionAttributeSource,它需要执行事务化的完整类名和方法名
  * Simple {@link TransactionAttributeSource} implementation that
  * allows attributes to be stored per method in a {@link Map}.
  *

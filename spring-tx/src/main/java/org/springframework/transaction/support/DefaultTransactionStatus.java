@@ -50,14 +50,25 @@ import org.springframework.util.Assert;
  * @see SimpleTransactionStatus
  */
 public class DefaultTransactionStatus extends AbstractTransactionStatus {
+	/* ---------------- 它有很多的标志位，成员变量 -------------- */
+
 
 	@Nullable
 	private final Object transaction;
 
+	/**
+	 * TODO: 是否是新事务
+	 */
 	private final boolean newTransaction;
 
+	/**
+	 * TODO: 如果为给定事务打开了新的事务同步，该值为true
+	 */
 	private final boolean newSynchronization;
 
+	/**
+	 * 该事务是否标记为了只读
+	 */
 	private final boolean readOnly;
 
 	private final boolean debug;
@@ -67,6 +78,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
 
 	/**
+	 * TODO: 唯一的一个构造函数
 	 * Create a new {@code DefaultTransactionStatus} instance.
 	 * @param transaction underlying transaction object that can hold state
 	 * for the internal transaction implementation
@@ -95,6 +107,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
 
 	/**
+	 * TODO: 直接把底层事务返回
 	 * Return the underlying transaction object.
 	 * @throws IllegalStateException if no transaction is active
 	 */
@@ -154,6 +167,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	//---------------------------------------------------------------------
 
 	/**
+	 * TODO: 都由SmartTransactionObject去处理，该接口的实现类有JdbcTransactionObjectSupport和JtaTransactionObject 分布式事务
 	 * Determine the rollback-only flag via checking the transaction object, provided
 	 * that the latter implements the {@link SmartTransactionObject} interface.
 	 * <p>Will return {@code true} if the global transaction itself has been marked

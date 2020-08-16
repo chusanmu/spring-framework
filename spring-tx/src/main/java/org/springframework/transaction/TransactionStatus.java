@@ -19,6 +19,7 @@ package org.springframework.transaction;
 import java.io.Flushable;
 
 /**
+ * TODO: 它继承了自SavepointManager,所以它也会处理还原点
  * Representation of the status of a transaction.
  *
  * <p>Transactional code can use this to retrieve status information,
@@ -39,6 +40,7 @@ import java.io.Flushable;
 public interface TransactionStatus extends SavepointManager, Flushable {
 
 	/**
+	 * TODO: 判断当前的事务是否是新事务
 	 * Return whether the present transaction is new; otherwise participating
 	 * in an existing transaction, or potentially not running in an actual
 	 * transaction in the first place.
@@ -46,6 +48,7 @@ public interface TransactionStatus extends SavepointManager, Flushable {
 	boolean isNewTransaction();
 
 	/**
+	 * TODO: 判断该事务里面是否含有还原点
 	 * Return whether this transaction internally carries a savepoint,
 	 * that is, has been created as nested transaction based on a savepoint.
 	 * <p>This method is mainly here for diagnostic purposes, alongside
@@ -59,6 +62,7 @@ public interface TransactionStatus extends SavepointManager, Flushable {
 	boolean hasSavepoint();
 
 	/**
+	 * TODO: 设置事务回滚，如果设置了此值，但是你在外层try catch住不让事务回滚，就会抛出可能常见的异常，Transaction rolled back  because it has been marked as rollback-only
 	 * Set the transaction rollback-only. This instructs the transaction manager
 	 * that the only possible outcome of the transaction may be a rollback, as
 	 * alternative to throwing an exception which would in turn trigger a rollback.
@@ -78,6 +82,7 @@ public interface TransactionStatus extends SavepointManager, Flushable {
 	boolean isRollbackOnly();
 
 	/**
+	 * TODO: 将基础会话刷新到数据存储
 	 * Flush the underlying session to the datastore, if applicable:
 	 * for example, all affected Hibernate/JPA sessions.
 	 * <p>This is effectively just a hint and may be a no-op if the underlying
@@ -89,6 +94,7 @@ public interface TransactionStatus extends SavepointManager, Flushable {
 	void flush();
 
 	/**
+	 * TODO: 不管是commit或者rollback了 都算结束了
 	 * Return whether this transaction is completed, that is,
 	 * whether it has already been committed or rolled back.
 	 * @see PlatformTransactionManager#commit

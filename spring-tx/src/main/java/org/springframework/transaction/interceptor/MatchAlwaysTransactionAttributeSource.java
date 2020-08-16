@@ -24,6 +24,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * TODO: 每次调用都是返回相同的TransactionAttribute，它可以set一个TransactionAttribute作为通用的事务属性的实现的
  * Very simple implementation of TransactionAttributeSource which will always return
  * the same TransactionAttribute for all methods fed to it. The TransactionAttribute
  * may be specified, but will otherwise default to PROPAGATION_REQUIRED. This may be

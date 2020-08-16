@@ -23,6 +23,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 一样的 也是个代理抽象类，啥都没有做，内部持有一个TransactionDefinition targetDefinition的引用而已，所有的方法都是委托给了它
  * {@link TransactionDefinition} implementation that delegates all calls to a given target
  * {@link TransactionDefinition} instance. Abstract because it is meant to be subclassed,
  * with subclasses overriding specific methods that are not supposed to simply delegate

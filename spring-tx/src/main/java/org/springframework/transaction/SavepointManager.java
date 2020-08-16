@@ -17,6 +17,7 @@
 package org.springframework.transaction;
 
 /**
+ * TODO: 管理事务savepoint的编程式api接口
  * Interface that specifies an API to programmatically manage transaction
  * savepoints in a generic fashion. Extended by TransactionStatus to
  * expose savepoint management functionality for a specific transaction.

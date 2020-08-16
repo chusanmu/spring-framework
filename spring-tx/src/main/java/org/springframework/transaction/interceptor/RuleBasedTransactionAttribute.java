@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 这个在基础实现的基础上扩展了一下，扩展了一些规则
  * TransactionAttribute implementation that works out whether a given exception
  * should cause transaction rollback by applying a number of rollback rules,
  * both positive and negative. If no rules are relevant to the exception, it
@@ -52,6 +53,10 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute i
 	/** Static for optimal serializability. */
 	private static final Log logger = LogFactory.getLog(RuleBasedTransactionAttribute.class);
 
+	/**
+	 * TODO: RollbackRuleAttribute 它是个实体类，确定给定异常是否应导致回滚的规则，相当于封装了这个规则的一个实体，内部封装了一个异常，提供了一个实例变量，这个变量相当于回滚规则为只回滚RuntimeException
+	 * TODO: 维护了多个回滚规则
+	 */
 	@Nullable
 	private List<RollbackRuleAttribute> rollbackRules;
 
@@ -123,6 +128,7 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute i
 
 
 	/**
+	 * TODO: 核心逻辑，复写了父类的rollbackOn方法，也就是看看当前异常是否需要回滚
 	 * Winning rule is the shallowest rule (that is, the closest in the
 	 * inheritance hierarchy to the exception). If no rule applies (-1),
 	 * return false.
@@ -139,6 +145,7 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute i
 
 		if (this.rollbackRules != null) {
 			for (RollbackRuleAttribute rule : this.rollbackRules) {
+				// TODO: 去异常栈里面，该类型异常处于啥位置，不管异常有多深，那么如果遇上了此异常，都应该回滚喽
 				int depth = rule.getDepth(ex);
 				if (depth >= 0 && depth < deepest) {
 					deepest = depth;
@@ -156,7 +163,7 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute i
 			logger.trace("No relevant rollback rule found: applying default rules");
 			return super.rollbackOn(ex);
 		}
-
+		// TODO: 只要找到了，但是不是 NoRollbackRuleAttribute 类型就成
 		return !(winner instanceof NoRollbackRuleAttribute);
 	}
 

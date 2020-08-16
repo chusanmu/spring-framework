@@ -63,6 +63,7 @@ import org.springframework.transaction.TransactionDefinition;
 public @interface Transactional {
 
 	/**
+	 * TODO: value和TransactionManager属性，它们两个是一样的意思，当配置了多个事务管理器时，可以使用该属性指定选择哪个事务管理器
 	 * Alias for {@link #transactionManager}.
 	 * @see #transactionManager
 	 */
@@ -82,6 +83,7 @@ public @interface Transactional {
 	String transactionManager() default "";
 
 	/**
+	 * TODO: 事务的传播行为
 	 * The transaction propagation type.
 	 * <p>Defaults to {@link Propagation#REQUIRED}.
 	 * @see org.springframework.transaction.interceptor.TransactionAttribute#getPropagationBehavior()
@@ -89,6 +91,7 @@ public @interface Transactional {
 	Propagation propagation() default Propagation.REQUIRED;
 
 	/**
+	 * TODO: 事务的隔离级别
 	 * The transaction isolation level.
 	 * <p>Defaults to {@link Isolation#DEFAULT}.
 	 * <p>Exclusively designed for use with {@link Propagation#REQUIRED} or
@@ -103,6 +106,7 @@ public @interface Transactional {
 	Isolation isolation() default Isolation.DEFAULT;
 
 	/**
+	 * TODO: 事务的超时时间，默认值-1
 	 * The timeout for this transaction (in seconds).
 	 * <p>Defaults to the default timeout of the underlying transaction system.
 	 * <p>Exclusively designed for use with {@link Propagation#REQUIRED} or
@@ -113,6 +117,7 @@ public @interface Transactional {
 	int timeout() default TransactionDefinition.TIMEOUT_DEFAULT;
 
 	/**
+	 * TODO: 是否只读，默认是false 如果设置了这一个属性，最终会把Connection设置为只读，但是对数据库而言不一定这就是readOnly事务，一个数据库有多个连接，不是一个事务内，一个事务内不可能有多个连接，否则就不叫同一事务了
 	 * A boolean flag that can be set to {@code true} if the transaction is
 	 * effectively read-only, allowing for corresponding optimizations at runtime.
 	 * <p>Defaults to {@code false}.
@@ -127,6 +132,7 @@ public @interface Transactional {
 	boolean readOnly() default false;
 
 	/**
+	 * TODO: 需要回滚的异常，可以指定多个异常类型，不指定默认只回滚RuntimeException和Error
 	 * Defines zero (0) or more exception {@link Class classes}, which must be
 	 * subclasses of {@link Throwable}, indicating which exception types must cause
 	 * a transaction rollback.
@@ -163,6 +169,7 @@ public @interface Transactional {
 	String[] rollbackForClassName() default {};
 
 	/**
+	 * TODO: 不需要回滚的异常们
 	 * Defines zero (0) or more exception {@link Class Classes}, which must be
 	 * subclasses of {@link Throwable}, indicating which exception types must
 	 * <b>not</b> cause a transaction rollback.

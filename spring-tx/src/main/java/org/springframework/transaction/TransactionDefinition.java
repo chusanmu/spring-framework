@@ -21,6 +21,7 @@ import java.sql.Connection;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 事务的定义
  * Interface that defines Spring-compliant transaction properties.
  * Based on the propagation behavior definitions analogous to EJB CMT attributes.
  *

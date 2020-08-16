@@ -380,6 +380,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		// Create proxy if we have advice.
 		// TODO: getAdvicesAndAdvisorsForBean 该方法由子类去实现，如果有advice切进去了，那就给它代理
+		// TODO: 注意这里的class---》其实就是传进来的bean的直接class，有可能是代理类的class，可能是cglib代理产生或者jdk代理产生的
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		// TODO: 不为空，表示需要被代理，那就进来给它创建一个代理对象吧
 		if (specificInterceptors != DO_NOT_PROXY) {

@@ -33,6 +33,7 @@ import org.springframework.transaction.event.TransactionalEventListenerFactory;
 import org.springframework.util.CollectionUtils;
 
 /**
+ * TODO: 它实现了ImportAware接口，所以拿到了@Import所在类的所有注解信息
  * Abstract base {@code @Configuration} class providing common structure for enabling
  * Spring's annotation-driven transaction management capability.
  *
@@ -48,6 +49,8 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
 	protected AnnotationAttributes enableTx;
 
 	/**
+	 * TODO: 此处，注解的默认的事务管理器 可以通过实现接口TransactionManagementConfigure来配置
+	 * TODO: 事务管理器这个东西，一般而言，全局一个就OK了，但是spring也是提供了定制化的能力
 	 * Default transaction manager, as configured through a {@link TransactionManagementConfigurer}.
 	 */
 	@Nullable
@@ -56,19 +59,26 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		// TODO: 此处，只拿到@EnableTransactionManagement这个注解就成
 		this.enableTx = AnnotationAttributes.fromMap(
 				importMetadata.getAnnotationAttributes(EnableTransactionManagement.class.getName(), false));
+		// TODO: 如果没有这个注解 就抛出异常
 		if (this.enableTx == null) {
 			throw new IllegalArgumentException(
 					"@EnableTransactionManagement is not present on importing class " + importMetadata.getClassName());
 		}
 	}
 
+	/**
+	 * TODO: 这里和@Async的处理一样，配置文件可以实现这个接口，然后给注解驱动一个默认的事务管理器
+	 * @param configurers
+	 */
 	@Autowired(required = false)
 	void setConfigurers(Collection<TransactionManagementConfigurer> configurers) {
 		if (CollectionUtils.isEmpty(configurers)) {
 			return;
 		}
+		// TODO: 也是只能配置一个
 		if (configurers.size() > 1) {
 			throw new IllegalStateException("Only one TransactionManagementConfigurer may exist");
 		}
@@ -77,6 +87,10 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
 	}
 
 
+	/**
+	 * TODO: 注册一个监听器工厂，用以支持@TransactionEventListener注解标注的方法，来监听事务相关的事件
+	 * @return
+	 */
 	@Bean(name = TransactionManagementConfigUtils.TRANSACTIONAL_EVENT_LISTENER_FACTORY_BEAN_NAME)
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public static TransactionalEventListenerFactory transactionalEventListenerFactory() {

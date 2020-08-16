@@ -32,6 +32,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.PatternMatchUtils;
 
 /**
+ * TODO: 根据名字就能匹配，然后该事务属性就会作用在对应的方法上, 有点类似 之前 使用xml 然后进行用xml声明式控制事务的方式
  * Simple {@link TransactionAttributeSource} implementation that
  * allows attributes to be matched by registered name.
  *

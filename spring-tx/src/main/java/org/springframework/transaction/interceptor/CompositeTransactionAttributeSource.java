@@ -23,6 +23,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 它代表一种组合模式
  * Composite {@link TransactionAttributeSource} implementation that iterates
  * over a given array of {@link TransactionAttributeSource} instances.
  *
@@ -53,6 +54,13 @@ public class CompositeTransactionAttributeSource implements TransactionAttribute
 	}
 
 
+	/**
+	 * TODO: 多个TransactionAttributeSource放在一起，只要任意一个匹配上了就成，若匹配上多个，注意先后顺序，这里面是数组，会保持和放入的顺序一样
+	 * @param method the method to introspect
+	 * @param targetClass the target class (may be {@code null},
+	 * in which case the declaring class of the method must be used)
+	 * @return
+	 */
 	@Override
 	@Nullable
 	public TransactionAttribute getTransactionAttribute(Method method, @Nullable Class<?> targetClass) {

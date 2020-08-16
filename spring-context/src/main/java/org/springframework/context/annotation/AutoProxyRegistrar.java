@@ -27,6 +27,7 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
 /**
+ * TODO: 自动代理注册器， 它是个ImportBeanDefinitionRegistrar
  * Registers an auto proxy creator against the current {@link BeanDefinitionRegistry}
  * as appropriate based on an {@code @Enable*} annotation having {@code mode} and
  * {@code proxyTargetClass} attributes set to the correct values.
@@ -58,19 +59,25 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		boolean candidateFound = false;
+		// TODO: 这里拿到了所有的注解类型，而不是只拿@EnableAspectJAutoProxy这个类型的
 		Set<String> annTypes = importingClassMetadata.getAnnotationTypes();
 		for (String annType : annTypes) {
 			AnnotationAttributes candidate = AnnotationConfigUtils.attributesFor(importingClassMetadata, annType);
 			if (candidate == null) {
 				continue;
 			}
+			// TODO: 拿到注解里面的两个属性 mode, 以及 proxyTargetClass
 			Object mode = candidate.get("mode");
 			Object proxyTargetClass = candidate.get("proxyTargetClass");
+			// TODO: 如果这两个属性类型也是对的，才会进来此处
 			if (mode != null && proxyTargetClass != null && AdviceMode.class == mode.getClass() &&
 					Boolean.class == proxyTargetClass.getClass()) {
+				// TODO: 找到了候选的注解
 				candidateFound = true;
 				if (mode == AdviceMode.PROXY) {
+					// TODO: 这一步非常重要，注册自动代理创建器，注册了，这个InfrastructureAdvisorAutoProxyCreator 自动代理创建器，它内部会有一个提升
 					AopConfigUtils.registerAutoProxyCreatorIfNecessary(registry);
+					// TODO: 看是否要强制使用CGLIB的方式，注意: 如果这个属性出现多次，会进行覆盖
 					if ((Boolean) proxyTargetClass) {
 						AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
 						return;
@@ -78,6 +85,7 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 				}
 			}
 		}
+		// TODO: 如果一个都没有找到
 		if (!candidateFound && logger.isInfoEnabled()) {
 			String name = getClass().getSimpleName();
 			logger.info(String.format("%s was imported but no annotations were found " +

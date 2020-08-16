@@ -51,6 +51,9 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 	private static final Log logger = LogFactory.getLog(JdbcTransactionObjectSupport.class);
 
 
+	/**
+	 * TODO: 这是spring定义的类，持有java.sql.Connection，所以支不支持还原点还是创建还原点都是委托给它来的
+	 */
 	@Nullable
 	private ConnectionHolder connectionHolder;
 

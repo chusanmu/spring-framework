@@ -19,6 +19,7 @@ package org.springframework.transaction;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 事务管理器
  * This is the central interface in Spring's transaction infrastructure.
  * Applications can use this directly, but it is not primarily meant as API:
  * Typically, applications will work with either TransactionTemplate or

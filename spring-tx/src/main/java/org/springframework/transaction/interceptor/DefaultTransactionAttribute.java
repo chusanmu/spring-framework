@@ -21,6 +21,8 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.StringUtils;
 
 /**
+ *
+ * TODO: 默认的事务属性实现，也是最为常用的一个实现
  * Spring's common transaction attribute implementation.
  * Rolls back on runtime, but not checked, exceptions by default.
  *
@@ -117,6 +119,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
 	}
 
 	/**
+	 * TODO: 默认只回滚RuntimeException或者Error 比如OOM这种
 	 * The default behavior is as with EJB: rollback on unchecked exception
 	 * ({@link RuntimeException}), assuming an unexpected outcome outside of any
 	 * business rules. Additionally, we also attempt to rollback on {@link Error} which

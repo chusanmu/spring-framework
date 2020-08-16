@@ -19,6 +19,7 @@ package org.springframework.transaction.support;
 import org.springframework.transaction.TransactionDefinition;
 
 /**
+ * TODO: 指示资源事务，尤其是事务性资源是否准备好进行本地优化
  * Extended variant of {@link TransactionDefinition}, indicating a resource transaction
  * and in particular whether the transactional resource is ready for local optimizations.
  *
@@ -29,6 +30,7 @@ import org.springframework.transaction.TransactionDefinition;
 public interface ResourceTransactionDefinition extends TransactionDefinition {
 
 	/**
+	 * TODO: 确定事务性资源是否准备好进行本地优化
 	 * Determine whether the transactional resource is ready for local optimizations.
 	 * @return {@code true} if the resource is known to be entirely transaction-local,
 	 * not affecting any operations outside of the scope of the current transaction

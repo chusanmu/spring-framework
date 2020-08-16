@@ -35,6 +35,7 @@ import org.springframework.transaction.support.TransactionSynchronizationUtils;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 它还实现了ResouceTransactionManager接口，提供了getResourceFactory方法
  * {@link org.springframework.transaction.PlatformTransactionManager}
  * implementation for a single JDBC {@link javax.sql.DataSource}. This class is
  * capable of working in any environment with any JDBC driver, as long as the setup
@@ -113,13 +114,20 @@ import org.springframework.util.Assert;
 public class DataSourceTransactionManager extends AbstractPlatformTransactionManager
 		implements ResourceTransactionManager, InitializingBean {
 
+	/**
+	 * TODO: 它管理的就是dataSource, 而jta分布式事务，可能就是各种各样的数据源了
+	 */
 	@Nullable
 	private DataSource dataSource;
 
+	/**
+	 * TODO: 不要强制标记为readOnly
+	 */
 	private boolean enforceReadOnly = false;
 
 
 	/**
+	 * TODO: JDBC默认是允许内嵌的事务的
 	 * Create a new DataSourceTransactionManager instance.
 	 * A DataSource has to be set to be able to use it.
 	 * @see #setDataSource
@@ -135,11 +143,13 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	public DataSourceTransactionManager(DataSource dataSource) {
 		this();
 		setDataSource(dataSource);
+		// TODO: 它自己的afterPropertiesSet 也是做了一个简单的校验
 		afterPropertiesSet();
 	}
 
 
 	/**
+	 * TODO: 手动设置数据源
 	 * Set the JDBC DataSource that this instance should manage transactions for.
 	 * <p>This will typically be a locally defined DataSource, for example an
 	 * Apache Commons DBCP connection pool. Alternatively, you can also drive
@@ -158,6 +168,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	 * @see org.springframework.transaction.jta.JtaTransactionManager
 	 */
 	public void setDataSource(@Nullable DataSource dataSource) {
+		// TODO: 这步处理有必要，TransactionAwareDataSourceProxy是对dataSource的包装
 		if (dataSource instanceof TransactionAwareDataSourceProxy) {
 			// If we got a TransactionAwareDataSourceProxy, we need to perform transactions
 			// for its underlying target DataSource, else data access code won't see
@@ -229,27 +240,47 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	}
 
 
+	/**
+	 * TODO: 直接返回数据源
+	 * @return
+	 */
 	@Override
 	public Object getResourceFactory() {
 		return obtainDataSource();
 	}
 
+	/**
+	 * TODO: 这里返回的是一个DataSourceTransactionObject
+	 * @return
+	 */
 	@Override
 	protected Object doGetTransaction() {
 		DataSourceTransactionObject txObject = new DataSourceTransactionObject();
 		txObject.setSavepointAllowed(isNestedTransactionAllowed());
+		// TODO: 相当于按照线程来的
 		ConnectionHolder conHolder =
 				(ConnectionHolder) TransactionSynchronizationManager.getResource(obtainDataSource());
 		txObject.setConnectionHolder(conHolder, false);
 		return txObject;
 	}
 
+	/**
+	 * 检查当前事务是否active
+	 * @param transaction transaction object returned by doGetTransaction
+	 * @return
+	 */
 	@Override
 	protected boolean isExistingTransaction(Object transaction) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
 		return (txObject.hasConnectionHolder() && txObject.getConnectionHolder().isTransactionActive());
 	}
 
+	/**
+	 * TODO: 这是一个核心内容了
+	 * @param transaction transaction object returned by {@code doGetTransaction}
+	 * @param definition a TransactionDefinition instance, describing propagation
+	 * behavior, isolation level, read-only flag, timeout, and transaction name
+	 */
 	@Override
 	protected void doBegin(Object transaction, TransactionDefinition definition) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
@@ -258,22 +289,25 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		try {
 			if (!txObject.hasConnectionHolder() ||
 					txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
+				// TODO: 从dataSource里面获取一个连接，这个dataSource一般是有连接池的
 				Connection newCon = obtainDataSource().getConnection();
 				if (logger.isDebugEnabled()) {
 					logger.debug("Acquired Connection [" + newCon + "] for JDBC transaction");
 				}
+				// TODO: 把这个连接用ConnectionHolder包装一下
 				txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
 			}
 
 			txObject.getConnectionHolder().setSynchronizedWithTransaction(true);
 			con = txObject.getConnectionHolder().getConnection();
-
+			// TODO: 设置isReadOnly，设置隔离级别等
 			Integer previousIsolationLevel = DataSourceUtils.prepareConnectionForTransaction(con, definition);
 			txObject.setPreviousIsolationLevel(previousIsolationLevel);
 
 			// Switch to manual commit if necessary. This is very expensive in some JDBC drivers,
 			// so we don't want to do it unnecessarily (for example if we've explicitly
 			// configured the connection pool to set it already).
+			// TODO: 这里非常关键，先看看Connect是否是自动提交的，如果是 就con.setAutoCommit(false),要不然数据库默认每执行一条sql都是一个事务，那就没办法管理事务了
 			if (con.getAutoCommit()) {
 				txObject.setMustRestoreAutoCommit(true);
 				if (logger.isDebugEnabled()) {
@@ -281,7 +315,10 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 				}
 				con.setAutoCommit(false);
 			}
+			// TODO: 因此从这后面，通过此Connect执行的所有SQL语句只要没有commit就都不会提交给数据库的
 
+			// TODO: 拿到一个Statement,然后执行了一句sql，stmt.executeUpdate("set transaction read only")
+			// TODO: 所以如果仅仅只是查询，把事务的属性设置为readOnly=true, spring会帮我们进行sql优化，readOnly=true后，只能读，不能进行dml操作，只能看到设置事务前数据的变化，看不到设置事务后数据的改变
 			prepareTransactionalConnection(con, definition);
 			txObject.getConnectionHolder().setTransactionActive(true);
 
@@ -291,12 +328,14 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			}
 
 			// Bind the connection holder to the thread.
+			// TODO: 这一步，就是把当前的连接和当前的线程进行绑定
 			if (txObject.isNewConnectionHolder()) {
 				TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
 			}
 		}
 
 		catch (Throwable ex) {
+			// TODO: 有异常，如果是新创建的连接，那就释放
 			if (txObject.isNewConnectionHolder()) {
 				DataSourceUtils.releaseConnection(con, obtainDataSource());
 				txObject.setConnectionHolder(null, false);
@@ -317,6 +356,10 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		TransactionSynchronizationManager.bindResource(obtainDataSource(), suspendedResources);
 	}
 
+	/**
+	 * TODO: 真正提交事务
+	 * @param status the status representation of the transaction
+	 */
 	@Override
 	protected void doCommit(DefaultTransactionStatus status) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
@@ -325,6 +368,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			logger.debug("Committing JDBC transaction on Connection [" + con + "]");
 		}
 		try {
+			// TODO: 拿到事务对应的那个连接，然后直接提交
 			con.commit();
 		}
 		catch (SQLException ex) {
@@ -405,7 +449,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	 */
 	protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)
 			throws SQLException {
-
+		// TODO: 注意 enforceReadOnly 需要启动这个属性才能进行只读事务
 		if (isEnforceReadOnly() && definition.isReadOnly()) {
 			try (Statement stmt = con.createStatement()) {
 				stmt.executeUpdate("SET TRANSACTION READ ONLY");

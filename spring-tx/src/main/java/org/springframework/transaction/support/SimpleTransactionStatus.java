@@ -17,6 +17,7 @@
 package org.springframework.transaction.support;
 
 /**
+ * TODO: 实现很简单，就是标记下事务是否是新事务
  * A simple {@link org.springframework.transaction.TransactionStatus}
  * implementation. Derives from {@link AbstractTransactionStatus} and
  * adds an explicit {@link #isNewTransaction() "newTransaction"} flag.
@@ -38,6 +39,7 @@ public class SimpleTransactionStatus extends AbstractTransactionStatus {
 
 
 	/**
+	 * 构造函数
 	 * Create a new {@code SimpleTransactionStatus} instance,
 	 * indicating a new transaction.
 	 */
