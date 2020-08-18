@@ -72,16 +72,25 @@ class ComponentScanAnnotationParser {
 		this.registry = registry;
 	}
 
-
+	/**
+	 * TODO: 根据componentScan去扫描bean，然后返回扫描到的beanDefinition
+	 * @param componentScan
+	 * @param declaringClass
+	 * @return
+	 */
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, final String declaringClass) {
+		// TODO: 直接创建一个ClassPathBeanDefinitionScanner, 最终将使用它去扫描
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
-
+		// TODO: 拿到beanName生成器
 		Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
+		// TODO: 看看是否是默认的
 		boolean useInheritedGenerator = (BeanNameGenerator.class == generatorClass);
+		// TODO: 如果是默认的，直接把默认的拿过来，否则直接用BeanUtils进行实例化
 		scanner.setBeanNameGenerator(useInheritedGenerator ? this.beanNameGenerator :
 				BeanUtils.instantiateClass(generatorClass));
 
+		// TODO: 设置scopedProxyMode
 		ScopedProxyMode scopedProxyMode = componentScan.getEnum("scopedProxy");
 		if (scopedProxyMode != ScopedProxyMode.DEFAULT) {
 			scanner.setScopedProxyMode(scopedProxyMode);
@@ -93,6 +102,7 @@ class ComponentScanAnnotationParser {
 
 		scanner.setResourcePattern(componentScan.getString("resourcePattern"));
 
+		// TODO: 设置两个filter includeFilter以及excludeFilter
 		for (AnnotationAttributes filter : componentScan.getAnnotationArray("includeFilters")) {
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addIncludeFilter(typeFilter);
@@ -103,22 +113,27 @@ class ComponentScanAnnotationParser {
 				scanner.addExcludeFilter(typeFilter);
 			}
 		}
-
+		// TODO: 是否延迟初始化
 		boolean lazyInit = componentScan.getBoolean("lazyInit");
 		if (lazyInit) {
 			scanner.getBeanDefinitionDefaults().setLazyInit(true);
 		}
 
 		Set<String> basePackages = new LinkedHashSet<>();
+		// TODO: 需要扫描的基本的路径
 		String[] basePackagesArray = componentScan.getStringArray("basePackages");
+		// TODO: 挨个遍历
 		for (String pkg : basePackagesArray) {
+			// TODO: 使用分隔符进行分割成 String数组，体现了一定的容错性
 			String[] tokenized = StringUtils.tokenizeToStringArray(this.environment.resolvePlaceholders(pkg),
 					ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
 			Collections.addAll(basePackages, tokenized);
 		}
+		// TODO: 扫描 basePackageClasses 所在的包
 		for (Class<?> clazz : componentScan.getClassArray("basePackageClasses")) {
 			basePackages.add(ClassUtils.getPackageName(clazz));
 		}
+		// TODO: 如果basePackages为空，则扫描declaringClass所在的包
 		if (basePackages.isEmpty()) {
 			basePackages.add(ClassUtils.getPackageName(declaringClass));
 		}
@@ -129,6 +144,7 @@ class ComponentScanAnnotationParser {
 				return declaringClass.equals(className);
 			}
 		});
+		// TODO: 真正去扫描，依托于scanner去扫描
 		return scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 

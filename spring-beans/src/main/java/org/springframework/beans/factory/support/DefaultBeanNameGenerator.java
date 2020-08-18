@@ -19,6 +19,7 @@ package org.springframework.beans.factory.support;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 /**
+ * TODO: 它是用来处理xml资源文件的bean name生成器
  * Default implementation of the {@link BeanNameGenerator} interface, delegating to
  * {@link BeanDefinitionReaderUtils#generateBeanName(BeanDefinition, BeanDefinitionRegistry)}.
  *

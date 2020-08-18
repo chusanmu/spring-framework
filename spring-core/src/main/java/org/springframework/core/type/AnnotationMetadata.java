@@ -34,6 +34,7 @@ import java.util.Set;
 public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata {
 
 	/**
+	 * TODO: 返回类上面的所有注解的全限定名(set)
 	 * Get the fully qualified class names of all annotation types that
 	 * are <em>present</em> on the underlying class.
 	 * @return the annotation type names
@@ -41,6 +42,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	Set<String> getAnnotationTypes();
 
 	/**
+	 * TODO: 返回注解里面的元注解，比如 @EnableAsync 则返回 @Import
 	 * Get the fully qualified class names of all meta-annotation types that
 	 * are <em>present</em> on the given annotation type on the underlying class.
 	 * @param annotationName the fully qualified class name of the meta-annotation
@@ -50,6 +52,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	Set<String> getMetaAnnotationTypes(String annotationName);
 
 	/**
+	 * TODO: 是否存在某一个注解
 	 * Determine whether an annotation of the given type is <em>present</em> on
 	 * the underlying class.
 	 * @param annotationName the fully qualified class name of the annotation
@@ -59,6 +62,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	boolean hasAnnotation(String annotationName);
 
 	/**
+	 * TODO: 是否存在某一个元注解，就是注解里面的注解
 	 * Determine whether the underlying class has an annotation that is itself
 	 * annotated with the meta-annotation of the given type.
 	 * @param metaAnnotationName the fully qualified class name of the
@@ -68,6 +72,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	boolean hasMetaAnnotation(String metaAnnotationName);
 
 	/**
+	 * TODO: 判断类里面的方法 是否有标注的这个注解
 	 * Determine whether the underlying class has any methods that are
 	 * annotated (or meta-annotated) with the given annotation type.
 	 * @param annotationName the fully qualified class name of the annotation
@@ -76,6 +81,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	boolean hasAnnotatedMethods(String annotationName);
 
 	/**
+	 * TODO: 返回给定注解标注的所有的方法
 	 * Retrieve the method metadata for all methods that are annotated
 	 * (or meta-annotated) with the given annotation type.
 	 * <p>For any returned method, {@link MethodMetadata#isAnnotated} will

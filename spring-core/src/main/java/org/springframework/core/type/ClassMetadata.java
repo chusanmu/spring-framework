@@ -19,6 +19,7 @@ package org.springframework.core.type;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: class的元信息，存了class的一系列信息
  * Interface that defines abstract metadata of a specific class,
  * in a form that does not require that class to be loaded yet.
  *
@@ -31,38 +32,45 @@ import org.springframework.lang.Nullable;
 public interface ClassMetadata {
 
 	/**
+	 * TODO: 返回当前class的名称
 	 * Return the name of the underlying class.
 	 */
 	String getClassName();
 
 	/**
+	 * TODO: 判断当前class是否是接口
 	 * Return whether the underlying class represents an interface.
 	 */
 	boolean isInterface();
 
 	/**
+	 * TODO: 当前class是否是一个注解
 	 * Return whether the underlying class represents an annotation.
 	 * @since 4.1
 	 */
 	boolean isAnnotation();
 
 	/**
+	 * TODO: 当前class是否是抽象的
 	 * Return whether the underlying class is marked as abstract.
 	 */
 	boolean isAbstract();
 
 	/**
+	 * TODO: 判断该类 不是接口 或者 不是抽象类
 	 * Return whether the underlying class represents a concrete class,
 	 * i.e. neither an interface nor an abstract class.
 	 */
 	boolean isConcrete();
 
 	/**
+	 * TODO: 当前class是否是final的
 	 * Return whether the underlying class is marked as 'final'.
 	 */
 	boolean isFinal();
 
 	/**
+	 * TODO: 判断是嵌套类还是独立的一个类
 	 * Determine whether the underlying class is independent, i.e. whether
 	 * it is a top-level class or a nested class (static inner class) that
 	 * can be constructed independently from an enclosing class.
@@ -70,6 +78,7 @@ public interface ClassMetadata {
 	boolean isIndependent();
 
 	/**
+	 * TODO: 返回是否是个内部类 或者 是个 方法内部类，如果返回false，表示是个独立的类
 	 * Return whether the underlying class is declared within an enclosing
 	 * class (i.e. the underlying class is an inner/nested class or a
 	 * local class within a method).
@@ -86,11 +95,13 @@ public interface ClassMetadata {
 	String getEnclosingClassName();
 
 	/**
+	 * TODO: 是否有父类
 	 * Return whether the underlying class has a super class.
 	 */
 	boolean hasSuperClass();
 
 	/**
+	 * TODO: 返回父类的类名
 	 * Return the name of the super class of the underlying class,
 	 * or {@code null} if there is no super class defined.
 	 */
@@ -98,12 +109,14 @@ public interface ClassMetadata {
 	String getSuperClassName();
 
 	/**
+	 * TODO: 返回所有接口的名称
 	 * Return the names of all interfaces that the underlying class
 	 * implements, or an empty array if there are none.
 	 */
 	String[] getInterfaceNames();
 
 	/**
+	 * TODO: 返回所有内部类的名字
 	 * Return the names of all classes declared as members of the class represented by
 	 * this ClassMetadata object. This includes public, protected, default (package)
 	 * access, and private classes and interfaces declared by the class, but excludes

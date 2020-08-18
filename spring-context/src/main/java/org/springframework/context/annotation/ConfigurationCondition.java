@@ -41,6 +41,7 @@ public interface ConfigurationCondition extends Condition {
 	enum ConfigurationPhase {
 
 		/**
+		 * TODO: 这个的意思是解析配置文件的时候，判断当前配置文件是否符合条件
 		 * The {@link Condition} should be evaluated as a {@code @Configuration}
 		 * class is being parsed.
 		 * <p>If the condition does not match at this point, the {@code @Configuration}
@@ -49,6 +50,7 @@ public interface ConfigurationCondition extends Condition {
 		PARSE_CONFIGURATION,
 
 		/**
+		 * TODO: 表示注册bean的时候 去校验condition是否符合条件
 		 * The {@link Condition} should be evaluated when adding a regular
 		 * (non {@code @Configuration}) bean. The condition will not prevent
 		 * {@code @Configuration} classes from being added.

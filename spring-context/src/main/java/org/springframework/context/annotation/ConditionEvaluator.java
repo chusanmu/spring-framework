@@ -78,10 +78,12 @@ class ConditionEvaluator {
 	 * @return if the item should be skipped
 	 */
 	public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
+		// TODO: 如果当前没有Conditional
 		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
 			return false;
 		}
 
+		// TODO: 如果当前phase为null 则设置phase，然后递归调用
 		if (phase == null) {
 			if (metadata instanceof AnnotationMetadata &&
 					ConfigurationClassUtils.isConfigurationCandidate((AnnotationMetadata) metadata)) {
@@ -91,20 +93,24 @@ class ConditionEvaluator {
 		}
 
 		List<Condition> conditions = new ArrayList<>();
+		// TODO: 把所有的condition class拿到，可能会有多个Conditional注解，然后每个conditional注解中又有多个conditionClass类
 		for (String[] conditionClasses : getConditionClasses(metadata)) {
+			// TODO: 挨个遍历
 			for (String conditionClass : conditionClasses) {
 				Condition condition = getCondition(conditionClass, this.context.getClassLoader());
+				// TODO: 加载进来 然后放到conditions中
 				conditions.add(condition);
 			}
 		}
-
+		// TODO: 排序
 		AnnotationAwareOrderComparator.sort(conditions);
-
+		// TODO: 然后挨个遍历
 		for (Condition condition : conditions) {
 			ConfigurationPhase requiredPhase = null;
 			if (condition instanceof ConfigurationCondition) {
 				requiredPhase = ((ConfigurationCondition) condition).getConfigurationPhase();
 			}
+			// TODO: 如果设置了 phase，找到configurationCondition中的phase相等的 然后 判断matches方法，决定是否 matches
 			if ((requiredPhase == null || requiredPhase == phase) && !condition.matches(this.context, metadata)) {
 				return true;
 			}
@@ -121,6 +127,7 @@ class ConditionEvaluator {
 	}
 
 	private Condition getCondition(String conditionClassName, @Nullable ClassLoader classloader) {
+		// TODO: 加载该conditionClassName 的 class
 		Class<?> conditionClass = ClassUtils.resolveClassName(conditionClassName, classloader);
 		return (Condition) BeanUtils.instantiateClass(conditionClass);
 	}

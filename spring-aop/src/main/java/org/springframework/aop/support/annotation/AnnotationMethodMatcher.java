@@ -69,14 +69,18 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
 
 	@Override
 	public boolean matches(Method method, Class<?> targetClass) {
+		// TODO: 如果是个接口上的方法，如果存在注解，则返回true
 		if (matchesMethod(method)) {
 			return true;
 		}
 		// Proxy classes never have annotations on their redeclared methods.
+		// TODO: 如果是个JDK代理 就返回false了, 如果你接口上没有这个注解，那JDK产生的代理类上肯定也没有这个注解喽, 所以直接返回false吧
 		if (Proxy.isProxyClass(targetClass)) {
 			return false;
 		}
 		// The method may be on an interface, so let's check on the target class as well.
+		// TODO: 如果上面不返回false, 这里拿到的specificMethod就是代理类上的method
+		// TODO: 该方法可能在一个接口上，所以再去检查下目标类
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 		return (specificMethod != method && matchesMethod(specificMethod));
 	}

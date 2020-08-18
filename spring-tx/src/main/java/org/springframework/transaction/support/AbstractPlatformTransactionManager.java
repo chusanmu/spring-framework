@@ -791,6 +791,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 				// Throw UnexpectedRollbackException if we have a global rollback-only
 				// marker but still didn't get a corresponding exception from commit.
+				// TODO: 准备提交事务，但是事务标记被标记了回滚 导致触发异常
 				if (unexpectedRollback) {
 					throw new UnexpectedRollbackException(
 							"Transaction silently rolled back because it has been marked as rollback-only");

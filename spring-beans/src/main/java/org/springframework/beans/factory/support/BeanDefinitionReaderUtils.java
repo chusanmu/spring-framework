@@ -103,27 +103,32 @@ public abstract class BeanDefinitionReaderUtils {
 	public static String generateBeanName(
 			BeanDefinition definition, BeanDefinitionRegistry registry, boolean isInnerBean)
 			throws BeanDefinitionStoreException {
-
+		// TODO: 拿到bean定义信息里面的beanClassName全类名
 		String generatedBeanName = definition.getBeanClassName();
 		if (generatedBeanName == null) {
+			// TODO: 若没有配置本类全类名，去拿到父类的全类名 + $child 表示自己
 			if (definition.getParentName() != null) {
 				generatedBeanName = definition.getParentName() + "$child";
 			}
+			// TODO: 工厂bean的，就用方法的名字 + $created
 			else if (definition.getFactoryBeanName() != null) {
 				generatedBeanName = definition.getFactoryBeanName() + "$created";
 			}
 		}
+		// TODO: 若一个都没找到，则抛出错误
 		if (!StringUtils.hasText(generatedBeanName)) {
 			throw new BeanDefinitionStoreException("Unnamed bean definition specifies neither " +
 					"'class' nor 'parent' nor 'factory-bean' - can't generate bean name");
 		}
 
 		String id = generatedBeanName;
+		// TODO: isInnerBean 为 true, 表示你是内部类的话，名字又增加了如下变化
 		if (isInnerBean) {
 			// Inner bean: generate identity hashcode suffix.
 			id = generatedBeanName + GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(definition);
 		}
 		else {
+			// TODO: 如果不是内部类，绝大多数情况下都如此，表示最外层的bean，也就是说非内部类，这里生成绝对唯一的beanName
 			// Top-level bean: use plain class name with unique suffix if necessary.
 			return uniqueBeanName(generatedBeanName, registry);
 		}

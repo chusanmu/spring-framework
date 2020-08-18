@@ -300,6 +300,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					// TODO: 注意这里已经把bean注册进去工厂了，所以doScan方法不接受返回值，也是没有任何问题的
 					beanDefinitions.add(definitionHolder);
+					// TODO: 将beanDefinition 注册到bean工厂
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}

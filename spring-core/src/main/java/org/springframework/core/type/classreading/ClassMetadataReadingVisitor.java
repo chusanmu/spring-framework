@@ -77,6 +77,7 @@ class ClassMetadataReadingVisitor extends ClassVisitor implements ClassMetadata 
 	public void visit(
 			int version, int access, String name, String signature, @Nullable String supername, String[] interfaces) {
 
+		// TODO: 直接初始化一系列的值
 		this.className = ClassUtils.convertResourcePathToClassName(name);
 		this.isInterface = ((access & Opcodes.ACC_INTERFACE) != 0);
 		this.isAnnotation = ((access & Opcodes.ACC_ANNOTATION) != 0);

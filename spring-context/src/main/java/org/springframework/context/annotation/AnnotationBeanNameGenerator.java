@@ -63,12 +63,18 @@ import org.springframework.util.StringUtils;
  */
 public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
+	/**
+	 * 支持的最基本的注解，包含其派生注解
+	 */
 	private static final String COMPONENT_ANNOTATION_CLASSNAME = "org.springframework.stereotype.Component";
 
 
 	@Override
 	public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+		// TODO: 判断是否是AnnotatedBeanDefinition的子类，AnnotatedBeanDefinition是BeanDefinition的一个子类
 		if (definition instanceof AnnotatedBeanDefinition) {
+			// TODO: 就是看你的注解有没有标注value值，若指定了 就以指定的为准
+			// TODO: 此处若配置了多个注解，且都指定了value值，但发现value值有不同的，就抛出异常
 			String beanName = determineBeanNameFromAnnotation((AnnotatedBeanDefinition) definition);
 			if (StringUtils.hasText(beanName)) {
 				// Explicit bean name found.
@@ -76,6 +82,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 			}
 		}
 		// Fallback: generate a unique default bean name.
+		// TODO: 若没指定，此处就交给生成器来生成吧
 		return buildDefaultBeanName(definition, registry);
 	}
 
@@ -149,9 +156,11 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 	 * @return the default bean name (never {@code null})
 	 */
 	protected String buildDefaultBeanName(BeanDefinition definition) {
+		// TODO: 这里是先拿到ClassUtils.getShortName()短名称
 		String beanClassName = definition.getBeanClassName();
 		Assert.state(beanClassName != null, "No bean class name set");
 		String shortClassName = ClassUtils.getShortName(beanClassName);
+		// TODO: 调用java.beans.Introspector 的方法 首字母小写
 		return Introspector.decapitalize(shortClassName);
 	}
 

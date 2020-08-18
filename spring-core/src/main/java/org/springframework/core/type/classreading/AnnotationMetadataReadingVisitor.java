@@ -37,6 +37,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 /**
+ * TODO: 直接利用ASM 从字节码层面 去解析一个类
  * ASM class visitor which looks for the class name and implemented types as
  * well as for the annotations defined on the class, exposing them through
  * the {@link org.springframework.core.type.AnnotationMetadata} interface.

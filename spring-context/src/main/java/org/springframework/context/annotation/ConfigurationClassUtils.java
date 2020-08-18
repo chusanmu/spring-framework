@@ -73,6 +73,7 @@ abstract class ConfigurationClassUtils {
 
 
 	/**
+	 * TODO: 检查 然后 判断是否是合法的ConfigurationClass
 	 * Check whether the given bean definition is a candidate for a configuration class
 	 * (or a nested component class declared within a configuration/component class,
 	 * to be auto-registered as well), and mark it accordingly.
@@ -84,9 +85,12 @@ abstract class ConfigurationClassUtils {
 			BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
 
 		String className = beanDef.getBeanClassName();
+		// TODO: 如果你的className为null，就返回false
 		if (className == null || beanDef.getFactoryMethodName() != null) {
 			return false;
 		}
+
+		/* ---------------- 初始化AnnotationMetadata -------------- */
 
 		AnnotationMetadata metadata;
 		if (beanDef instanceof AnnotatedBeanDefinition &&
@@ -113,23 +117,30 @@ abstract class ConfigurationClassUtils {
 				return false;
 			}
 		}
-
+		/**
+		 * TODO: 校验配置文件的模式，如果是full模式，则设置属性configurationClass 为full
+		 */
 		if (isFullConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		/**
+		 * TODO: 如果是lite模式，则设置configurationClass为lite
+		 */
 		else if (isLiteConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
+		// TODO: 否则 返回false
 		else {
 			return false;
 		}
 
 		// It's a full or lite configuration candidate... Let's determine the order value, if any.
+		// TODO: 得到它的order,然后设置进去
 		Integer order = getOrder(metadata);
 		if (order != null) {
 			beanDef.setAttribute(ORDER_ATTRIBUTE, order);
 		}
-
+		// TODO: 最后返回true, 表示它是一个合法的@Configuration
 		return true;
 	}
 

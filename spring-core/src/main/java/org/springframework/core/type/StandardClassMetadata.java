@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 存储着class的元信息
  * {@link ClassMetadata} implementation that uses standard reflection
  * to introspect a given {@code Class}.
  *
@@ -32,6 +33,9 @@ import org.springframework.util.StringUtils;
  */
 public class StandardClassMetadata implements ClassMetadata {
 
+	/**
+	 * TODO: 内部持有的class
+	 */
 	private final Class<?> introspectedClass;
 
 
@@ -54,36 +58,43 @@ public class StandardClassMetadata implements ClassMetadata {
 
 	@Override
 	public String getClassName() {
+		// TODO: 返回class名称
 		return this.introspectedClass.getName();
 	}
 
 	@Override
 	public boolean isInterface() {
+		// TODO: 判断是不是一个接口
 		return this.introspectedClass.isInterface();
 	}
 
 	@Override
 	public boolean isAnnotation() {
+		// TODO: 判断是不是一个注解
 		return this.introspectedClass.isAnnotation();
 	}
 
 	@Override
 	public boolean isAbstract() {
+		// TODO: 直接判断是不是一个抽象类
 		return Modifier.isAbstract(this.introspectedClass.getModifiers());
 	}
 
 	@Override
 	public boolean isConcrete() {
+		// TODO: 如果是接口或者抽象类 就返回false
 		return !(isInterface() || isAbstract());
 	}
 
 	@Override
 	public boolean isFinal() {
+		// TODO: 判断是否是final类型的
 		return Modifier.isFinal(this.introspectedClass.getModifiers());
 	}
 
 	@Override
 	public boolean isIndependent() {
+		// TODO: 如果是个静态内部类返回true, 否则其他的内部类 或者方法中的类返回false
 		return (!hasEnclosingClass() ||
 				(this.introspectedClass.getDeclaringClass() != null &&
 						Modifier.isStatic(this.introspectedClass.getModifiers())));
@@ -97,12 +108,14 @@ public class StandardClassMetadata implements ClassMetadata {
 	@Override
 	@Nullable
 	public String getEnclosingClassName() {
+		// TODO: 获得外面独立类的 全限定名
 		Class<?> enclosingClass = this.introspectedClass.getEnclosingClass();
 		return (enclosingClass != null ? enclosingClass.getName() : null);
 	}
 
 	@Override
 	public boolean hasSuperClass() {
+		// TODO: 判断superClass是否为null
 		return (this.introspectedClass.getSuperclass() != null);
 	}
 
@@ -115,6 +128,7 @@ public class StandardClassMetadata implements ClassMetadata {
 
 	@Override
 	public String[] getInterfaceNames() {
+		// TODO: 获得接口的名称
 		Class<?>[] ifcs = this.introspectedClass.getInterfaces();
 		String[] ifcNames = new String[ifcs.length];
 		for (int i = 0; i < ifcs.length; i++) {
@@ -125,6 +139,7 @@ public class StandardClassMetadata implements ClassMetadata {
 
 	@Override
 	public String[] getMemberClassNames() {
+		// TODO: 获得所有内部类的名称
 		LinkedHashSet<String> memberClassNames = new LinkedHashSet<>(4);
 		for (Class<?> nestedClass : this.introspectedClass.getDeclaredClasses()) {
 			memberClassNames.add(nestedClass.getName());

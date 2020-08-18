@@ -248,11 +248,13 @@ public abstract class AopUtils {
 		}
 		// TODO: 存目标类，如果目标class是一个代理 是经过代理的
 		Set<Class<?>> classes = new LinkedHashSet<>();
+		// TODO: 如果不是JDK代理 则把它的userClass拿到，因为JDK代理可能是没有userClass的
 		if (!Proxy.isProxyClass(targetClass)) {
 			// TODO: 把代理类拿出来
 			classes.add(ClassUtils.getUserClass(targetClass));
 		}
 		// TODO: 再去把它的接口拿出来，所有的接口拿出来
+		// TODO: 注意，此处targetClass如果是个JDK动态代理生成的代理类，那么会把它所有的实现的接口拿到 放到classes中去
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
 		// TODO: 遍历所有的class, 包括它所实现的一些接口，然后再把里面所有，也就是它本类的所有方法拿到
 		for (Class<?> clazz : classes) {
@@ -261,6 +263,7 @@ public abstract class AopUtils {
 				// TODO: 逐个方法去进行匹配
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
+						// TODO: 一般情况下会走这个方法
 						methodMatcher.matches(method, targetClass)) {
 					return true;
 				}
