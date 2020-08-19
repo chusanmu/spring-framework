@@ -160,12 +160,14 @@ class ConfigurationClassParser {
 
 
 	public void parse(Set<BeanDefinitionHolder> configCandidates) {
+		// TODO: 遍历每一个Configuration beanDefinition
 		for (BeanDefinitionHolder holder : configCandidates) {
 			BeanDefinition bd = holder.getBeanDefinition();
 			try {
 				// TODO: 我们使用的注解驱动，所以会到这个parse进行处理，其实内部调用的都是processConfigurationClass进行解析的
 				if (bd instanceof AnnotatedBeanDefinition) {
 					// TODO: 但凡有注解标注的，都会走这里来解析
+					// TODO: 把AnnotatedBeanDefinition中的类元信息拿出来
 					parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());
 				}
 				else if (bd instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) bd).hasBeanClass()) {
@@ -198,6 +200,7 @@ class ConfigurationClassParser {
 	}
 
 	protected final void parse(AnnotationMetadata metadata, String beanName) throws IOException {
+		// TODO: 统一封装成了一个ConfigurationClass, 然后再去处理
 		processConfigurationClass(new ConfigurationClass(metadata, beanName));
 	}
 
@@ -206,7 +209,9 @@ class ConfigurationClassParser {
 	 * @see ConfigurationClass#validate
 	 */
 	public void validate() {
+		// TODO: 会校验每个@Configuration配置文件
 		for (ConfigurationClass configClass : this.configurationClasses.keySet()) {
+			// TODO: 每个配置文件都去校验下
 			configClass.validate(this.problemReporter);
 		}
 	}
@@ -220,6 +225,7 @@ class ConfigurationClassParser {
 		// TODO: ConfigurationCondition 继承自 Condition接口 ConfigurationPhase 枚举类型的作用: ConfigurationPhase的作用就是根据条件来判断是否加载这个配置类
 		// TODO: 两个值PARSE_CONFIGURATION 若条件不匹配，就不加载此@Configuration
 		// TODO: REGISTER_BEAN: 无论如何，所有@Configurations都将被解析
+		// TODO: 这里只去判断condition,不会去判断@Configuration注解
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
@@ -343,14 +349,15 @@ class ConfigurationClassParser {
 		}
 
 		// Process individual @Bean methods
-		// TODO: 处理bean方法
+		// TODO: 处理bean方法， 拿到所有带有@Bean注解的方法
 		Set<MethodMetadata> beanMethods = retrieveBeanMethodMetadata(sourceClass);
 		for (MethodMetadata methodMetadata : beanMethods) {
+			// TODO: 把它包成一个BeanMethod 然后放进configClass中
 			configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass));
 		}
 
 		// Process default methods on interfaces
-		// TODO: 处理接口中的所有的抽象方法
+		// TODO: 处理接口中的所有的抽象方法，从这里可以看出，接口中的default方法 如果加了@Bean也是会被注册进来的
 		processInterfaces(configClass, sourceClass);
 
 		// Process superclass, if any
@@ -359,7 +366,9 @@ class ConfigurationClassParser {
 			String superclass = sourceClass.getMetadata().getSuperClassName();
 			if (superclass != null && !superclass.startsWith("java") &&
 					!this.knownSuperclasses.containsKey(superclass)) {
+				// TODO: 其实这地方做了个缓存吧
 				this.knownSuperclasses.put(superclass, configClass);
+				// TODO: 返回它的父类，会接着递归
 				// Superclass found, return its annotation metadata and recurse
 				return sourceClass.getSuperClass();
 			}
@@ -417,44 +426,59 @@ class ConfigurationClassParser {
 	 * Register default methods on interfaces implemented by the configuration class.
 	 */
 	private void processInterfaces(ConfigurationClass configClass, SourceClass sourceClass) throws IOException {
+		// TODO: 拿到这个类的所有的接口
 		for (SourceClass ifc : sourceClass.getInterfaces()) {
+			// TODO: 拿到接口中所有声明的 带有 @Bean的方法
 			Set<MethodMetadata> beanMethods = retrieveBeanMethodMetadata(ifc);
 			for (MethodMetadata methodMetadata : beanMethods) {
+				// TODO: 挨个遍历，只要这个method不是抽象的就加进来
 				if (!methodMetadata.isAbstract()) {
 					// A default method or other concrete method on a Java 8+ interface...
 					configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass));
 				}
 			}
+			// TODO: 然后还会递归接着调用，相当于不断的拿它的接口
 			processInterfaces(configClass, ifc);
 		}
 	}
 
 	/**
+	 * TODO: 此方法主要是搜寻配置文件中的@Bean标注的方法
 	 * Retrieve the metadata for all <code>@Bean</code> methods.
 	 */
 	private Set<MethodMetadata> retrieveBeanMethodMetadata(SourceClass sourceClass) {
+		// TODO: 拿到类的注解元信息
 		AnnotationMetadata original = sourceClass.getMetadata();
+		// TODO: 把它所有标注@Bean注解的方法拿到, AnnotationMetadata有两种实现类型，一种是StandardAnnotationMetadata，然后另一种是AnnotationMetadataReadingVisitor
 		Set<MethodMetadata> beanMethods = original.getAnnotatedMethods(Bean.class.getName());
+		// TODO: 如果是StandardAnnotationMetadata 这种类型的，再使用ASM的方式再找一遍，关于找两遍，我个人以为，一次是编译时，一次是运行时，其实还是以运行时的为准，也就是以ASM的方式为准
 		if (beanMethods.size() > 1 && original instanceof StandardAnnotationMetadata) {
 			// Try reading the class file via ASM for deterministic declaration order...
 			// Unfortunately, the JVM's standard reflection returns methods in arbitrary
 			// order, even between different runs of the same application on the same JVM.
 			try {
+				// TODO: 通过类名 直接使用ASM的方式来拿到 AnnotationMetadata
 				AnnotationMetadata asm =
 						this.metadataReaderFactory.getMetadataReader(original.getClassName()).getAnnotationMetadata();
+				// TODO: 通过AnnotationMetadataReadingVisitor 来拿到标注有@Bean注解方法的元信息
 				Set<MethodMetadata> asmMethods = asm.getAnnotatedMethods(Bean.class.getName());
+				// TODO: 如果asmMethods 拿到的方法个数 大于了 beanMethods, 然后进行取一个交集
 				if (asmMethods.size() >= beanMethods.size()) {
 					Set<MethodMetadata> selectedMethods = new LinkedHashSet<>(asmMethods.size());
+					// TODO: 双重遍历，取方法名称相同的交集
 					for (MethodMetadata asmMethod : asmMethods) {
 						for (MethodMetadata beanMethod : beanMethods) {
 							if (beanMethod.getMethodName().equals(asmMethod.getMethodName())) {
 								selectedMethods.add(beanMethod);
+								// TODO: asmMethod中的每一个方法 找到一个相同的方法 之后，就进行break掉，退出。
 								break;
 							}
 						}
 					}
+					// TODO: 如果相等了，说明以ASM的方式找的和以类的信息方式找到的一样，其实还是优先以ASM 运行时的为准
 					if (selectedMethods.size() == beanMethods.size()) {
 						// All reflection-detected methods found in ASM method set -> proceed
+						// TODO: 如果相等 表示在ASM方法结果集中 找到了，然后把最终找到的赋值给beanMethods
 						beanMethods = selectedMethods;
 					}
 				}
@@ -664,7 +688,7 @@ class ConfigurationClassParser {
 						// TODO: 之后用来判断 循环import问题
 						this.importStack.registerImport(
 								currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
-						// TODO: 调用processConfigurationClass 去处理
+						// TODO: 调用processConfigurationClass 去处理，从这里可以看到，即使使用@Import 导入的普通类 也会被当做一个Configuration配置类去处理
 						processConfigurationClass(candidate.asConfigClass(configClass));
 					}
 				}

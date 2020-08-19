@@ -56,6 +56,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 						"Either an interface or a target is required for proxy creation.");
 			}
 			// TODO: 倘若目标类本身就是个接口，或者它已经是个JDK的代理类，Proxy的子类，所有的JDK代理类都是此类的子类，那还是用JDK的动态代理吧
+			// TODO: 这里可以看到，有时候虽然我们把proxyTargetClass为true，但是目标类呢是个接口，或者它本身就是个JDK代理类，好吧，那还是继续用JDK代理
 			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
 				return new JdkDynamicAopProxy(config);
 			}
@@ -75,6 +76,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 	 * (or no proxy interfaces specified at all).
 	 */
 	private boolean hasNoUserSuppliedProxyInterfaces(AdvisedSupport config) {
+		// TODO: 拿到所有的接口
 		Class<?>[] ifcs = config.getProxiedInterfaces();
 		return (ifcs.length == 0 || (ifcs.length == 1 && SpringProxy.class.isAssignableFrom(ifcs[0])));
 	}

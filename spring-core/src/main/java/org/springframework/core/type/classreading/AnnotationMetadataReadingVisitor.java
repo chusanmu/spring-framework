@@ -177,6 +177,12 @@ public class AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisito
 		return false;
 	}
 
+	/**
+	 * TODO: 获取标注有 annotationName 注解名称的 方法
+	 * @param annotationName the fully qualified class name of the annotation
+	 * type to look for
+	 * @return
+	 */
 	@Override
 	public Set<MethodMetadata> getAnnotatedMethods(String annotationName) {
 		Set<MethodMetadata> annotatedMethods = new LinkedHashSet<>(4);

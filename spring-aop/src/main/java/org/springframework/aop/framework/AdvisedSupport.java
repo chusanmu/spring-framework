@@ -484,8 +484,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 * @return a List of MethodInterceptors (may also include InterceptorAndDynamicMethodMatchers)
 	 */
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(Method method, @Nullable Class<?> targetClass) {
-		// TODO: 以这个method生成一个key,准备缓存
+		// TODO: 以这个method生成一个key,准备缓存，因为每次方法调用，都会执行这段代码去寻找执行链，所以进行了一个缓存
 		MethodCacheKey cacheKey = new MethodCacheKey(method);
+		// TODO: 这里的methodCache是concurrentHashMap, 注意线程安全问题，这里不需要保证原子性，原因是覆盖就覆盖了，反正每个方法的执行链都是一样的，只是进行一个缓存而已
 		List<Object> cached = this.methodCache.get(cacheKey);
 		if (cached == null) {
 			// TODO: 这个方法最终在DefaultAdvisorChainFactory#getInterceptorAndDynamicInterceptionAdvice
@@ -495,6 +496,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 			// TODO: 为了提高效率，相当于把该方法对应的拦截器们都缓存起来，加速后续调用的速度
 			this.methodCache.put(cacheKey, cached);
 		}
+		// TODO: 返回它的执行链
 		return cached;
 	}
 

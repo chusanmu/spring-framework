@@ -334,7 +334,7 @@ public abstract class AopUtils {
 		}
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
 		for (Advisor candidate : candidateAdvisors) {
-			// TODO: 已经处理过了，就不再去处理了
+			// TODO: IntroductionAdvisor类型的 已经处理过了，就不再去处理了
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
 				continue;

@@ -153,15 +153,20 @@ class ConfigurationClassBeanDefinitionReader {
 	}
 
 	/**
+	 * TODO: 去注册 @Import 导进来的BeanDefinition
 	 * Register the {@link Configuration} class itself as a bean definition.
 	 */
 	private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
+		// TODO: 把它的metadata 拿到
 		AnnotationMetadata metadata = configClass.getMetadata();
+		// TODO: 创建一个AnnotatedGenericBeanDefinition
 		AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
 
 		ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
 		configBeanDef.setScope(scopeMetadata.getScopeName());
+		// TODO: 生成bean的名称
 		String configBeanName = this.importBeanNameGenerator.generateBeanName(configBeanDef, this.registry);
+		// TODO: 处理beanDefinition默认的一些属性
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
 
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
@@ -175,20 +180,25 @@ class ConfigurationClassBeanDefinitionReader {
 	}
 
 	/**
+	 * TODO: 读取BeanMethod，然后通过register注册beanDefinition进容器
 	 * Read the given {@link BeanMethod}, registering bean definitions
 	 * with the BeanDefinitionRegistry based on its contents.
 	 */
 	@SuppressWarnings("deprecation")  // for RequiredAnnotationBeanPostProcessor.SKIP_REQUIRED_CHECK_ATTRIBUTE
 	private void loadBeanDefinitionsForBeanMethod(BeanMethod beanMethod) {
+		// TODO: 把当前method的configClass拿到，主要是一些元信息
 		ConfigurationClass configClass = beanMethod.getConfigurationClass();
 		MethodMetadata metadata = beanMethod.getMetadata();
 		String methodName = metadata.getMethodName();
 
 		// Do we need to mark the bean as skipped by its condition?
+		// TODO: 判断当前@BeanMethod是否应该跳过，阶段是，在注册Bean的时候 去生效 然后判断
 		if (this.conditionEvaluator.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
+			// TODO: 如果需要跳过，则加到skippedBeanMethods去
 			configClass.skippedBeanMethods.add(methodName);
 			return;
 		}
+		// TODO: 这里不太理解，既然判断完是否跳过了，然后直接return了，为啥还要再判断呢？不是很理解？感觉是多余的
 		if (configClass.skippedBeanMethods.contains(methodName)) {
 			return;
 		}

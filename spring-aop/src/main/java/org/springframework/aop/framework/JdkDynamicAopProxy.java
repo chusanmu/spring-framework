@@ -192,11 +192,13 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			// TODO: DecoratingProxy的方法和Advised接口的方法，都是最终调用了config,也就是this.advised去执行的
 			else if (method.getDeclaringClass() == DecoratingProxy.class) {
 				// There is only getDecoratedClass() declared -> dispatch to proxy config.
+				// TODO: 直接把最终要执行的targetClass返回了
 				return AopProxyUtils.ultimateTargetClass(this.advised);
 			}
 			else if (!this.advised.opaque && method.getDeclaringClass().isInterface() &&
 					method.getDeclaringClass().isAssignableFrom(Advised.class)) {
 				// Service invocations on ProxyConfig with the proxy config...
+				// TODO: 如果调用的方法是Advised里面的方法，那就不代理了，直接去执行吧
 				return AopUtils.invokeJoinpointUsingReflection(this.advised, method, args);
 			}
 			// TODO: 最终方法的返回值
@@ -204,6 +206,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			// TODO: 是否暴露代理对象，默认false，可以配置为true
 			if (this.advised.exposeProxy) {
 				// Make invocation available if necessary.
+				// TODO: 如果暴露的话，就把当前代理对象暴露给AopContext, 内部是用ThreadLocal存的
 				oldProxy = AopContext.setCurrentProxy(proxy);
 				setProxyContext = true;
 			}
@@ -212,14 +215,16 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			// in case it comes from a pool.
 			// TODO: 通过目标源获取目标对象
 			target = targetSource.getTarget();
+			// TODO: 拿到targetClass，注意，这里的targetClass是有可能为代理类的，比如二次代理的情况
 			Class<?> targetClass = (target != null ? target.getClass() : null);
 
 			// Get the interception chain for this method.
-			// TODO: 会根据切点表达式去匹配这个方法，因此其实每个方法都会进入这里，只是有很多的chain是empty而已
+			// TODO: 会根据切点表达式去匹配这个方法，因此其实每个方法都会进入这里，只是有很多的chain是empty而已, 根据method和targetClass去找具体方法的执行链，注意这里的targetClass是可能是一个代理类的
 			List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 
 			// Check whether we have any advice. If we don't, we can fallback on direct
 			// reflective invocation of the target, and avoid creating a MethodInvocation.
+			// TODO: 如果chain为空，表示，没找到 对于该method的执行链
 			if (chain.isEmpty()) {
 				// We can skip creating a MethodInvocation: just invoke the target directly
 				// Note that the final invoker must be an InvokerInterceptor so we know it does

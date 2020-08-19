@@ -220,12 +220,15 @@ final class ConfigurationClass {
 
 	public void validate(ProblemReporter problemReporter) {
 		// A configuration class may not be final (CGLIB limitation)
+		// TODO: Configuration配置类，不能为final类型的，这里原因也说的很清楚了，如果一旦是final的，就无法进行使用CGLIB进行代理了
 		if (getMetadata().isAnnotated(Configuration.class.getName())) {
+			// TODO: 判断是否是final类型的
 			if (getMetadata().isFinal()) {
 				problemReporter.error(new FinalConfigurationProblem());
 			}
 		}
 
+		// TODO: 哈哈，把所有的beanMethods也拿出来，进行校验
 		for (BeanMethod beanMethod : this.beanMethods) {
 			beanMethod.validate(problemReporter);
 		}
