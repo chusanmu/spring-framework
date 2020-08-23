@@ -17,6 +17,7 @@
 package org.springframework.core.annotation;
 
 /**
+ * TODO: 标记接口，表示 注解被动态代理了
  * Marker interface implemented by synthesized annotation proxies.
  *
  * <p>Used to detect whether an annotation has already been synthesized.

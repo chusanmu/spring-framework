@@ -79,12 +79,13 @@ public class AnnotationUtilsTests {
 	// @since 4.2
 	@Test
 	public void findMethodAnnotationWithAnnotationOnMethodInInterface() throws Exception {
+		// TODO: fromInterfaceImplementedByRoot 是接口中的方法
 		Method m = Leaf.class.getMethod("fromInterfaceImplementedByRoot");
 		// @Order is not @Inherited
 		assertNull(m.getAnnotation(Order.class));
-		// getAnnotation() does not search on interfaces
+		// getAnnotation() does not search on interfaces getAnnotation 不会搜索接口中的方法，所以返回为null
 		assertNull(getAnnotation(m, Order.class));
-		// findAnnotation() does search on interfaces
+		// findAnnotation() does search on interfaces, findAnnotation 会去接口中搜索
 		assertNotNull(findAnnotation(m, Order.class));
 	}
 

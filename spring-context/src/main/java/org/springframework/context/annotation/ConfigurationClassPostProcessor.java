@@ -344,7 +344,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			// TODO: 调用了ConfigurationClassBeanDefinitionReader的loadBeanDefinitions加载配置文件里面的@Bean/@Import们，它决定了向容器里面注册bean定义信息的顺序问题
 			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);
-
+			// TODO: 处理完了 直接清空
 			candidates.clear();
 			// TODO: 如果registry中注册的bean数量，大于之前获得的数量，则意味着在解析过程中又新加了很多，那么就需要对其进行继续解析了
 			if (registry.getBeanDefinitionCount() > candidateNames.length) {
@@ -358,6 +358,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					// TODO: 若老的 oldCandidateNames不包含，也就是说，你是新进来的候选的bean定义们，那就进一步的进行一个处理
 					if (!oldCandidateNames.contains(candidateName)) {
 						BeanDefinition bd = registry.getBeanDefinition(candidateName);
+						// TODO: 判断是不是一个合法的配置文件
 						if (ConfigurationClassUtils.checkConfigurationClassCandidate(bd, this.metadataReaderFactory) &&
 								!alreadyParsedClasses.contains(bd.getBeanClassName())) {
 							candidates.add(new BeanDefinitionHolder(bd, candidateName));
@@ -367,9 +368,11 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 				candidateNames = newCandidateNames;
 			}
 		}
+		// TODO: 如果它不为空，就一直处理
 		while (!candidates.isEmpty());
 
 		// Register the ImportRegistry as a bean in order to support ImportAware @Configuration classes
+		// TODO: 如果当前容器中不存在IMPORT_REGISTRY_BEAN_NAME，则添加一个进来
 		if (sbr != null && !sbr.containsSingleton(IMPORT_REGISTRY_BEAN_NAME)) {
 			sbr.registerSingleton(IMPORT_REGISTRY_BEAN_NAME, parser.getImportRegistry());
 		}

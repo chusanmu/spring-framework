@@ -73,6 +73,7 @@ class SynthesizedAnnotationInvocationHandler implements InvocationHandler {
 		if (AnnotationUtils.isAnnotationTypeMethod(method)) {
 			return annotationType();
 		}
+		// TODO: 到这 如果不是属性方法则 报错
 		if (!AnnotationUtils.isAttributeMethod(method)) {
 			throw new AnnotationConfigurationException(String.format(
 					"Method [%s] is unsupported for synthesized annotation type [%s]", method, annotationType()));
@@ -86,8 +87,10 @@ class SynthesizedAnnotationInvocationHandler implements InvocationHandler {
 
 	private Object getAttributeValue(Method attributeMethod) {
 		String attributeName = attributeMethod.getName();
+		// TODO: 先从缓存中拿
 		Object value = this.valueCache.get(attributeName);
 		if (value == null) {
+			// TODO: 缓存为空，再去计算，提取
 			value = this.attributeExtractor.getAttributeValue(attributeMethod);
 			if (value == null) {
 				String msg = String.format("%s returned null for attribute name [%s] from attribute source [%s]",
@@ -96,13 +99,14 @@ class SynthesizedAnnotationInvocationHandler implements InvocationHandler {
 			}
 
 			// Synthesize nested annotations before returning them.
+			// TODO: 判断拿到的value是否又是一个注解或者是一个注解数组，则继续进行代理
 			if (value instanceof Annotation) {
 				value = AnnotationUtils.synthesizeAnnotation((Annotation) value, this.attributeExtractor.getAnnotatedElement());
 			}
 			else if (value instanceof Annotation[]) {
 				value = AnnotationUtils.synthesizeAnnotationArray((Annotation[]) value, this.attributeExtractor.getAnnotatedElement());
 			}
-
+			// TODO: 之后进行了一个缓存
 			this.valueCache.put(attributeName, value);
 		}
 

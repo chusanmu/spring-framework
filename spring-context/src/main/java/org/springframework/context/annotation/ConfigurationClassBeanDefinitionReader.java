@@ -171,6 +171,7 @@ class ConfigurationClassBeanDefinitionReader {
 
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+		// TODO: 然后直接 进行注册beanDefinition
 		this.registry.registerBeanDefinition(definitionHolder.getBeanName(), definitionHolder.getBeanDefinition());
 		configClass.setBeanName(configBeanName);
 
@@ -202,21 +203,26 @@ class ConfigurationClassBeanDefinitionReader {
 		if (configClass.skippedBeanMethods.contains(methodName)) {
 			return;
 		}
-
+		// TODO: 拿到@Bean元注解的信息
 		AnnotationAttributes bean = AnnotationConfigUtils.attributesFor(metadata, Bean.class);
 		Assert.state(bean != null, "No @Bean annotation attributes");
 
 		// Consider name and any aliases
+		// TODO: 把bean的名称拿到
 		List<String> names = new ArrayList<>(Arrays.asList(bean.getStringArray("name")));
+		// TODO: 注意，这里先去看看@Bean 中name是否是空的，如果非空，把第一个名字拿到，否则拿到的是方法名
 		String beanName = (!names.isEmpty() ? names.remove(0) : methodName);
 
 		// Register aliases even when overridden
+		// TODO: 上面移除了bean的名称，那么剩下的就是别名喽，开始注册别名
 		for (String alias : names) {
 			this.registry.registerAlias(beanName, alias);
 		}
 
 		// Has this effectively been overridden before (e.g. via XML)?
+		// TODO: 简单看来，是查看bean是否重名，查看你配置的这个bean是否和它所属的配置文件重名
 		if (isOverriddenByExistingDefinition(beanMethod, beanName)) {
+			// TODO: 如果你这个bean和声明此bean的配置类名称相同，ok，那就直接抛出异常吧
 			if (beanName.equals(beanMethod.getConfigurationClass().getBeanName())) {
 				throw new BeanDefinitionStoreException(beanMethod.getConfigurationClass().getResource().getDescription(),
 						beanName, "Bean name derived from @Bean method '" + beanMethod.getMetadata().getMethodName() +
@@ -224,24 +230,27 @@ class ConfigurationClassBeanDefinitionReader {
 			}
 			return;
 		}
-
+		// TODO: 此处可以看出来，通过@Bean添加进来的beanDefinition的类型为 ConfigurationClassBeanDefinition
 		ConfigurationClassBeanDefinition beanDef = new ConfigurationClassBeanDefinition(configClass, metadata);
 		beanDef.setSource(this.sourceExtractor.extractSource(metadata, configClass.getResource()));
 
+		// TODO: 如果是静态方法，静态方法不依赖实例化配置类
 		if (metadata.isStatic()) {
 			// static @Bean method
 			beanDef.setBeanClassName(configClass.getMetadata().getClassName());
 			beanDef.setFactoryMethodName(methodName);
 		}
 		else {
+			// TODO: 实例方法
 			// instance @Bean method
 			beanDef.setFactoryBeanName(configClass.getBeanName());
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}
+		// TODO: 设置注入方式
 		beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
 		beanDef.setAttribute(org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor.
 				SKIP_REQUIRED_CHECK_ATTRIBUTE, Boolean.TRUE);
-
+		// TODO: 处理一些公共的注解属性，Lazy Role Primary
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef, metadata);
 
 		Autowire autowire = bean.getEnum("autowire");
@@ -253,19 +262,22 @@ class ConfigurationClassBeanDefinitionReader {
 		if (!autowireCandidate) {
 			beanDef.setAutowireCandidate(false);
 		}
-
+		// TODO: 获得初始化方法
 		String initMethodName = bean.getString("initMethod");
+		// TODO: 如果存在初始化方法，则设置初始化方法
 		if (StringUtils.hasText(initMethodName)) {
 			beanDef.setInitMethodName(initMethodName);
 		}
-
+		// TODO: 设置销毁方法
 		String destroyMethodName = bean.getString("destroyMethod");
 		beanDef.setDestroyMethodName(destroyMethodName);
 
 		// Consider scoping
+		// TODO: 设置作用于代理模式
 		ScopedProxyMode proxyMode = ScopedProxyMode.NO;
 		AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(metadata, Scope.class);
 		if (attributes != null) {
+			// TODO: 设置bean的作用域，默认是单例的
 			beanDef.setScope(attributes.getString("value"));
 			proxyMode = attributes.getEnum("proxyMode");
 			if (proxyMode == ScopedProxyMode.DEFAULT) {
@@ -287,39 +299,47 @@ class ConfigurationClassBeanDefinitionReader {
 			logger.trace(String.format("Registering bean definition for @Bean method %s.%s()",
 					configClass.getMetadata().getClassName(), beanName));
 		}
+		// TODO: 注册beanDefinition，注册到注册中心map中
 		this.registry.registerBeanDefinition(beanName, beanDefToRegister);
 	}
 
 	protected boolean isOverriddenByExistingDefinition(BeanMethod beanMethod, String beanName) {
+		// TODO: 判断注册器中 是否包含了这个名称的beanDefinition，如果不包含返回false
 		if (!this.registry.containsBeanDefinition(beanName)) {
 			return false;
 		}
+		// TODO: 已经存在以这个名字命名的beanDefinition了
 		BeanDefinition existingBeanDef = this.registry.getBeanDefinition(beanName);
 
 		// Is the existing bean definition one that was created from a configuration class?
 		// -> allow the current bean method to override, since both are at second-pass level.
 		// However, if the bean method is an overloaded case on the same configuration class,
 		// preserve the existing bean definition.
+		// TODO: 如果你的这个beanDefinition也是通过@Bean注解加进来的，然后会进一步去判断
 		if (existingBeanDef instanceof ConfigurationClassBeanDefinition) {
 			ConfigurationClassBeanDefinition ccbd = (ConfigurationClassBeanDefinition) existingBeanDef;
+			// TODO: 会去判断啥呢？会去判断这个@Bean所属方法的类名是否一样，所以当一个configuration里面使用@Bean声明两个bean的时候，同名的话，第一个生效，第二个就直接返回了，不会再去注册beanDefinition了
 			return ccbd.getMetadata().getClassName().equals(
 					beanMethod.getConfigurationClass().getMetadata().getClassName());
 		}
 
 		// A bean definition resulting from a component scan can be silently overridden
 		// by an @Bean method, as of 4.2...
+		// TODO: 如果已经存在的beanDefinition是通过@ComponentScan扫描进来的，不管它，直接返回false
 		if (existingBeanDef instanceof ScannedGenericBeanDefinition) {
 			return false;
 		}
 
 		// Has the existing bean definition bean marked as a framework-generated bean?
 		// -> allow the current bean method to override it, since it is application-level
+		// TODO: 如果已经存在的这个bean被标识为非应用程序类型的bean，那么允许应用类型的bean去覆盖它，这里直接返回false, 不会return掉
 		if (existingBeanDef.getRole() > BeanDefinition.ROLE_APPLICATION) {
 			return false;
 		}
 
 		// At this point, it's a top-level override (probably XML), just having been parsed
 		// before configuration class processing kicks in...
+		// TODO: 如果你的beanFactory配置了不允许beanDefinition覆盖，那么肯定就直接抛出异常，终止程序了。
 		if (this.registry instanceof DefaultListableBeanFactory &&
 				!((DefaultListableBeanFactory) this.registry).isAllowBeanDefinitionOverriding()) {
 			throw new BeanDefinitionStoreException(beanMethod.getConfigurationClass().getResource().getDescription(),
@@ -330,6 +350,7 @@ class ConfigurationClassBeanDefinitionReader {
 					"already exists. This top-level bean definition is considered as an override.",
 					beanMethod, beanName));
 		}
+		// TODO: 其他情况，直接return true，比如，你配置的这个方法bean的名称和配置类的名称相同了，这时候，可能就直接返回true了
 		return true;
 	}
 
@@ -376,6 +397,7 @@ class ConfigurationClassBeanDefinitionReader {
 	}
 
 	private void loadBeanDefinitionsFromRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {
+		// TODO: 直接挨个的遍历 然后调用它的registerBeanDefinition方法
 		registrars.forEach((registrar, metadata) ->
 				registrar.registerBeanDefinitions(metadata, this.registry));
 	}
