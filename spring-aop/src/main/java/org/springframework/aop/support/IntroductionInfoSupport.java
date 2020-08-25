@@ -70,6 +70,7 @@ public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
 	 * @return whether the interface is part of this introduction
 	 */
 	public boolean implementsInterface(Class<?> ifc) {
+		// TODO: 如果是publishedInterfaces 中的某一个接口，那就返回true
 		for (Class<?> pubIfc : this.publishedInterfaces) {
 			if (ifc.isInterface() && ifc.isAssignableFrom(pubIfc)) {
 				return true;
@@ -79,6 +80,7 @@ public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
 	}
 
 	/**
+	 * TODO: 添加这个委托对象，它所实现的所有的接口
 	 * Publish all interfaces that the given delegate implements at the proxy level.
 	 * @param delegate the delegate object
 	 */
@@ -92,13 +94,17 @@ public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
 	 * @return whether the invoked method is on an introduced interface
 	 */
 	protected final boolean isMethodOnIntroducedInterface(MethodInvocation mi) {
+		// TODO: 这地方还做了个缓存
 		Boolean rememberedResult = this.rememberedMethods.get(mi.getMethod());
+		// TODO: 如果缓存了不为空，那么就直接返回得了
 		if (rememberedResult != null) {
 			return rememberedResult;
 		}
 		else {
 			// Work it out and cache it.
+			// TODO: 判断这个方法的声明类是否是接口实现
 			boolean result = implementsInterface(mi.getMethod().getDeclaringClass());
+			// TODO: 然后进行一个缓存
 			this.rememberedMethods.put(mi.getMethod(), result);
 			return result;
 		}

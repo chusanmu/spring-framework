@@ -47,6 +47,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 
 
 	/**
+	 * TODO: 拿到当前正在执行的方法
 	 * Return the factory method currently being invoked or {@code null} if none.
 	 * <p>Allows factory method implementations to determine whether the current
 	 * caller is the container itself as opposed to user code.
@@ -133,6 +134,19 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
 	}
 
+	/**
+	 * TODO: 实例化对象，是通过反射方法去创建的
+	 * @param bd the bean definition
+	 * @param beanName the name of the bean when it is created in this context.
+	 * The name can be {@code null} if we are autowiring a bean which doesn't
+	 * belong to the factory.
+	 * @param owner the owning BeanFactory
+	 * @param factoryBean the factory bean instance to call the factory method on,
+	 * or {@code null} in case of a static factory method
+	 * @param factoryMethod the factory method to use
+	 * @param args the factory method arguments to apply
+	 * @return
+	 */
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
 			@Nullable Object factoryBean, final Method factoryMethod, Object... args) {
@@ -145,22 +159,29 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 				});
 			}
 			else {
+				// TODO: 首先设置 可访问
 				ReflectionUtils.makeAccessible(factoryMethod);
 			}
-
+			// TODO: 把先前调用的工厂方法先拿出来, 比如依赖的bean在配置文件的下面，这时候就会需要去getBean，然后那么currentlyInvokedFactoryMethod 这里面存的就是之前的那个方法
 			Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
 			try {
+				// TODO: 然后设置当前调用的方法
 				currentlyInvokedFactoryMethod.set(factoryMethod);
+				// TODO: 最后去执行当前调用的方法， 反射执行，Configuration 中的指定方法，这里 factoryBean 可能是个代理对象，如果是@Configuration类型的，那就是full模式，会产生代理对象
 				Object result = factoryMethod.invoke(factoryBean, args);
+				// TODO: 兼容返回null, 如果你返回了null, 那就给你个NullBean
 				if (result == null) {
 					result = new NullBean();
 				}
+				// TODO: 把执行结果返回
 				return result;
 			}
 			finally {
+				// TODO: 如果之前存在调用的方法，那么设置进去
 				if (priorInvokedFactoryMethod != null) {
 					currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
 				}
+				// TODO: 否则移除当前执行完了的
 				else {
 					currentlyInvokedFactoryMethod.remove();
 				}

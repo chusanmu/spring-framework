@@ -170,6 +170,7 @@ class ConfigurationClassBeanDefinitionReader {
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
 
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
+		// TODO: 判断是否需要产生作用域代理类
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 		// TODO: 然后直接 进行注册beanDefinition
 		this.registry.registerBeanDefinition(definitionHolder.getBeanName(), definitionHolder.getBeanDefinition());
@@ -279,7 +280,9 @@ class ConfigurationClassBeanDefinitionReader {
 		if (attributes != null) {
 			// TODO: 设置bean的作用域，默认是单例的
 			beanDef.setScope(attributes.getString("value"));
+			// TODO: 获得bean作用域的代理模式
 			proxyMode = attributes.getEnum("proxyMode");
+			// TODO: 如果是默认的，那就是不需要代理
 			if (proxyMode == ScopedProxyMode.DEFAULT) {
 				proxyMode = ScopedProxyMode.NO;
 			}
@@ -287,10 +290,13 @@ class ConfigurationClassBeanDefinitionReader {
 
 		// Replace the original bean definition with the target one, if necessary
 		BeanDefinition beanDefToRegister = beanDef;
+		// TODO: 说明需要进行代理
 		if (proxyMode != ScopedProxyMode.NO) {
+			// TODO: 创建一个代理的beanDefinitionHolder
 			BeanDefinitionHolder proxyDef = ScopedProxyCreator.createScopedProxy(
 					new BeanDefinitionHolder(beanDef, beanName), this.registry,
 					proxyMode == ScopedProxyMode.TARGET_CLASS);
+			// TODO: 然后从BeanDefinitionHolder中把beanDefinition拿到，然后生成一个ConfigurationClassBeanDefinition
 			beanDefToRegister = new ConfigurationClassBeanDefinition(
 					(RootBeanDefinition) proxyDef.getBeanDefinition(), configClass, metadata);
 		}
@@ -354,6 +360,11 @@ class ConfigurationClassBeanDefinitionReader {
 		return true;
 	}
 
+	/**
+	 * TODO: 主要处理 @ImportResource导入进来的资源，比如可以使用xml方式来配置bean，甚至可以使用properties方式去配置bean，然后指定一个beanDefinitionReader去读取相应的配置文件，然后进行注册beanDefinition
+	 * TODO: 一般不这样玩，用的比较少，而且可读性比较差
+	 * @param importedResources
+	 */
 	private void loadBeanDefinitionsFromImportedResources(
 			Map<String, Class<? extends BeanDefinitionReader>> importedResources) {
 
@@ -397,7 +408,7 @@ class ConfigurationClassBeanDefinitionReader {
 	}
 
 	private void loadBeanDefinitionsFromRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {
-		// TODO: 直接挨个的遍历 然后调用它的registerBeanDefinition方法
+		// TODO: 直接挨个的遍历 然后调用 ImportBeanDefinitionRegistrar 它的 registerBeanDefinition 方法
 		registrars.forEach((registrar, metadata) ->
 				registrar.registerBeanDefinitions(metadata, this.registry));
 	}

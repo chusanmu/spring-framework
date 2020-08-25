@@ -54,6 +54,7 @@ public class DelegatingIntroductionInterceptor extends IntroductionInfoSupport
 		implements IntroductionInterceptor {
 
 	/**
+	 * TODO: 接口的委托实现，委派
 	 * Object that actually implements the interfaces.
 	 * May be "this" if a subclass implements the introduced interfaces.
 	 */
@@ -88,15 +89,18 @@ public class DelegatingIntroductionInterceptor extends IntroductionInfoSupport
 	private void init(Object delegate) {
 		Assert.notNull(delegate, "Delegate must not be null");
 		this.delegate = delegate;
+		// TODO: 添加这个委托实现类所实现的所有的接口
 		implementInterfacesOnObject(delegate);
 
 		// We don't want to expose the control interface
+		// TODO: 如果包含这俩接口，那就移除掉，不需要暴露这俩
 		suppressInterface(IntroductionInterceptor.class);
 		suppressInterface(DynamicIntroductionAdvice.class);
 	}
 
 
 	/**
+	 * TODO: 真正的拦截执行
 	 * Subclasses may need to override this if they want to perform custom
 	 * behaviour in around advice. However, subclasses should invoke this
 	 * method, which handles introduced interfaces and forwarding to the target.
@@ -104,6 +108,7 @@ public class DelegatingIntroductionInterceptor extends IntroductionInfoSupport
 	@Override
 	@Nullable
 	public Object invoke(MethodInvocation mi) throws Throwable {
+		// TODO: 判断是不是接口方法，如果是接口方法，则依赖delegate 去执行 它里面的实现方法
 		if (isMethodOnIntroducedInterface(mi)) {
 			// Using the following method rather than direct reflection, we
 			// get correct handling of InvocationTargetException
@@ -120,7 +125,7 @@ public class DelegatingIntroductionInterceptor extends IntroductionInfoSupport
 			}
 			return retVal;
 		}
-
+		// TODO: 否则直接去执行它里面的方法
 		return doProceed(mi);
 	}
 

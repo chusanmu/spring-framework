@@ -34,6 +34,13 @@ final class ScopedProxyCreator {
 	}
 
 
+	/**
+	 * TODO: 创建一个作用域代理，例如默认bean的作用域为单例，但是有的bean的作用域是Session，所以当单例bean依赖注入session级别的bean的时候，这时候其实注入的是一个代理
+	 * @param definitionHolder
+	 * @param registry
+	 * @param proxyTargetClass
+	 * @return
+	 */
 	public static BeanDefinitionHolder createScopedProxy(
 			BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry, boolean proxyTargetClass) {
 

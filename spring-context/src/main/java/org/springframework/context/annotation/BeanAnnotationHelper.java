@@ -42,25 +42,31 @@ abstract class BeanAnnotationHelper {
 	}
 
 	public static String determineBeanNameFor(Method beanMethod) {
+		// TODO: 看看缓存里面有没有
 		String beanName = beanNameCache.get(beanMethod);
 		if (beanName == null) {
 			// By default, the bean name is the name of the @Bean-annotated method
+			// TODO: 默认就是方法名
 			beanName = beanMethod.getName();
 			// Check to see if the user has explicitly set a custom bean name...
+			// TODO: 去check下，看看用户自己有没有设置bean的名称，如果有@Bean注解，就去get一下
 			AnnotationAttributes bean =
 					AnnotatedElementUtils.findMergedAnnotationAttributes(beanMethod, Bean.class, false, false);
 			if (bean != null) {
+				// TODO: 把bean的name拿到，如果names的个数大于0，取用户自己设置的beanName
 				String[] names = bean.getStringArray("name");
 				if (names.length > 0) {
 					beanName = names[0];
 				}
 			}
+			// TODO: 缓存起来
 			beanNameCache.put(beanMethod, beanName);
 		}
 		return beanName;
 	}
 
 	public static boolean isScopedProxy(Method beanMethod) {
+		// TODO: 查看用户是否启动了 作用域代理
 		Boolean scopedProxy = scopedProxyCache.get(beanMethod);
 		if (scopedProxy == null) {
 			AnnotationAttributes scope =

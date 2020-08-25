@@ -253,7 +253,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			// Simply call processConfigurationClasses lazily at this point then.
 			processConfigBeanDefinitions((BeanDefinitionRegistry) beanFactory);
 		}
-		// TODO: 这个是核心方法
+		// TODO: 这个是核心方法，增强配置类
 		enhanceConfigurationClasses(beanFactory);
 		// TODO: 添加一个后置处理器，ImportAwareBeanPostProcessor它是一个静态内部类
 		beanFactory.addBeanPostProcessor(new ImportAwareBeanPostProcessor(beanFactory));
@@ -457,6 +457,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		public PropertyValues postProcessProperties(@Nullable PropertyValues pvs, Object bean, String beanName) {
 			// Inject the BeanFactory before AutowiredAnnotationBeanPostProcessor's
 			// postProcessProperties method attempts to autowire other configuration beans.
+			// TODO: 注意这里 对增强的配置类 进行调用 setBeanFactory方法，也是populateBean的时候调用的，需要注意的是 这里 @Configuration  bean已经是增强过的了
+			// TODO: configuration配置文件在beanFactoryPostProcess的时候 进行增强的，这里调用setBeanFactory实际上会被拦截
 			if (bean instanceof EnhancedConfiguration) {
 				((EnhancedConfiguration) bean).setBeanFactory(this.beanFactory);
 			}
