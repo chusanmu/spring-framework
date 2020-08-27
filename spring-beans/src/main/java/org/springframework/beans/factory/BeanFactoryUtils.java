@@ -86,7 +86,7 @@ public abstract class BeanFactoryUtils {
 		}
 		// TODO: cache中不存在，放进去，对name进行一些处理
 		return transformedBeanNameCache.computeIfAbsent(name, beanName -> {
-			// TODO: 循环处理 &， 把& 给去掉
+			// TODO: 循环处理 &， 把& 给去掉，兼容了多个&&&的情况
 			do {
 				beanName = beanName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length());
 			}

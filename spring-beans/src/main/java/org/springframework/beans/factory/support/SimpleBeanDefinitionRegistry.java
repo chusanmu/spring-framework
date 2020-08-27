@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: BeanDefinitionRegistry 的一个简单实现，就是通过Map来存放beanDefinition，这个目前在spring中还没有应用
  * Simple implementation of the {@link BeanDefinitionRegistry} interface.
  * Provides registry capabilities only, with no factory capabilities built in.
  * Can for example be used for testing bean definition readers.

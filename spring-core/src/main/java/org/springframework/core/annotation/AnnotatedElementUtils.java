@@ -883,6 +883,7 @@ public abstract class AnnotatedElementUtils {
 	}
 
 	/**
+	 * TODO: 注意get不会搜索接口上的注解
 	 * Perform the search algorithm for the {@link #searchWithGetSemantics}
 	 * method, avoiding endless recursion by tracking which annotated elements
 	 * have already been <em>visited</em>.
@@ -908,25 +909,35 @@ public abstract class AnnotatedElementUtils {
 		if (visited.add(element)) {
 			try {
 				// Start searching within locally declared annotations
+				// TODO: 首先查找它本element 上标记的注解，不算 @Inherited 继承过来的注解
 				List<Annotation> declaredAnnotations = Arrays.asList(AnnotationUtils.getDeclaredAnnotations(element));
+				// TODO: 查找这些注解上面是否存在目标注解
 				T result = searchWithGetSemanticsInAnnotations(element, declaredAnnotations,
 						annotationTypes, annotationName, containerType, processor, visited, metaDepth);
+				// TODO: 如果找到了，就直接返回吧
 				if (result != null) {
 					return result;
 				}
-
+				// TODO: 如果当前搜索的element是个class类型的, 那么继续搜索它的父类
 				if (element instanceof Class) {  // otherwise getAnnotations doesn't return anything new
+					// TODO: 把它的父类拿到
 					Class<?> superclass = ((Class<?>) element).getSuperclass();
+					// TODO: 如果不为空 且 不是Object类，那么继续找
 					if (superclass != null && superclass != Object.class) {
 						List<Annotation> inheritedAnnotations = new LinkedList<>();
+						// TODO: 这里搜索的包括 @Inherited 注解标注的注解们
 						for (Annotation annotation : element.getAnnotations()) {
+							// TODO: 如果子类没有这个注解，才放进去
 							if (!declaredAnnotations.contains(annotation)) {
+								// TODO: 把 declaredAnnotations 没有的 才加进去, 其实这里面存的就是 @Inherited过来的 注解
 								inheritedAnnotations.add(annotation);
 							}
 						}
 						// Continue searching within inherited annotations
+						// TODO: 继续在inheritedAnnotations 中搜索
 						result = searchWithGetSemanticsInAnnotations(element, inheritedAnnotations,
 								annotationTypes, annotationName, containerType, processor, visited, metaDepth);
+						// TODO: 如果搜索到了，则直接返回
 						if (result != null) {
 							return result;
 						}
@@ -952,7 +963,7 @@ public abstract class AnnotatedElementUtils {
 	 * @param element the element that is annotated with the supplied
 	 * annotations, used for contextual logging; may be {@code null} if unknown
 	 * @param annotations the annotations to search in
-	 * @param annotationTypes the annotation types to find
+	 * @param annotationTypes the annotation types to find 要搜索的注解 集合
 	 * @param annotationName the fully qualified class name of the annotation
 	 * type to find (as an alternative to {@code annotationType})
 	 * @param containerType the type of the container that holds repeatable
@@ -972,16 +983,21 @@ public abstract class AnnotatedElementUtils {
 		// Search in annotations
 		for (Annotation annotation : annotations) {
 			Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
+			// TODO: 不是java自带的注解
 			if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {
+				// TODO: 如果要搜索的注解类型里面包括当前这个注解，那说明找到了啊
 				if (annotationTypes.contains(currentAnnotationType) ||
+						// TODO: 或者和要搜索的注解的名称相同，也算找到了
 						currentAnnotationType.getName().equals(annotationName) ||
 						processor.alwaysProcesses()) {
+					// TODO: 使用处理器去处理, isAnnotated hasAnonotated 使用的是 AlwaysTrueBooleanAnnotationProcessor，永远返回true, 也就是说，它只要找到了就可以了，不需要进一步操作
 					T result = processor.process(element, annotation, metaDepth);
 					if (result != null) {
 						if (processor.aggregates() && metaDepth == 0) {
 							processor.getAggregatedResults().add(result);
 						}
 						else {
+							// TODO: 返回结果
 							return result;
 						}
 					}
@@ -1001,11 +1017,14 @@ public abstract class AnnotatedElementUtils {
 		}
 
 		// Recursively search in meta-annotations
+		// TODO: 递归的在元注解中 再次搜索
 		for (Annotation annotation : annotations) {
 			Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
 			if (!AnnotationUtils.hasPlainJavaAnnotationsOnly(currentAnnotationType)) {
+				// TODO: 在当前注解上继续查找
 				T result = searchWithGetSemantics(currentAnnotationType, annotationTypes,
 						annotationName, containerType, processor, visited, metaDepth + 1);
+				// TODO: 查找到了，返回
 				if (result != null) {
 					processor.postProcess(element, annotation, result);
 					if (processor.aggregates() && metaDepth == 0) {
@@ -1104,6 +1123,7 @@ public abstract class AnnotatedElementUtils {
 		if (visited.add(element)) {
 			try {
 				// Locally declared annotations (ignoring @Inherited)
+				// TODO: 拿到本地声明的所有的注解
 				Annotation[] annotations = AnnotationUtils.getDeclaredAnnotations(element);
 				if (annotations.length > 0) {
 					List<T> aggregatedResults = (processor.aggregates() ? new ArrayList<>() : null);
@@ -1111,10 +1131,13 @@ public abstract class AnnotatedElementUtils {
 					// Search in local annotations
 					for (Annotation annotation : annotations) {
 						Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
+						// TODO: 排除java原生的注解
 						if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {
+							// TODO: 如果找到了
 							if (annotationTypes.contains(currentAnnotationType) ||
 									currentAnnotationType.getName().equals(annotationName) ||
 									processor.alwaysProcesses()) {
+								// TODO: 使用处理器去处理
 								T result = processor.process(element, annotation, metaDepth);
 								if (result != null) {
 									if (aggregatedResults != null && metaDepth == 0) {
@@ -1140,9 +1163,11 @@ public abstract class AnnotatedElementUtils {
 					}
 
 					// Recursively search in meta-annotations
+					// TODO: 去搜索注解上面的元注解
 					for (Annotation annotation : annotations) {
 						Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
 						if (!AnnotationUtils.hasPlainJavaAnnotationsOnly(currentAnnotationType)) {
+							// TODO: currentAnnotationType 为当前注解的类型，表示在当前注解上继续搜索
 							T result = searchWithFindSemantics(currentAnnotationType, annotationTypes, annotationName,
 									containerType, processor, visited, metaDepth + 1);
 							if (result != null) {
@@ -1162,13 +1187,15 @@ public abstract class AnnotatedElementUtils {
 						processor.getAggregatedResults().addAll(0, aggregatedResults);
 					}
 				}
-
+				// TODO: 如果在当前element上没有找到任何的注解，如果它是个方法，则强转成方法
 				if (element instanceof Method) {
 					Method method = (Method) element;
 					T result;
 
 					// Search on possibly bridged method
+					// TODO: 拿到真实的非桥接方法
 					Method resolvedMethod = BridgeMethodResolver.findBridgedMethod(method);
+					// TODO: 如果两次拿到的方法不同，则在解析的方法上在查找一次
 					if (resolvedMethod != method) {
 						result = searchWithFindSemantics(resolvedMethod, annotationTypes, annotationName,
 								containerType, processor, visited, metaDepth);
@@ -1178,7 +1205,9 @@ public abstract class AnnotatedElementUtils {
 					}
 
 					// Search on methods in interfaces declared locally
+					// TODO: 去接口上去查找了，注意这里是方法所在类的接口上
 					Class<?>[] ifcs = method.getDeclaringClass().getInterfaces();
+					// TODO: 接口个数大于0，然后就去接口上再查找一波
 					if (ifcs.length > 0) {
 						result = searchOnInterfaces(method, annotationTypes, annotationName,
 								containerType, processor, visited, metaDepth, ifcs);
@@ -1188,8 +1217,10 @@ public abstract class AnnotatedElementUtils {
 					}
 
 					// Search on methods in class hierarchy and interface hierarchy
+					// TODO: 去父类上查找，会递归的查找
 					Class<?> clazz = method.getDeclaringClass();
 					while (true) {
+						// TODO: 注意这里是方法所在类的父类，去这个父类上去查找
 						clazz = clazz.getSuperclass();
 						if (clazz == null || clazz == Object.class) {
 							break;
@@ -1208,6 +1239,7 @@ public abstract class AnnotatedElementUtils {
 							}
 						}
 						// Search on interfaces declared on superclass
+						// TODO: 去父类接口上再次查找
 						result = searchOnInterfaces(method, annotationTypes, annotationName,
 								containerType, processor, visited, metaDepth, clazz.getInterfaces());
 						if (result != null) {
@@ -1215,10 +1247,12 @@ public abstract class AnnotatedElementUtils {
 						}
 					}
 				}
+				// TODO: 如果目标是个class，则先去接口上搜索，然后又去父类上去搜索。
 				else if (element instanceof Class) {
 					Class<?> clazz = (Class<?>) element;
 					if (!Annotation.class.isAssignableFrom(clazz)) {
 						// Search on interfaces
+						// TODO: 去接口上查找
 						for (Class<?> ifc : clazz.getInterfaces()) {
 							T result = searchWithFindSemantics(ifc, annotationTypes, annotationName,
 									containerType, processor, visited, metaDepth);
@@ -1227,6 +1261,7 @@ public abstract class AnnotatedElementUtils {
 							}
 						}
 						// Search on superclass
+						// TODO: 去父类查找
 						Class<?> superclass = clazz.getSuperclass();
 						if (superclass != null && superclass != Object.class) {
 							T result = searchWithFindSemantics(superclass, annotationTypes, annotationName,

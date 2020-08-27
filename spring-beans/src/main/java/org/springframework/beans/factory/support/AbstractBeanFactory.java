@@ -340,9 +340,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw ex;
 						}
 					});
+					// TODO: 这里去处理FactoryBean
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
+				// TODO: 多例的情况
 				else if (mbd.isPrototype()) {
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
@@ -356,6 +358,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
+				// TODO: 其他作用域的情况
 				else {
 					String scopeName = mbd.getScope();
 					final Scope scope = this.scopes.get(scopeName);
@@ -1655,8 +1658,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * Get the object for the given bean instance, either the bean
 	 * instance itself or its created object in case of a FactoryBean.
 	 * @param beanInstance the shared bean instance
-	 * @param name name that may include factory dereference prefix
-	 * @param beanName the canonical bean name
+	 * @param name name that may include factory dereference prefix TODO: name 是可能包含 & 符号的
+	 * @param beanName the canonical bean name TODO: 这里的beanName是去掉 & 之后的name
 	 * @param mbd the merged bean definition
 	 * @return the object to expose for the bean
 	 */
@@ -1664,10 +1667,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
+		// TODO: 判断是否是 & 开头的，如果name以&打头，那么beanInstance类型必须是FactoryBean类型的，否则会报错
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
+			// TODO: 如果 beanInstance是个nullBean，那就直接返回吧
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
 			}
+			// TODO: 这里的beanInstance必须是FactoryBean类型的，否则抛错异常
 			if (!(beanInstance instanceof FactoryBean)) {
 				throw new BeanIsNotAFactoryException(beanName, beanInstance.getClass());
 			}
@@ -1676,24 +1682,36 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
+		// TODO: 如果beanInstance不是FactoryBean类型的，或者 name 是以 & 打头的，那么就直接把当前beanInstance返回吧
+		// TODO: 这里说明一下，从上面可以看出，如果你的name是 & 开头的，那么beanInstance必须要是FactoryBean类型的，否则抛出异常.
+		// TODO: 上面的判断是 如果你是 &开头的name，那么你beanInstance必须是FactoryBean类型的，否则抛出异常
+		// TODO: 这里的意思简单来说就是，如果你的beanInstance类型是FactoryBean类型，然后name以&打头了，那么就返回当前factoryBean实例吧
+		// TODO: 由于 || 短路的特性，这样使用有种 if 双层条件判断的感觉
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
 
 		Object object = null;
 		if (mbd == null) {
+			// TODO: 先尝试从缓存里面取试试
 			object = getCachedObjectForFactoryBean(beanName);
 		}
+		// TODO: 如果缓存里面没取到
 		if (object == null) {
 			// Return bean instance from factory.
+			// TODO: 将beanInstance进行强转，然后使用factoryBean进行获取bean
 			FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
 			// Caches object obtained from FactoryBean if it is a singleton.
 			if (mbd == null && containsBeanDefinition(beanName)) {
+				// TODO: 如果beanDefinition为null, 那就尝试去获取
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}
+			// TODO: 判断是否是合成类，如果是合成类 就不应用PostProcess
 			boolean synthetic = (mbd != null && mbd.isSynthetic());
+			// TODO: 去真正的从factoryBean中拿取对象
 			object = getObjectFromFactoryBean(factory, beanName, !synthetic);
 		}
+		// TODO: 把拿到的对象返回回去
 		return object;
 	}
 

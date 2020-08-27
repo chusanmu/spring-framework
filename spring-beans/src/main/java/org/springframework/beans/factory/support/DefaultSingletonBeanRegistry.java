@@ -94,10 +94,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
 	/** Set of registered singletons, containing the bean names in registration order. */
+	// TODO: 缓存着所有已经注册的单例的名称，注意，这里是有序的
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
 	/**
-	 * 这个缓存也很重要，它表示bean创建过程中都会在里面呆着，它在bean开始创建时放值，创建完成后会将其移出
+	 * TODO: 这个缓存也很重要，它表示bean创建过程中都会在里面呆着，它在bean开始创建时放值，创建完成后会将其移出, 表示正在创建的bean有哪些
 	 */
 	/** Names of beans that are currently in creation. */
 	private final Set<String> singletonsCurrentlyInCreation =
@@ -127,11 +128,19 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private final Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<>(64);
 
 
+	/**
+	 * TODO: 注册单例bean
+	 * @param beanName the name of the bean
+	 * @param singletonObject the existing singleton object
+	 * @throws IllegalStateException
+	 */
 	@Override
 	public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
 		Assert.notNull(beanName, "Bean name must not be null");
 		Assert.notNull(singletonObject, "Singleton object must not be null");
+		// TODO: 这里加了个锁，主要原因是先get, 然后add
 		synchronized (this.singletonObjects) {
+			// TODO: 如果不为空，抛出异常，不能创建，因为这个beanName已经有绑定的存在了的bean了
 			Object oldObject = this.singletonObjects.get(beanName);
 			if (oldObject != null) {
 				throw new IllegalStateException("Could not register object [" + singletonObject +
@@ -148,15 +157,21 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param singletonObject the singleton object
 	 */
 	protected void addSingleton(String beanName, Object singletonObject) {
+		// TODO: 添加单例bean
 		synchronized (this.singletonObjects) {
+			// TODO: 直接向一级缓存里面添加就好了
 			this.singletonObjects.put(beanName, singletonObject);
+			// TODO: 把三级缓存里面的移除掉，连同二级缓存也一起移除掉，原因是，这个bean已经创建成功了，是一个完整的bean了，不需要循环依赖，你直接从一级缓存里面取就好了
 			this.singletonFactories.remove(beanName);
+			// TODO: 移除二级缓存
 			this.earlySingletonObjects.remove(beanName);
+			// TODO: 向 registeredSingletons 添加beanName
 			this.registeredSingletons.add(beanName);
 		}
 	}
 
 	/**
+	 * TODO: 添加一个三级缓存
 	 * Add the given singleton factory for building the specified singleton
 	 * if necessary.
 	 * <p>To be called for eager registration of singletons, e.g. to be able to
@@ -167,9 +182,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
 		synchronized (this.singletonObjects) {
+			// TODO: 一级缓存不存在，才添加嘛
 			if (!this.singletonObjects.containsKey(beanName)) {
+				// TODO: 向三级缓存中添加
 				this.singletonFactories.put(beanName, singletonFactory);
+				// TODO: 同时移除二级缓存
 				this.earlySingletonObjects.remove(beanName);
+				// TODO: 向registeredSingletons中添加一个beanName
 				this.registeredSingletons.add(beanName);
 			}
 		}
@@ -186,7 +205,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * <p>Checks already instantiated singletons and also allows for an early
 	 * reference to a currently created singleton (resolving a circular reference).
 	 * @param beanName the name of the bean to look for
-	 * @param allowEarlyReference whether early references should be created or not
+	 * @param allowEarlyReference whether early references should be created or not TODO: 是否允许循环依赖
 	 * @return the registered singleton object, or {@code null} if none found
 	 */
 	@Nullable
@@ -195,17 +214,21 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		Object singletonObject = this.singletonObjects.get(beanName);
 		// TODO: 若缓存里面没有，并且并且，这个bean必须在创建中，才会进来，singletonsCurrentlyInCreation 会缓存下来所有的正在创建中的bean，如果有bean是循环引用的，会把这种bean先放进去，这里才会有值
 		// TODO: 如果获取不到，或者对象正在创建中，isSingletonCurrentlyInCreation， 那就再从二级缓存earlySingletonObjects中获取，如果获取到就直接return
+		// TODO: 只有isSingletonCurrentlyInCreation(beanName)为true, 才表示这个bean正在被创建啊，才表示正在被循环依赖嘛
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			// TODO: 如果还是获取不到，且允许singletonFactories，通过getObject获取，就从三级缓存singletonFactory.getObject()获取，如果获取到了就从singletonFactories中移除，并且放进earlySingletonObjects，其实就是从
 			// TODO: 三级缓存 移动 到了二级缓存
 			synchronized (this.singletonObjects) {
+				// TODO: 从二级缓存中 earlySingletonObjects 尝试获取bean
 				singletonObject = this.earlySingletonObjects.get(beanName);
+				// TODO: 如果还是为null，同时如果开启了循环依赖，这时候才去三级缓存里面把bean拿出来，然后放到二级缓存里面，最后把三级缓存移除
 				if (singletonObject == null && allowEarlyReference) {
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
 						singletonObject = singletonFactory.getObject();
+						// TODO: 把通过三级缓存获取到的bean 添加到二级缓存中
 						this.earlySingletonObjects.put(beanName, singletonObject);
-						// TODO: 进行移除
+						// TODO: 移除三级缓存，不需要了嘛，当然移除了啊
 						this.singletonFactories.remove(beanName);
 					}
 				}
@@ -227,6 +250,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		synchronized (this.singletonObjects) {
 			// TODO: 从缓存中获取，上面获取过一次的，这里是双重判断
 			Object singletonObject = this.singletonObjects.get(beanName);
+			// TODO: 如果 singletonObject 为null, 才着手去创建嘛
 			if (singletonObject == null) {
 				// TODO: 如果这个bean正在被销毁，那就抛出异常了
 				if (this.singletonsCurrentlyInDestruction) {
@@ -274,7 +298,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
-					// TODO: 创建完成后，再检查一遍，做的操作是：从正在创建缓存中移除
+					// TODO: 创建完成后，再检查一遍，做的操作是：从正在创建缓存中移除，从正在创建bean中 移除
 					afterSingletonCreation(beanName);
 				}
 				// TODO: 这里也非常重要，若是一个新的bean，那就执行addSingleton这个方法，一共做了四件事
@@ -614,6 +638,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		// Actually destroy the bean now...
 		if (bean != null) {
 			try {
+				// TODO: 调用DisposableBean的destroy()方法
 				bean.destroy();
 			}
 			catch (Throwable ex) {

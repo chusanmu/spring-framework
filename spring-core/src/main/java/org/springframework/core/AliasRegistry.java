@@ -17,6 +17,7 @@
 package org.springframework.core;
 
 /**
+ * TODO: 别名注册器
  * Common interface for managing aliases. Serves as super-interface for
  * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}.
  *
@@ -26,6 +27,7 @@ package org.springframework.core;
 public interface AliasRegistry {
 
 	/**
+	 * TODO: 给bean注册一个别名
 	 * Given a name, register an alias for it.
 	 * @param name the canonical name
 	 * @param alias the alias to be registered

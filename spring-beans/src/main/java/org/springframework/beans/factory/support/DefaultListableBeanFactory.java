@@ -84,6 +84,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 默认的 也是唯一的beanFactory的实现，DefaultListableBeanFactory
  * Spring's default implementation of the {@link ConfigurableListableBeanFactory}
  * and {@link BeanDefinitionRegistry} interfaces: a full-fledged bean factory
  * based on bean definition metadata, extensible through post-processors.
@@ -160,6 +161,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
 	/** Map of bean definition objects, keyed by bean name. */
+	/**
+	 * TODO: 用来存储beanDefinition
+	 */
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
 
 	/** Map from bean name to merged BeanDefinitionHolder. */
@@ -172,6 +176,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	private final Map<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<>(64);
 
 	/** List of bean definition names, in registration order. */
+	// TODO: 存放所有beanDefinition的Names
 	private volatile List<String> beanDefinitionNames = new ArrayList<>(256);
 
 	/** List of names of manually registered singletons, in registration order. */
@@ -237,6 +242,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
+	 * TODO: 是否允许beanDefinition被覆盖
 	 * Return whether it should be allowed to override bean definitions by registering
 	 * a different definition with the same name, automatically replacing the former.
 	 * @since 4.1.2
@@ -445,11 +451,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Override
 	public boolean containsBeanDefinition(String beanName) {
 		Assert.notNull(beanName, "Bean name must not be null");
+		// TODO: 根据name判断是否包含beanDefinition
 		return this.beanDefinitionMap.containsKey(beanName);
 	}
 
 	@Override
 	public int getBeanDefinitionCount() {
+		// TODO: 计算size
 		return this.beanDefinitionMap.size();
 	}
 
@@ -460,6 +468,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			return frozenNames.clone();
 		}
 		else {
+			// TODO: 返回beanDefinitionNames
 			return StringUtils.toStringArray(this.beanDefinitionNames);
 		}
 	}
@@ -784,7 +793,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	@Override
 	public BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+		// TODO: 从beanDefinitionMap中根据beanName取出来一个beanDefinition
 		BeanDefinition bd = this.beanDefinitionMap.get(beanName);
+		// TODO: 如果为null,没找到，则抛出异常
 		if (bd == null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("No bean named '" + beanName + "' found in " + this);
@@ -864,6 +875,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						final FactoryBean<?> factory = (FactoryBean<?>) bean;
 						boolean isEagerInit;
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
+							// TODO: 判断是否需要提前把factoryBean中的单例bean创建好
 							isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>)
 											((SmartFactoryBean<?>) factory)::isEagerInit,
 									getAccessControlContext());
@@ -872,7 +884,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							isEagerInit = (factory instanceof SmartFactoryBean &&
 									((SmartFactoryBean<?>) factory).isEagerInit());
 						}
-						// TODO: true 表示，立马初始化，那就进行初始化
+						// TODO: true 表示，立马初始化，那就进行初始化 factoryBean 创建的那个bean
 						if (isEagerInit) {
 							getBean(beanName);
 						}
@@ -907,18 +919,25 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 
 	//---------------------------------------------------------------------
-	// Implementation of BeanDefinitionRegistry interface
+	// Implementation of BeanDefinitionRegistry interface 实现了BeanDefinitionRegistry接口的方法们
 	//---------------------------------------------------------------------
 
+	/**
+	 * TODO: 注册beanDefinition
+	 * @param beanName the name of the bean instance to register
+	 * @param beanDefinition definition of the bean instance to register
+	 * @throws BeanDefinitionStoreException
+	 */
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
-
+		// TODO: 两个都不能为空
 		Assert.hasText(beanName, "Bean name must not be empty");
 		Assert.notNull(beanDefinition, "BeanDefinition must not be null");
 
 		if (beanDefinition instanceof AbstractBeanDefinition) {
 			try {
+				// TODO: 校验beanDefinition
 				((AbstractBeanDefinition) beanDefinition).validate();
 			}
 			catch (BeanDefinitionValidationException ex) {
@@ -926,20 +945,25 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						"Validation of bean definition failed", ex);
 			}
 		}
-
+		// TODO: 从容器拿出来名字为beanName的beanDefinition 看看是否存在
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
+		// TODO: 如果不为空，表示存在
 		if (existingDefinition != null) {
+			// TODO: 看看是否允许beanDefinition的存在，如果不允许，则抛出异常
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
 			}
+			// TODO: application级别的为0，然后框架级别的 为 1，2
 			else if (existingDefinition.getRole() < beanDefinition.getRole()) {
 				// e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
 				if (logger.isInfoEnabled()) {
+					// TODO: 覆盖掉用户自定义的bean
 					logger.info("Overriding user-defined bean definition for bean '" + beanName +
 							"' with a framework-generated bean definition: replacing [" +
 							existingDefinition + "] with [" + beanDefinition + "]");
 				}
 			}
+			// TODO: 名字相同，但是beanDefinition不同，那么打印个log, 然后直接覆盖掉
 			else if (!beanDefinition.equals(existingDefinition)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Overriding bean definition for bean '" + beanName +
@@ -954,13 +978,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							"] with [" + beanDefinition + "]");
 				}
 			}
+			// TODO: 最后添加进去，进行覆盖吧
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
 		else {
+			// TODO: 判断是不是开始创建bean了
 			if (hasBeanCreationStarted()) {
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
+				// TODO: 如果已经开始创建bean了，这时候进行加锁，锁住beanDefinitionMap
 				synchronized (this.beanDefinitionMap) {
+					// TODO: 向里面注册beanDefinition
 					this.beanDefinitionMap.put(beanName, beanDefinition);
+					// TODO: 注意这里是采用了修改引用，而不是直接去向beanDefinitionNames添加beanName 如果直接add可能会发生 ConcurrentModificationException 异常
 					List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames.size() + 1);
 					updatedDefinitions.addAll(this.beanDefinitionNames);
 					updatedDefinitions.add(beanName);
@@ -969,6 +998,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			else {
+				// TODO: 如果还没有开始进行创建bean，那直接把beanDefinition添加到map中,然后把beanName添加到beanDefinitionNames中
 				// Still in startup registration phase
 				this.beanDefinitionMap.put(beanName, beanDefinition);
 				this.beanDefinitionNames.add(beanName);
@@ -977,6 +1007,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			this.frozenBeanDefinitionNames = null;
 		}
 
+		// TODO: 如果existingDefinition不为null, 或者这个beanName已经创建好bean了，那么就进行reset, 主要就是销毁bean嘛
 		if (existingDefinition != null || containsSingleton(beanName)) {
 			resetBeanDefinition(beanName);
 		}
@@ -988,17 +1019,19 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Override
 	public void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
 		Assert.hasText(beanName, "'beanName' must not be empty");
-
+		// TODO: 从map中，移除beanDefinition
 		BeanDefinition bd = this.beanDefinitionMap.remove(beanName);
+		// TODO: 如果beanDefinition没找到，那就抛个异常吧
 		if (bd == null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("No bean named '" + beanName + "' found in " + this);
 			}
 			throw new NoSuchBeanDefinitionException(beanName);
 		}
-
+		// TODO: 如果当前已经在创建bean了
 		if (hasBeanCreationStarted()) {
 			// Cannot modify startup-time collection elements anymore (for stable iteration)
+			// TODO: 也进行锁一下，同样beanDefinitionNames采用修改引用的方式去修改
 			synchronized (this.beanDefinitionMap) {
 				List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames);
 				updatedDefinitions.remove(beanName);
@@ -1007,10 +1040,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 		else {
 			// Still in startup registration phase
+			// TODO: 否则，直接从beanDefinition移除对应的beanName就行了
 			this.beanDefinitionNames.remove(beanName);
 		}
 		this.frozenBeanDefinitionNames = null;
-
+		// TODO: 重置beanDefinition
 		resetBeanDefinition(beanName);
 	}
 
@@ -1027,21 +1061,26 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 */
 	protected void resetBeanDefinition(String beanName) {
 		// Remove the merged bean definition for the given bean, if already created.
+		// TODO: 把beanDefinition清空
 		clearMergedBeanDefinition(beanName);
 
 		// Remove corresponding bean from singleton cache, if any. Shouldn't usually
 		// be necessary, rather just meant for overriding a context's default beans
 		// (e.g. the default StaticMessageSource in a StaticApplicationContext).
+		// TODO: 销毁这个bean
 		destroySingleton(beanName);
 
 		// Notify all post-processors that the specified bean definition has been reset.
+		// TODO: 调用MergedBeanDefinitionPostProcessor 的 resetBeanDefinition方法
 		for (BeanPostProcessor processor : getBeanPostProcessors()) {
 			if (processor instanceof MergedBeanDefinitionPostProcessor) {
+				// TODO: 重置(移除) beanName 对应的一些cache
 				((MergedBeanDefinitionPostProcessor) processor).resetBeanDefinition(beanName);
 			}
 		}
 
 		// Reset all bean definitions that have the given bean as parent (recursively).
+		// TODO: 修复重置, 当它的beanDefinition 父名字 依赖于 当前重置的beanName的时候，把当前的beanDefinition也重置一下
 		for (String bdName : this.beanDefinitionNames) {
 			if (!beanName.equals(bdName)) {
 				BeanDefinition bd = this.beanDefinitionMap.get(bdName);
