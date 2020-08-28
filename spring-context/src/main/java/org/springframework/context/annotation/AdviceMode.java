@@ -17,6 +17,7 @@
 package org.springframework.context.annotation;
 
 /**
+ * TODO: 提供了两种方式，1.JDK代理Proxy(dynamic jdk proxy, cglib proxy)，2.AspectJ代理的方式
  * Enumeration used to determine whether JDK proxy-based or
  * AspectJ weaving-based advice should be applied.
  *

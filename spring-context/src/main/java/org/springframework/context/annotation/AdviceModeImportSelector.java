@@ -25,6 +25,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 针对AdviceMode而抽象出来的一个抽象类，依据advice model 而由子类决定导入哪些配置类
  * Convenient base class for {@link ImportSelector} implementations that select imports
  * based on an {@link AdviceMode} value from an annotation (such as the {@code @Enable*}
  * annotations).
@@ -64,25 +65,31 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 	 */
 	@Override
 	public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
+		// TODO: 拿到AdviceModeImportSelector的泛型，一般是EnableXXXX
 		Class<?> annType = GenericTypeResolver.resolveTypeArgument(getClass(), AdviceModeImportSelector.class);
 		Assert.state(annType != null, "Unresolvable type argument for AdviceModeImportSelector");
-
+		// TODO: 从配置类上 去拿 EnableXXX注解
 		AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(importingClassMetadata, annType);
+		// TODO: 注意 这里 attributes不能为空，如果为空抛出异常
 		if (attributes == null) {
 			throw new IllegalArgumentException(String.format(
 					"@%s is not present on importing class '%s' as expected",
 					annType.getSimpleName(), importingClassMetadata.getClassName()));
 		}
-
+		// TODO: 拿到注解里面的 adviceMode属性
 		AdviceMode adviceMode = attributes.getEnum(getAdviceModeAttributeName());
+		// TODO: 来个抽象方法，由子类去实现，子类来根据adviceMode决定导入哪些类
 		String[] imports = selectImports(adviceMode);
+		// TODO: 如果你子类返回了一个Null, 抛出一个异常，其实这里刨了个 unKnown adviceModel，感觉不是很准确
 		if (imports == null) {
 			throw new IllegalArgumentException("Unknown AdviceMode: " + adviceMode);
 		}
+		// TODO: 返回全限定名 数组
 		return imports;
 	}
 
 	/**
+	 * TODO: 由子类去实现，依托于 adviceMode来决定导入哪些配置类
 	 * Determine which classes should be imported based on the given {@code AdviceMode}.
 	 * <p>Returning {@code null} from this method indicates that the {@code AdviceMode}
 	 * could not be handled or was unknown and that an {@code IllegalArgumentException}

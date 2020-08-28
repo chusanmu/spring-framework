@@ -34,6 +34,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 直译为BeanDefinition的读取器，它与ClassPathBeanDefinitionScanner是读取注册beanDefinition的两大重要类
  * Convenient adapter for programmatic registration of bean classes.
  *
  * <p>This is an alternative to {@link ClassPathBeanDefinitionScanner}, applying
@@ -48,12 +49,24 @@ import org.springframework.util.Assert;
  */
 public class AnnotatedBeanDefinitionReader {
 
+	/**
+	 * TODO: 组合进来beanDefinitionRegistry，用来注册BeanDefinition
+	 */
 	private final BeanDefinitionRegistry registry;
 
+	/**
+	 * TODO: 这个是beanNameGenerator，beanName生成器
+	 */
 	private BeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
 
+	/**
+	 * TODO: 这个和bean作用域有关，bean作用域元信息解析器
+	 */
 	private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
+	/**
+	 * TODO: 这个是专门用来处理@Condition注解的，用来判断解析配置类或者注册bean当前配置文件是否应该被忽略
+	 */
 	private ConditionEvaluator conditionEvaluator;
 
 
@@ -125,6 +138,7 @@ public class AnnotatedBeanDefinitionReader {
 				(scopeMetadataResolver != null ? scopeMetadataResolver : new AnnotationScopeMetadataResolver());
 	}
 
+	/* ---------------- 可以看到下面这几个register方法，全都调用的doRegisterBean方法 -------------- */
 
 	/**
 	 * Register one or more component classes to be processed.
@@ -201,6 +215,7 @@ public class AnnotatedBeanDefinitionReader {
 	}
 
 	/**
+	 * TODO: 核心方法，专门用来注册beanDefinition
 	 * Register a bean from the given bean class, deriving its metadata from
 	 * class-declared annotations.
 	 * @param beanClass the class of the bean
@@ -215,7 +230,7 @@ public class AnnotatedBeanDefinitionReader {
 	 */
 	<T> void doRegisterBean(Class<T> beanClass, @Nullable Supplier<T> instanceSupplier, @Nullable String name,
 			@Nullable Class<? extends Annotation>[] qualifiers, BeanDefinitionCustomizer... definitionCustomizers) {
-		// TODO: 先把此实体类型转换为一个BeanDefinition
+		// TODO: 先把此实体类型转换为一个BeanDefinition, 把beanClass封装为一个AnnotatedGenericBeanDefinition
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(beanClass);
 		// TODO: 由conditionEvaluator去过滤，此class是否是配置类，大体逻辑，必须有@Configuration修饰，然后解析一些condition注解，看看是否排除
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
