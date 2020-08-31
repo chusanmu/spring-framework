@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * TODO: 对dataSource的一个抽象实现，一些非核心方法，在这里进行了实现
  * Abstract base class for Spring's {@link javax.sql.DataSource}
  * implementations, taking care of the padding.
  *

@@ -103,6 +103,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 		List<Advisor> advisors = super.findCandidateAdvisors();
 		// Build Advisors for all AspectJ aspects in the bean factory.
 		if (this.aspectJAdvisorsBuilder != null) {
+			// TODO: 使用aspectJAdvisorBuilder去创建Aspect，advisors, 这个方法是核心方法
 			advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());
 		}
 		return advisors;
@@ -135,6 +136,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 			return true;
 		}
 		else {
+			// TODO: 如果你设置了includePatterns, 那么就用正则匹配去匹配beanName, 默认为null, 也就是全部都匹配
 			for (Pattern pattern : this.includePatterns) {
 				if (pattern.matcher(beanName).matches()) {
 					return true;

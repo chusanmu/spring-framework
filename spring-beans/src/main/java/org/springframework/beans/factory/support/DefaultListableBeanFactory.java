@@ -1552,11 +1552,15 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// TODO: 存放结果的Map(beanName -> bean)实例，最终会return的
 		Map<String, Object> result = new LinkedHashMap<>(candidateNames.length);
 		// TODO: 如果注入类型是特殊类型或其子类，会将特殊类型的实例添加到结果
+		// TODO: resolvableDependencies 这里面存了一些 比如 BeanFactory, ApplicationContext, ResourceLoader
+		// TODO: 如果需要的类型是这里面包含的类型
 		for (Map.Entry<Class<?>, Object> classObjectEntry : this.resolvableDependencies.entrySet()) {
 			Class<?> autowiringType = classObjectEntry.getKey();
 			if (autowiringType.isAssignableFrom(requiredType)) {
+				// TODO: 如果需要的类型是这里面包含的类型，把里面缓存的bean拿到
 				Object autowiringValue = classObjectEntry.getValue();
 				autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);
+				// TODO: 判断如果实例类型正确，则加到结果集中
 				if (requiredType.isInstance(autowiringValue)) {
 					result.put(ObjectUtils.identityToString(autowiringValue), autowiringValue);
 					break;

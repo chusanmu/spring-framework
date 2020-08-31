@@ -116,6 +116,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 
 
 	/**
+	 * TODO: 返回pointcut，就是AspectJExpressionPointcut
 	 * The pointcut for Spring AOP to use.
 	 * Actual behaviour of the pointcut will change depending on the state of the advice.
 	 */
@@ -135,6 +136,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 	}
 
 	/**
+	 * TODO: 这里就去选择 然后实例化 advice了
 	 * Lazily instantiate advice if necessary.
 	 */
 	@Override
@@ -146,6 +148,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 	}
 
 	private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
+		// TODO: 去选择一个advice然后返回
 		Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
 				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
 		return (advice != null ? advice : EMPTY_ADVICE);

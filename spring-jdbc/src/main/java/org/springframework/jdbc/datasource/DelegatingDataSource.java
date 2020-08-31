@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  * <p>This class is meant to be subclassed, with subclasses overriding only
  * those methods (such as {@link #getConnection()}) that should not simply
  * delegate to the target DataSource.
+ * TODO: 就是一个简单的委托类，最终执行方法的是 targetDataSource
  *
  * @author Juergen Hoeller
  * @since 1.1

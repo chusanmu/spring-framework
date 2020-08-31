@@ -109,6 +109,7 @@ public abstract class AnnotatedElementUtils {
 
 
 	/**
+	 * TODO: 给入参annotations 提供一个适配器
 	 * Build an adapted {@link AnnotatedElement} for the given annotations,
 	 * typically for use with other methods on {@link AnnotatedElementUtils}.
 	 * @param annotations the annotations to expose through the {@code AnnotatedElement}
@@ -157,6 +158,7 @@ public abstract class AnnotatedElementUtils {
 	}
 
 	/**
+	 * TODO: 返回指定annotationName的注解 上面的注解
 	 * Get the fully qualified class names of all meta-annotation
 	 * types <em>present</em> on the annotation (of the specified
 	 * {@code annotationName}) on the supplied {@link AnnotatedElement}.

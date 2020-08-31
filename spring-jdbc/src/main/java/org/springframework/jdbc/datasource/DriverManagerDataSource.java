@@ -146,6 +146,7 @@ public class DriverManagerDataSource extends AbstractDriverBasedDataSource {
 	}
 
 	/**
+	 * TODO: 底层通过DriverManager去获取数据库连接
 	 * Getting a Connection using the nasty static from DriverManager is extracted
 	 * into a protected method to allow for easy unit testing.
 	 * @see java.sql.DriverManager#getConnection(String, java.util.Properties)

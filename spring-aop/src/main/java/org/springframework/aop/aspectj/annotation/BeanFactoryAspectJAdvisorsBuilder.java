@@ -81,32 +81,41 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 * @see #isEligibleBean
 	 */
 	public List<Advisor> buildAspectJAdvisors() {
+		// TODO: 把aspectBeanNames拿过来，首次进来的时候可能是null，需要进行初始化
 		List<String> aspectNames = this.aspectBeanNames;
-
+		// TODO: 如果aspectNames为null, 那就进行初始化吧，这里用到了双重锁检查
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
+				// TODO: 如果还为null, 就去容器里面去查一下
 				if (aspectNames == null) {
 					List<Advisor> advisors = new ArrayList<>();
 					aspectNames = new ArrayList<>();
+					// TODO: 这里比较狠，把容器里面所有的Object类型拿出来，就是容器里面的所有的bean都拿出来啊
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
+					// TODO: 然后挨个遍历，看看是否是个合法的bean
 					for (String beanName : beanNames) {
+						// TODO: 不匹配就跳过吧，会用正则匹配
 						if (!isEligibleBean(beanName)) {
 							continue;
 						}
 						// We must be careful not to instantiate beans eagerly as in this case they
 						// would be cached by the Spring container but would not have been weaved.
+						// TODO: 把beanName 对应的beanType取到，必须保证不是NullBean啊，如果beanType == null ，那就直接下一个吧
 						Class<?> beanType = this.beanFactory.getType(beanName);
 						if (beanType == null) {
 							continue;
 						}
+						// TODO: 判断是否是一个 Aspect, 很简单就是判断下有没有 @Aspect注解
 						if (this.advisorFactory.isAspect(beanType)) {
+							// TODO: 把它 beanName 添加到 aspectNames中
 							aspectNames.add(beanName);
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+								// TODO: 使用advisorFactory获取advisor信息
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
 									this.advisorsCache.put(beanName, classAdvisors);
@@ -130,11 +139,12 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						}
 					}
 					this.aspectBeanNames = aspectNames;
+					// TODO: 这里最终会把找到的advisors找到
 					return advisors;
 				}
 			}
 		}
-
+		// TODO: 下面就是从缓存里面取了
 		if (aspectNames.isEmpty()) {
 			return Collections.emptyList();
 		}

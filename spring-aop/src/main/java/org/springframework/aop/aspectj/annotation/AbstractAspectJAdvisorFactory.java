@@ -103,6 +103,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	@Override
 	public void validate(Class<?> aspectClass) throws AopConfigException {
 		// If the parent has the annotation and isn't abstract it's an error
+		// TODO: 如果它的父类上面标注有@Aspect注解，但是却不是抽象的，那就报错
 		if (aspectClass.getSuperclass().getAnnotation(Aspect.class) != null &&
 				!Modifier.isAbstract(aspectClass.getSuperclass().getModifiers())) {
 			throw new AopConfigException("[" + aspectClass.getName() + "] cannot extend concrete aspect [" +
@@ -130,8 +131,10 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected static AspectJAnnotation<?> findAspectJAnnotationOnMethod(Method method) {
+		// TODO: 依次遍历 Before Around等注解，然后去查找
 		for (Class<?> clazz : ASPECTJ_ANNOTATION_CLASSES) {
 			AspectJAnnotation<?> foundAnnotation = findAnnotation(method, (Class<Annotation>) clazz);
+			// TODO: 如果找到了，直接返回
 			if (foundAnnotation != null) {
 				return foundAnnotation;
 			}
@@ -193,6 +196,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 			this.annotation = annotation;
 			this.annotationType = determineAnnotationType(annotation);
 			try {
+				// TODO: 解析pointcutExpression
 				this.pointcutExpression = resolveExpression(annotation);
 				Object argNames = AnnotationUtils.getValue(annotation, "argNames");
 				this.argumentNames = (argNames instanceof String ? (String) argNames : "");
@@ -211,6 +215,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 		}
 
 		private String resolveExpression(A annotation) {
+			// TODO: 从pointcut或者value中取值
 			for (String attributeName : EXPRESSION_ATTRIBUTES) {
 				Object val = AnnotationUtils.getValue(annotation, attributeName);
 				if (val instanceof String) {

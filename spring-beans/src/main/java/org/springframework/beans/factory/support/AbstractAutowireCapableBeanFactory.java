@@ -1869,6 +1869,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}, getAccessControlContext());
 		}
 		else {
+			// TODO: 执行一系列aware方法啊
 			invokeAwareMethods(beanName, bean);
 		}
 

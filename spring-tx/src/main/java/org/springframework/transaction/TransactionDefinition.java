@@ -21,7 +21,7 @@ import java.sql.Connection;
 import org.springframework.lang.Nullable;
 
 /**
- * TODO: 事务的定义
+ * TODO: 事务的定义 包含了隔离级别，与 传播行为
  * Interface that defines Spring-compliant transaction properties.
  * Based on the propagation behavior definitions analogous to EJB CMT attributes.
  *

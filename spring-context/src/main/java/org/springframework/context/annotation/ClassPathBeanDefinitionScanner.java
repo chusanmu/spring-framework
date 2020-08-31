@@ -347,17 +347,22 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * bean definition has been found for the specified name
 	 */
 	protected boolean checkCandidate(String beanName, BeanDefinition beanDefinition) throws IllegalStateException {
+		// TODO: 如果没注册过，就是合法的，直接返回true
 		if (!this.registry.containsBeanDefinition(beanName)) {
 			return true;
 		}
+		// TODO: 把已经存在的beanDefinition拿出来
 		BeanDefinition existingDef = this.registry.getBeanDefinition(beanName);
+		// TODO: 拿到它原始的beanDefinition, 如果没有就返回null
 		BeanDefinition originatingDef = existingDef.getOriginatingBeanDefinition();
 		if (originatingDef != null) {
 			existingDef = originatingDef;
 		}
+		// TODO: 判断是否兼容
 		if (isCompatible(beanDefinition, existingDef)) {
 			return false;
 		}
+		// TODO: 否则直接抛出异常
 		throw new ConflictingBeanDefinitionException("Annotation-specified bean name '" + beanName +
 				"' for bean class [" + beanDefinition.getBeanClassName() + "] conflicts with existing, " +
 				"non-compatible bean definition of same name and class [" + existingDef.getBeanClassName() + "]");
@@ -375,8 +380,11 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * new definition to be skipped in favor of the existing definition
 	 */
 	protected boolean isCompatible(BeanDefinition newDefinition, BeanDefinition existingDefinition) {
+		// TODO: 如果是扫描进来的，返回true,
 		return (!(existingDefinition instanceof ScannedGenericBeanDefinition) ||  // explicitly registered overriding bean
+				// TODO: 如果扫描了两次 也返回true
 				(newDefinition.getSource() != null && newDefinition.getSource().equals(existingDefinition.getSource())) ||  // scanned same file twice
+				// TODO: 两个beanDefinition完全一样，则返回true
 				newDefinition.equals(existingDefinition));  // scanned equivalent class twice
 	}
 

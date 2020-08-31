@@ -79,6 +79,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * &lt;bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"&gt;
  *   &lt;property name="allowCustomIsolationLevels" value="true"/&gt;
  * &lt;/bean&gt;</pre>
+ * TODO: 依据隔离级别选择 dataSource
  *
  * @author Juergen Hoeller
  * @since 2.0.1
@@ -93,6 +94,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class IsolationLevelDataSourceRouter extends AbstractRoutingDataSource {
 
 	/** Constants instance for TransactionDefinition. */
+	/**
+	 * TODO: 把TransactionDefinition 中所有的常量全收集起来
+	 */
 	private static final Constants constants = new Constants(TransactionDefinition.class);
 
 
@@ -122,6 +126,7 @@ public class IsolationLevelDataSourceRouter extends AbstractRoutingDataSource {
 	@Override
 	@Nullable
 	protected Object determineCurrentLookupKey() {
+		// TODO: 获取当前的隔离级别
 		return TransactionSynchronizationManager.getCurrentTransactionIsolationLevel();
 	}
 

@@ -62,7 +62,9 @@ public class AspectJAfterReturningAdvice extends AbstractAspectJAdvice
 
 	@Override
 	public void afterReturning(@Nullable Object returnValue, Method method, Object[] args, @Nullable Object target) throws Throwable {
+		// TODO: 判断是不是应该执行这个advice
 		if (shouldInvokeOnReturnValueOf(method, returnValue)) {
+			// TODO: 好了到这里就去执行 advice里面的代码吧，执行advice方法
 			invokeAdviceMethod(getJoinPointMatch(), returnValue, null);
 		}
 	}
@@ -77,9 +79,12 @@ public class AspectJAfterReturningAdvice extends AbstractAspectJAdvice
 	 * @return whether to invoke the advice method for the given return value
 	 */
 	private boolean shouldInvokeOnReturnValueOf(Method method, @Nullable Object returnValue) {
+		// TODO: 获得返回类型
 		Class<?> type = getDiscoveredReturningType();
+		// TODO: 获得返回类型的泛型
 		Type genericType = getDiscoveredReturningGenericType();
 		// If we aren't dealing with a raw type, check if generic parameters are assignable.
+		// TODO: 看看返回类型是否匹配，还有泛型是否匹配
 		return (matchesReturnValue(type, method, returnValue) &&
 				(genericType == null || genericType == type ||
 						TypeUtils.isAssignable(genericType, method.getGenericReturnType())));

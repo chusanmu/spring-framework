@@ -29,6 +29,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 动态数据源，继承此抽象类，可以配置动态数据源
  * Abstract {@link javax.sql.DataSource} implementation that routes {@link #getConnection()}
  * calls to one of various target DataSources based on a lookup key. The latter is usually
  * (but not necessarily) determined through some thread-bound transaction context.
@@ -41,24 +42,40 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractRoutingDataSource extends AbstractDataSource implements InitializingBean {
 
+	/**
+	 * todo: 这里封装了你配置的数据源
+	 */
 	@Nullable
 	private Map<Object, Object> targetDataSources;
 
+	/**
+	 * TODO: 默认的数据源
+	 */
 	@Nullable
 	private Object defaultTargetDataSource;
 
 	private boolean lenientFallback = true;
 
+	/**
+	 * 和jndi有关
+	 */
 	private DataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
 
+	/**
+	 * TODO: 解析出来的dataSource
+	 */
 	@Nullable
 	private Map<Object, DataSource> resolvedDataSources;
 
+	/**
+	 * 解析出来的默认的dataSource
+	 */
 	@Nullable
 	private DataSource resolvedDefaultDataSource;
 
 
 	/**
+	 * TODO: 设置targetDataSource
 	 * Specify the map of target DataSources, with the lookup key as key.
 	 * The mapped value can either be a corresponding {@link javax.sql.DataSource}
 	 * instance or a data source name String (to be resolved via a
@@ -73,6 +90,7 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
 	}
 
 	/**
+	 * TODO: 设置默认的dataSource
 	 * Specify the default target DataSource, if any.
 	 * <p>The mapped value can either be a corresponding {@link javax.sql.DataSource}
 	 * instance or a data source name String (to be resolved via a
@@ -113,18 +131,25 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
 	}
 
 
+	/**
+	 * TODO: 这里会进行一系列的初始化动作，解析你配置的数据源
+	 */
 	@Override
 	public void afterPropertiesSet() {
 		if (this.targetDataSources == null) {
 			throw new IllegalArgumentException("Property 'targetDataSources' is required");
 		}
 		this.resolvedDataSources = new HashMap<>(this.targetDataSources.size());
+		// TODO: 把targetDataSource 解析为resolvedDataSources
 		this.targetDataSources.forEach((key, value) -> {
+			// TODO: 这里拿到的key没有变
 			Object lookupKey = resolveSpecifiedLookupKey(key);
+			// TODO: 对value进行操作，如果是dataSource类型，那就直接进行强转
 			DataSource dataSource = resolveSpecifiedDataSource(value);
 			this.resolvedDataSources.put(lookupKey, dataSource);
 		});
 		if (this.defaultTargetDataSource != null) {
+			// TODO: 解析默认的dataSource
 			this.resolvedDefaultDataSource = resolveSpecifiedDataSource(this.defaultTargetDataSource);
 		}
 	}
@@ -165,8 +190,14 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
 	}
 
 
+	/**
+	 * 接口中的方法，获取一个数据库连接
+	 * @return
+	 * @throws SQLException
+	 */
 	@Override
 	public Connection getConnection() throws SQLException {
+		// TODO: determineTargetDataSource 比较重要的一个方法了，决定使用哪个数据源，然后再使用当前数据源进行获得数据库连接
 		return determineTargetDataSource().getConnection();
 	}
 
@@ -198,19 +229,26 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
 	 * @see #determineCurrentLookupKey()
 	 */
 	protected DataSource determineTargetDataSource() {
+		// TODO: resolvedDataSources不能为空
 		Assert.notNull(this.resolvedDataSources, "DataSource router not initialized");
+		// TODO: 去获取一个key, 这个方法子类可以进行重写，然后返回选择key，例如可以放在ThreadLocal中
 		Object lookupKey = determineCurrentLookupKey();
+		// TODO: 从map中获取一个dataSource
 		DataSource dataSource = this.resolvedDataSources.get(lookupKey);
+		// TODO: 如果dataSource为空，没有取到，并且lookupKey为空，那就用默认的吧
 		if (dataSource == null && (this.lenientFallback || lookupKey == null)) {
 			dataSource = this.resolvedDefaultDataSource;
 		}
+		// TODO: 最后 如果还是null, 那只有抛出异常了
 		if (dataSource == null) {
 			throw new IllegalStateException("Cannot determine target DataSource for lookup key [" + lookupKey + "]");
 		}
+		// TODO: 最后把dataSource返回回去
 		return dataSource;
 	}
 
 	/**
+	 * TODO: 由子类去实现这个方法
 	 * Determine the current lookup key. This will typically be
 	 * implemented to check a thread-bound transaction context.
 	 * <p>Allows for arbitrary keys. The returned key needs

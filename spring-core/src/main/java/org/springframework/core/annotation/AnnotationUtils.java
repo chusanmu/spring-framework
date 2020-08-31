@@ -788,14 +788,14 @@ public abstract class AnnotationUtils {
 			handleIntrospectionFailure(clazz, ex);
 			return null;
 		}
-
+		// TODO: 查找实现了的接口上的注解
 		for (Class<?> ifc : clazz.getInterfaces()) {
 			A annotation = findAnnotation(ifc, annotationType, visited);
 			if (annotation != null) {
 				return annotation;
 			}
 		}
-
+		// TODO: 查找父类，从父类开始查找
 		Class<?> superclass = clazz.getSuperclass();
 		if (superclass == null || superclass == Object.class) {
 			return null;
@@ -804,6 +804,8 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * TODO: 优先在你传进来的class上面找，如果找到了 就返回
+	 * TODO: 如果找不到，ok，再去父类上去查找，此方法不查找接口上面的注解
 	 * Find the first {@link Class} in the inheritance hierarchy of the
 	 * specified {@code clazz} (including the specified {@code clazz} itself)
 	 * on which an annotation of the specified {@code annotationType} is
@@ -904,6 +906,7 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * TODO: 判断该注解是否是继承过来的
 	 * Determine whether an annotation of the specified {@code annotationType}
 	 * is <em>present</em> on the supplied {@code clazz} and is
 	 * {@linkplain java.lang.annotation.Inherited inherited}
@@ -927,6 +930,7 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * TODO: 判断某个注解上面是否存在某个注解
 	 * Determine if an annotation of type {@code metaAnnotationType} is
 	 * <em>meta-present</em> on the supplied {@code annotationType}.
 	 * @param annotationType the annotation type to search on
@@ -982,6 +986,7 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * TODO: 是否是JDK自带的注解
 	 * Determine if the supplied {@link Annotation} is defined in the core JDK
 	 * {@code java.lang.annotation} package.
 	 * @param annotation the annotation to check
@@ -1040,6 +1045,7 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * TODO: 获取某个注解的全部属性，用map保存
 	 * Retrieve the given annotation's attributes as a {@link Map}, preserving all
 	 * attribute types.
 	 * <p>Equivalent to calling {@link #getAnnotationAttributes(Annotation, boolean, boolean)}
@@ -1101,6 +1107,7 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * TODO: 获取某个注解的全部属性
 	 * Retrieve the given annotation's attributes as an {@link AnnotationAttributes} map.
 	 * <p>Equivalent to calling {@link #getAnnotationAttributes(AnnotatedElement, Annotation, boolean, boolean)}
 	 * with the {@code classValuesAsString} and {@code nestedAnnotationsAsMap} parameters
@@ -1120,17 +1127,18 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * TODO: 参数最全的一个方法
 	 * Retrieve the given annotation's attributes as an {@link AnnotationAttributes} map.
 	 * <p>This method provides fully recursive annotation reading capabilities on par with
 	 * the reflection-based {@link org.springframework.core.type.StandardAnnotationMetadata}.
 	 * @param annotatedElement the element that is annotated with the supplied annotation;
 	 * may be {@code null} if unknown
-	 * @param annotation the annotation to retrieve the attributes for
+	 * @param annotation the annotation to retrieve the attributes for TODO:目标注解
 	 * @param classValuesAsString whether to convert Class references into Strings (for
 	 * compatibility with {@link org.springframework.core.type.AnnotationMetadata})
-	 * or to preserve them as Class references
-	 * @param nestedAnnotationsAsMap whether to convert nested annotations into
-	 * {@link AnnotationAttributes} maps (for compatibility with
+	 * or to preserve them as Class references TODO: 是否把class类型转换成string类型
+	 * @param nestedAnnotationsAsMap whether to convert nested annotations into TODO: 内嵌的注解是否解析
+	 * {@link AnnotationAttributes} maps (for compatibility with AnnotationAttributes本身就是个Map
 	 * {@link org.springframework.core.type.AnnotationMetadata}) or to preserve them as
 	 * {@code Annotation} instances
 	 * @return the annotation attributes (a specialized Map) with attribute names as keys
@@ -1474,6 +1482,7 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * TODO: 这个方法拿注解的默认值
 	 * Retrieve the <em>default value</em> of the {@code value} attribute
 	 * of a single-element Annotation, given an annotation instance.
 	 * @param annotation the annotation instance from which to retrieve the default value
@@ -1552,7 +1561,7 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
-	 * TODO: 简单来说，就是包一层动态代理，然后去处理 AliasFor， 去处理别名
+	 * TODO: 简单来说，就是包一层动态代理，然后去处理 AliasFor， 去处理别名, 外部也可以调用去产生一个代理了
 	 * <em>Synthesize</em> an annotation from the supplied {@code annotation}
 	 * by wrapping it in a dynamic proxy that transparently enforces
 	 * <em>attribute alias</em> semantics for annotation attributes that are
