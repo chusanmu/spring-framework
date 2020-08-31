@@ -17,6 +17,7 @@
 package org.springframework.core;
 
 /**
+ * TODO: 默认的入参，名字提取器
  * Default implementation of the {@link ParameterNameDiscoverer} strategy interface,
  * using the Java 8 standard reflection mechanism (if available), and falling back
  * to the ASM-based {@link LocalVariableTableParameterNameDiscoverer} for checking
@@ -43,6 +44,7 @@ public class DefaultParameterNameDiscoverer extends PrioritizedParameterNameDisc
 			if (KotlinDetector.isKotlinReflectPresent()) {
 				addDiscoverer(new KotlinReflectionParameterNameDiscoverer());
 			}
+			// TODO: 添加了两个默认的实现，这里DefaultParameterNameDiscoverer 相当于了一个组合实现
 			addDiscoverer(new StandardReflectionParameterNameDiscoverer());
 			addDiscoverer(new LocalVariableTableParameterNameDiscoverer());
 		}

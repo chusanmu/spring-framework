@@ -23,6 +23,7 @@ import java.lang.reflect.Parameter;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 这个就是标准的通过反射实现的
  * {@link ParameterNameDiscoverer} implementation which uses JDK 8's reflection facilities
  * for introspecting parameter names (based on the "-parameters" compiler flag).
  *
@@ -50,6 +51,7 @@ public class StandardReflectionParameterNameDiscoverer implements ParameterNameD
 		String[] parameterNames = new String[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter param = parameters[i];
+			// TODO: 这里通过反射取 有时候取出来的是 类似 args0, arg1这种，最终会返回null回去
 			if (!param.isNamePresent()) {
 				return null;
 			}

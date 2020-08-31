@@ -31,6 +31,7 @@ import org.springframework.core.BridgeMethodResolver;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 非常重要的AOP核心类
  * Spring's implementation of the AOP Alliance
  * {@link org.aopalliance.intercept.MethodInvocation} interface,
  * implementing the extended
@@ -89,6 +90,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	private Map<String, Object> userAttributes;
 
 	/**
+	 * TODO: MethodInterceptor集合，整个methodInterceptor全在里面，然后由此类去驱动调用
 	 * List of MethodInterceptor and InterceptorAndDynamicMethodMatcher
 	 * that need dynamic checks.
 	 */
@@ -183,7 +185,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 			return invokeJoinpoint();
 		}
 
-		// TODO: 获取集合中的methodInterceptor，并且角标+1
+		// TODO: 获取集合中的methodInterceptor，并且角标+1, 从第0个开始取
 		Object interceptorOrInterceptionAdvice =
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
 		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
@@ -206,7 +208,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		else {
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
-			// TODO: 直接执行此拦截器，说明之前已经匹配好了，只有匹配上的方法才会被拦截进来的
+			// TODO: 直接执行此拦截器，说明之前已经匹配好了，只有匹配上的方法才会被拦截进来的，这里引用传的this, 相当于又把它自己给传进去了，执行 MethodInterceptor 的invoke方法
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
 		}
 	}

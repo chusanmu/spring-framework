@@ -100,6 +100,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 	 * to indicate the lack of debug information.
 	 */
 	private Map<Member, String[]> inspectClass(Class<?> clazz) {
+		// TODO: 读取它的class文件，这里显然是要用asm去实现了
 		InputStream is = clazz.getResourceAsStream(ClassUtils.getClassFileName(clazz));
 		if (is == null) {
 			// We couldn't load the class file, which is not fatal as it
@@ -108,12 +109,16 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 				logger.debug("Cannot find '.class' file for class [" + clazz +
 						"] - unable to determine constructor/method parameter names");
 			}
+			// TODO: 没读到 返回个空map
 			return NO_DEBUG_INFO_MAP;
 		}
 		try {
+			// TODO: 利用asm去读取 class文件
 			ClassReader classReader = new ClassReader(is);
 			Map<Member, String[]> map = new ConcurrentHashMap<>(32);
+			// TODO: 调它的accept方法，把ParameterNameDiscoveringVisitor 传进去
 			classReader.accept(new ParameterNameDiscoveringVisitor(clazz, map), 0);
+			// TODO: 返回map
 			return map;
 		}
 		catch (IOException ex) {
@@ -137,6 +142,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 				// ignore
 			}
 		}
+		// TODO: 走到了这里，那就返回个空map吧
 		return NO_DEBUG_INFO_MAP;
 	}
 
@@ -163,6 +169,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 		@Nullable
 		public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 			// exclude synthetic + bridged && static class initialization
+			// TODO: 当访问类中的方法时，会去调用此visitMethod方法， 跳过桥接方法 以及 init构造方法
 			if (!isSyntheticOrBridged(access) && !STATIC_CLASS_INIT.equals(name)) {
 				return new LocalVariableTableVisitor(this.clazz, this.memberMap, name, desc, isStatic(access));
 			}
@@ -219,6 +226,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 			this.hasLvtInfo = true;
 			for (int i = 0; i < this.lvtSlotIndex.length; i++) {
 				if (this.lvtSlotIndex[i] == index) {
+					// TODO: 这里就把parameterName存起来了
 					this.parameterNames[i] = name;
 				}
 			}
