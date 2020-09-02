@@ -40,6 +40,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
+ * TODO:  FactoryBean 简单抽象模板
  * Simple template superclass for {@link FactoryBean} implementations that
  * creates a singleton or a prototype object, depending on a flag.
  *
@@ -137,9 +138,14 @@ public abstract class AbstractFactoryBean<T>
 	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		// TODO: 如果是单例的
 		if (isSingleton()) {
+			// TODO: 到这就开始初始化了
 			this.initialized = true;
+			// TODO: 创建bean
+			// TODO: 这个createInstance 交由子类去实现
 			this.singletonInstance = createInstance();
+			// TODO: 把循环依赖singleton置位null
 			this.earlySingletonInstance = null;
 		}
 	}
@@ -152,7 +158,9 @@ public abstract class AbstractFactoryBean<T>
 	 */
 	@Override
 	public final T getObject() throws Exception {
+		// TODO: 判断是否是单例的
 		if (isSingleton()) {
+			// TODO: 然后判断有没有初始化过，如果初始化了，则直接把当前实例返回，否则从getEarlySingletonInstance中去拿
 			return (this.initialized ? this.singletonInstance : getEarlySingletonInstance());
 		}
 		else {
@@ -166,19 +174,24 @@ public abstract class AbstractFactoryBean<T>
 	 */
 	@SuppressWarnings("unchecked")
 	private T getEarlySingletonInstance() throws Exception {
+		// TODO: 如果它是个接口，就返回它，否则返回null
 		Class<?>[] ifcs = getEarlySingletonInterfaces();
+		// TODO: 这里可以看出它解决循环依赖 关键是拿到当前bean的接口，如果没有，就报错，然后根据接口创建动态代理
 		if (ifcs == null) {
 			throw new FactoryBeanNotInitializedException(
 					getClass().getName() + " does not support circular references");
 		}
+		// TODO: 如果earlySingletonInstance为null,好那就创建动态代理吧
 		if (this.earlySingletonInstance == null) {
 			this.earlySingletonInstance = (T) Proxy.newProxyInstance(
 					this.beanClassLoader, ifcs, new EarlySingletonInvocationHandler());
 		}
+		// TODO: 最后返回
 		return this.earlySingletonInstance;
 	}
 
 	/**
+	 * TODO: 直接返回当前实例
 	 * Expose the singleton instance (for access through the 'early singleton' proxy).
 	 * @return the singleton instance that this FactoryBean holds
 	 * @throws IllegalStateException if the singleton instance is not initialized
@@ -235,7 +248,9 @@ public abstract class AbstractFactoryBean<T>
 	 */
 	@Nullable
 	protected Class<?>[] getEarlySingletonInterfaces() {
+		// TODO: 把当前要创建的bean的类型拿到
 		Class<?> type = getObjectType();
+		// TODO: 如果它是个接口，就把它这个接口拿到
 		return (type != null && type.isInterface() ? new Class<?>[] {type} : null);
 	}
 
@@ -253,6 +268,7 @@ public abstract class AbstractFactoryBean<T>
 
 
 	/**
+	 * TODO: 这里解决循环依赖秒啊，其实很多 例如 @Lazy @Scope 也都是使用代理这种思想，等到真正执行的时候，才去容器中把相应的bean取出来
 	 * Reflective InvocationHandler for lazy access to the actual singleton object.
 	 */
 	private class EarlySingletonInvocationHandler implements InvocationHandler {
@@ -272,6 +288,7 @@ public abstract class AbstractFactoryBean<T>
 						ObjectUtils.nullSafeToString(getEarlySingletonInterfaces());
 			}
 			try {
+				// TODO: 真正执行的时候 去把 singletonInstance 拿到
 				return method.invoke(getSingletonInstance(), args);
 			}
 			catch (InvocationTargetException ex) {
