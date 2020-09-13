@@ -17,6 +17,8 @@
 package org.springframework.aop.framework;
 
 /**
+ * TODO: 这是一个抽象工厂，用来创建AopProxy，默认只有一个实现
+ *
  * Interface to be implemented by factories that are able to create
  * AOP proxies based on {@link AdvisedSupport} configuration objects.
  *

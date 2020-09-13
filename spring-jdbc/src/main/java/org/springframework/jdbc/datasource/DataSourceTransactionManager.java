@@ -272,6 +272,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	@Override
 	protected boolean isExistingTransaction(Object transaction) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
+		// TODO: 存在connectionHolder并且事务激活状态为true
 		return (txObject.hasConnectionHolder() && txObject.getConnectionHolder().isTransactionActive());
 	}
 
@@ -320,6 +321,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			// TODO: 拿到一个Statement,然后执行了一句sql，stmt.executeUpdate("set transaction read only")
 			// TODO: 所以如果仅仅只是查询，把事务的属性设置为readOnly=true, spring会帮我们进行sql优化，readOnly=true后，只能读，不能进行dml操作，只能看到设置事务前数据的变化，看不到设置事务后数据的改变
 			prepareTransactionalConnection(con, definition);
+			// TODO: 设置事务为激活状态
 			txObject.getConnectionHolder().setTransactionActive(true);
 
 			int timeout = determineTimeout(definition);

@@ -86,7 +86,8 @@ import javax.servlet.http.HttpServletRequest;
 public interface MultipartResolver {
 
 	/**
-	 * TODO: 判断请求中是否包含文件，如果请求数据中包含文件，则调用resolveMultipart()方法对请求的数据进行解析，然后将文件解析成MultipartFile并封装在MultipartHttpServletRequest，最后传递到controller
+	 * TODO: 判断请求中是否包含文件，如果请求数据中包含文件，则调用resolveMultipart()方法对请求的数据进行解析，
+	 * TODO: 然后将文件解析成MultipartFile并封装在MultipartHttpServletRequest，最后传递到controller
 	 * Determine if the given request contains multipart content.
 	 * <p>Will typically check for content type "multipart/form-data", but the actually
 	 * accepted requests might depend on the capabilities of the resolver implementation.
@@ -96,6 +97,7 @@ public interface MultipartResolver {
 	boolean isMultipart(HttpServletRequest request);
 
 	/**
+	 * TODO: 将请求进行解析 ，HttpServletRequest 解析为 MultipartHttpServletRequest
 	 * Parse the given HTTP request into multipart files and parameters,
 	 * and wrap the request inside a
 	 * {@link org.springframework.web.multipart.MultipartHttpServletRequest}

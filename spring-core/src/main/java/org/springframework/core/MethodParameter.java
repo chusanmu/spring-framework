@@ -173,6 +173,8 @@ public class MethodParameter {
 
 
 	/**
+	 * TODO: 如果是method那么就返回method
+	 *
 	 * Return the wrapped Method, if any.
 	 * <p>Note: Either Method or Constructor is available.
 	 * @return the Method, or {@code null} if none
@@ -183,6 +185,7 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 如果是构造器，那么就返回构造器
 	 * Return the wrapped Constructor, if any.
 	 * <p>Note: Either Method or Constructor is available.
 	 * @return the Constructor, or {@code null} if none
@@ -193,6 +196,7 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 获得这个方法所属class
 	 * Return the class that declares the underlying Method or Constructor.
 	 */
 	public Class<?> getDeclaringClass() {
@@ -227,6 +231,7 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 拿到实际的Parameter
 	 * Return the {@link Parameter} descriptor for method/constructor parameter.
 	 * @since 5.0
 	 */
@@ -251,6 +256,7 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 增加参数嵌套层级
 	 * Increase this parameter's nesting level.
 	 * @see #getNestingLevel()
 	 */
@@ -337,6 +343,8 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 判断是不是Optional，支持java8
+	 *
 	 * Return whether this method indicates a parameter which is not required:
 	 * either in the form of Java 8's {@link java.util.Optional}, any variant
 	 * of a parameter-level {@code Nullable} annotation (such as from JSR-305
@@ -352,6 +360,7 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 判断是不是有@Nullable注解
 	 * Check whether this method parameter is annotated with any variant of a
 	 * {@code Nullable} annotation, e.g. {@code javax.annotation.Nullable} or
 	 * {@code edu.umd.cs.findbugs.annotations.Nullable}.
@@ -403,17 +412,22 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 直接返回参数类型
+	 *
 	 * Return the type of the method/constructor parameter.
 	 * @return the parameter type (never {@code null})
 	 */
 	public Class<?> getParameterType() {
+		// TODO: parameterType 这个字段就是一个缓存的作用
 		Class<?> paramType = this.parameterType;
 		if (paramType == null) {
+			// TODO: parameterIndex <0 的时候，返回方法的返回值类型
 			if (this.parameterIndex < 0) {
 				Method method = getMethod();
 				paramType = (method != null ? method.getReturnType() : void.class);
 			}
 			else {
+				// TODO: 获得参数类型返回
 				paramType = this.executable.getParameterTypes()[this.parameterIndex];
 			}
 			this.parameterType = paramType;
@@ -422,6 +436,8 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 返回带有泛型信息的参数类型
+	 *
 	 * Return the generic type of the method/constructor parameter.
 	 * @return the parameter type (never {@code null})
 	 * @since 3.0
@@ -431,9 +447,11 @@ public class MethodParameter {
 		if (paramType == null) {
 			if (this.parameterIndex < 0) {
 				Method method = getMethod();
+				// TODO: 一样 小于0 直接返回方法返回值的泛型类型
 				paramType = (method != null ? method.getGenericReturnType() : void.class);
 			}
 			else {
+				// TODO: 拿到带有泛型类型的参数type
 				Type[] genericParameterTypes = this.executable.getGenericParameterTypes();
 				int index = this.parameterIndex;
 				if (this.executable instanceof Constructor &&
@@ -537,6 +555,8 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 拿到参数的注解信息
+	 *
 	 * Return the annotations associated with the specific method/constructor parameter.
 	 */
 	public Annotation[] getParameterAnnotations() {
@@ -568,6 +588,8 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 返回参数上指定注解的注解，没有就返回null
+	 *
 	 * Return the parameter annotation of the given type, if available.
 	 * @param annotationType the annotation type to look for
 	 * @return the annotation object, or {@code null} if not found
@@ -585,6 +607,7 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 判断参数上是否有这个注解
 	 * Return whether the parameter is declared with the given annotation type.
 	 * @param annotationType the annotation type to look for
 	 * @see #getParameterAnnotation(Class)
@@ -604,6 +627,8 @@ public class MethodParameter {
 	}
 
 	/**
+	 * TODO: 获得参数名
+	 *
 	 * Return the name of the method/constructor parameter.
 	 * @return the parameter name (may be {@code null} if no
 	 * parameter name metadata is contained in the class file or no
@@ -612,9 +637,11 @@ public class MethodParameter {
 	 */
 	@Nullable
 	public String getParameterName() {
+		// TODO: 这里如果小于0，就直接返回null
 		if (this.parameterIndex < 0) {
 			return null;
 		}
+		// TODO: 使用参数名称发现器，去解析参数名
 		ParameterNameDiscoverer discoverer = this.parameterNameDiscoverer;
 		if (discoverer != null) {
 			String[] parameterNames = null;
@@ -624,6 +651,7 @@ public class MethodParameter {
 			else if (this.executable instanceof Constructor) {
 				parameterNames = discoverer.getParameterNames((Constructor<?>) this.executable);
 			}
+			// TODO: 拿到参数名后，获取指定位置上的参数名，然后返回回去
 			if (parameterNames != null) {
 				this.parameterName = parameterNames[this.parameterIndex];
 			}
@@ -720,6 +748,7 @@ public class MethodParameter {
 	 * @since 5.0
 	 */
 	public static MethodParameter forExecutable(Executable executable, int parameterIndex) {
+		// TODO: 兼容到两种情况，一个是方法，一个是构造函数
 		if (executable instanceof Method) {
 			return new MethodParameter((Method) executable, parameterIndex);
 		}
@@ -743,10 +772,19 @@ public class MethodParameter {
 		return forExecutable(parameter.getDeclaringExecutable(), findParameterIndex(parameter));
 	}
 
+	/**
+	 * TODO: 获得参数的角标
+	 *
+	 * @param parameter
+	 * @return
+	 */
 	protected static int findParameterIndex(Parameter parameter) {
 		Executable executable = parameter.getDeclaringExecutable();
+		// TODO: 获得这个参数所在的方法，然后把这个方法所有的参数拿到
 		Parameter[] allParams = executable.getParameters();
 		// Try first with identity checks for greater performance.
+		// TODO: 挨个遍历，如果有相等的，就直接返回角标，
+		// TODO: 直接 == 的优先级是最高的
 		for (int i = 0; i < allParams.length; i++) {
 			if (parameter == allParams[i]) {
 				return i;
@@ -754,6 +792,7 @@ public class MethodParameter {
 		}
 		// Potentially try again with object equality checks in order to avoid race
 		// conditions while invoking java.lang.reflect.Executable.getParameters().
+		// TODO: 用equals又进行判断了一次
 		for (int i = 0; i < allParams.length; i++) {
 			if (parameter.equals(allParams[i])) {
 				return i;
@@ -763,6 +802,12 @@ public class MethodParameter {
 				"] does not match any parameter in the declaring executable");
 	}
 
+	/**
+	 * TODO: 校验这个parameterIndex是否正确，不能大于参数实际个数
+	 * @param executable
+	 * @param parameterIndex
+	 * @return
+	 */
 	private static int validateIndex(Executable executable, int parameterIndex) {
 		int count = executable.getParameterCount();
 		Assert.isTrue(parameterIndex >= -1 && parameterIndex < count,

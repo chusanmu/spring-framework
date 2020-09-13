@@ -28,6 +28,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.FileCopyUtils;
 
 /**
+ * TODO: 定义了文件上传的文件信息
+ *
  * A representation of an uploaded file received in a multipart request.
  *
  * <p>The file contents are either stored in memory or temporarily on disk.
@@ -44,12 +46,14 @@ import org.springframework.util.FileCopyUtils;
 public interface MultipartFile extends InputStreamSource {
 
 	/**
+	 * TODO: 请求时对应的参数名
 	 * Return the name of the parameter in the multipart form.
 	 * @return the name of the parameter (never {@code null} or empty)
 	 */
 	String getName();
 
 	/**
+	 * TODO: 文件在客户端上的原始文件名
 	 * Return the original filename in the client's filesystem.
 	 * <p>This may contain path information depending on the browser used,
 	 * but it typically will not with any other than Opera.
@@ -62,6 +66,7 @@ public interface MultipartFile extends InputStreamSource {
 	String getOriginalFilename();
 
 	/**
+	 * TODO: 请求时的content-type
 	 * Return the content type of the file.
 	 * @return the content type, or {@code null} if not defined
 	 * (or no file has been chosen in the multipart form)
@@ -70,18 +75,24 @@ public interface MultipartFile extends InputStreamSource {
 	String getContentType();
 
 	/**
+	 * TODO: 判断上传的文件是否为空，两种情况，1.没有文件被选择，2.选择的文件没有内容
+	 *
 	 * Return whether the uploaded file is empty, that is, either no file has
 	 * been chosen in the multipart form or the chosen file has no content.
 	 */
 	boolean isEmpty();
 
 	/**
+	 * TODO: 返回文件的size
+	 *
 	 * Return the size of the file in bytes.
 	 * @return the size of the file, or 0 if empty
 	 */
 	long getSize();
 
 	/**
+	 * TODO: 文件内容作为字节流返回
+	 *
 	 * Return the contents of the file as an array of bytes.
 	 * @return the contents of the file as bytes, or an empty byte array if empty
 	 * @throws IOException in case of access errors (if the temporary store fails)
@@ -89,6 +100,7 @@ public interface MultipartFile extends InputStreamSource {
 	byte[] getBytes() throws IOException;
 
 	/**
+	 * TODO: 返回inputStream ，通过它去读取文件中的字节流
 	 * Return an InputStream to read the contents of the file from.
 	 * <p>The user is responsible for closing the returned stream.
 	 * @return the contents of the file as stream, or an empty stream if empty
@@ -98,6 +110,7 @@ public interface MultipartFile extends InputStreamSource {
 	InputStream getInputStream() throws IOException;
 
 	/**
+	 * TODO: 5.1新加的，获得文件-》resource
 	 * Return a Resource representation of this MultipartFile. This can be used
 	 * as input to the {@code RestTemplate} or the {@code WebClient} to expose
 	 * content length and the filename along with the InputStream.
@@ -109,6 +122,8 @@ public interface MultipartFile extends InputStreamSource {
 	}
 
 	/**
+	 * TODO: 保存到目标文件，这个方法效率还是挺高的
+	 *
 	 * Transfer the received file to the given destination file.
 	 * <p>This may either move the file in the filesystem, copy the file in the
 	 * filesystem, or save memory-held contents to the destination file. If the

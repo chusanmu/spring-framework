@@ -1150,7 +1150,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
 					// TODO: 如果bean不为null, 那就直接返回吧，短路掉后面的after也就不执行了
 					if (bean != null) {
-						// TODO: 但是BeanPostProcessor的 postProcessAfterInitialization方法还是可以执行的
+						// TODO: 注意 但是BeanPostProcessor的 postProcessAfterInitialization方法还是可以执行的
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
 					}
 				}

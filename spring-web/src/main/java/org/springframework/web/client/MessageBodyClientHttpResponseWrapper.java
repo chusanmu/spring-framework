@@ -48,6 +48,8 @@ class MessageBodyClientHttpResponseWrapper implements ClientHttpResponse {
 
 
 	/**
+	 * TODO: 判断响应里是否有body体
+	 * TODO: 若响应码是1xx,或者204，或者getHeaders().getContentLength == 0 ，那就返回false, 否则返回true
 	 * Indicates whether the response has a message body.
 	 * <p>Implementation returns {@code false} for:
 	 * <ul>
@@ -70,6 +72,8 @@ class MessageBodyClientHttpResponseWrapper implements ClientHttpResponse {
 	}
 
 	/**
+	 * TODO: 上面那个是完全根据状态码来进行判断body体的，这里会根据流来判断，如果response.getBody() == null 返回true,
+	 * TODO: 若流里面有内容，最终就用new PushbackInputStream(body) 包装起来
 	 * Indicates whether the response has an empty message body.
 	 * <p>Implementation tries to read the first bytes of the response stream:
 	 * <ul>

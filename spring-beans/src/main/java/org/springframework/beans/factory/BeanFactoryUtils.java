@@ -296,8 +296,10 @@ public abstract class BeanFactoryUtils {
 			HierarchicalBeanFactory hbf = (HierarchicalBeanFactory) lbf;
 			if (hbf.getParentBeanFactory() instanceof ListableBeanFactory) {
 				Map<String, T> parentResult = beansOfTypeIncludingAncestors(
+						// TODO: 从它的parentBeanFactory中接着查找
 						(ListableBeanFactory) hbf.getParentBeanFactory(), type);
 				parentResult.forEach((beanName, beanInstance) -> {
+					// TODO: 如果result中是不存在的，才加进去，这里可以看出来，优先级是以本容器优先
 					if (!result.containsKey(beanName) && !hbf.containsLocalBean(beanName)) {
 						result.put(beanName, beanInstance);
 					}
@@ -357,6 +359,7 @@ public abstract class BeanFactoryUtils {
 	}
 
 	/**
+	 * TODO: 根据类型和bean工厂获得一个bean, 包含它的父容器
 	 * Return a single bean of the given type or subtypes, also picking up beans
 	 * defined in ancestor bean factories if the current bean factory is a
 	 * HierarchicalBeanFactory. Useful convenience method when we expect a

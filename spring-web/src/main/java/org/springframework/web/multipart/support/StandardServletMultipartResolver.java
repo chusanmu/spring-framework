@@ -27,6 +27,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
 
 /**
+ * TODO: 此类是spring boot中默认使用的resolver
+ *
  * Standard implementation of the {@link MultipartResolver} interface,
  * based on the Servlet 3.0 {@link javax.servlet.http.Part} API.
  * To be added as "multipartResolver" bean to a Spring DispatcherServlet context,
@@ -77,11 +79,23 @@ public class StandardServletMultipartResolver implements MultipartResolver {
 	}
 
 
+	/**
+	 * TODO: 它这个判断文件上传请求倒是简单，直接判断请求头中 content-type,是否是multipart/开头的
+	 *
+	 * @param request the servlet request to be evaluated
+	 * @return
+	 */
 	@Override
 	public boolean isMultipart(HttpServletRequest request) {
 		return StringUtils.startsWithIgnoreCase(request.getContentType(), "multipart/");
 	}
 
+	/**
+	 * 转成 MultipartHttpServletRequest
+	 * @param request the servlet request to wrap (must be of a multipart content type)
+	 * @return
+	 * @throws MultipartException
+	 */
 	@Override
 	public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request) throws MultipartException {
 		return new StandardMultipartHttpServletRequest(request, this.resolveLazily);

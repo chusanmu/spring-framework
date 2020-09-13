@@ -61,6 +61,9 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 
 	private HttpClient httpClient;
 
+	/**
+	 * TODO: 这个配置就是可以配置超时等client属性的类
+	 */
 	@Nullable
 	private RequestConfig requestConfig;
 
@@ -76,6 +79,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 	}
 
 	/**
+	 * TODO: 可以把配置好的client传给它
 	 * Create a new instance of the {@code HttpComponentsClientHttpRequestFactory}
 	 * with the given {@link HttpClient} instance.
 	 * @param httpClient the HttpClient instance to use for this request factory
@@ -160,6 +164,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 
 	@Override
 	public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
+		// TODO: 拿到你指定的client,或者是系统缺省的
 		HttpClient client = getHttpClient();
 
 		HttpUriRequest httpRequest = createHttpUriRequest(httpMethod, uri);

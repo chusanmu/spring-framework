@@ -20,6 +20,8 @@ import java.net.URI;
 import java.util.Map;
 
 /**
+ * TODO: 用于定义用变量扩展uri模板的方法
+ *
  * Defines methods for expanding a URI template with variables.
  *
  * @author Rossen Stoyanchev

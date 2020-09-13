@@ -58,6 +58,7 @@ public class BasicAuthenticationInterceptor implements ClientHttpRequestIntercep
 	}
 
 	/**
+	 * username不能包含 : 这个字符，但是密码允许
 	 * Create a new interceptor which adds Basic Authentication for the
 	 * given username and password, encoded using the specified charset.
 	 * @param username the username to use
@@ -76,7 +77,7 @@ public class BasicAuthenticationInterceptor implements ClientHttpRequestIntercep
 	@Override
 	public ClientHttpResponse intercept(
 			HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-
+		// TODO: 放到请求头里面 设置 AUTHORIZATION
 		HttpHeaders headers = request.getHeaders();
 		if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
 			headers.setBasicAuth(this.username, this.password, this.charset);

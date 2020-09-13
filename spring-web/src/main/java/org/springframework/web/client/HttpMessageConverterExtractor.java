@@ -48,6 +48,9 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
 	@Nullable
 	private final Class<T> responseClass;
 
+	/**
+	 * TODO: 用于消息解析的转换器
+	 */
 	private final List<HttpMessageConverter<?>> messageConverters;
 
 	private final Log logger;
@@ -80,16 +83,25 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
 	}
 
 
+	/**
+	 * TODO: 从ClientHttpResponse里提取值
+	 * @param response the HTTP response
+	 * @return
+	 * @throws IOException
+	 */
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes", "resource"})
 	public T extractData(ClientHttpResponse response) throws IOException {
 		MessageBodyClientHttpResponseWrapper responseWrapper = new MessageBodyClientHttpResponseWrapper(response);
+		// TODO: 若没有消息体，状态码不对，或者消息体为空都被认为是没有的
 		if (!responseWrapper.hasMessageBody() || responseWrapper.hasEmptyMessageBody()) {
 			return null;
 		}
+		// TODO: 若响应头header里没有指定，那默认是它 APPLICATION_OCTET_STREAM
 		MediaType contentType = getContentType(responseWrapper);
 
 		try {
+			// TODO: 遍历所有的messageConverter,根据content-type来选择一个消息转换器，利用content-type找到一个消息转换器，然后把消息读出来转换成java对象
 			for (HttpMessageConverter<?> messageConverter : this.messageConverters) {
 				if (messageConverter instanceof GenericHttpMessageConverter) {
 					GenericHttpMessageConverter<?> genericMessageConverter =

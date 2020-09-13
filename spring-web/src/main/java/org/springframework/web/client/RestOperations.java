@@ -29,6 +29,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: xxxForObject: 返回响应体，直接就是body体里的内容
+ * TODO: xxxForEntity: 返回响应行，响应头，响应码，响应体等
+ * TODO: xxxForLocation: 提交之后，返回新资源的URI
  * Interface specifying a basic set of RESTful operations.
  * Implemented by {@link RestTemplate}. Not often used directly, but a useful
  * option to enhance testability, as it can easily be mocked or stubbed.

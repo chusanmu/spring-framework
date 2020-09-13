@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * Mock implementation of the {@link org.springframework.web.multipart.MultipartFile}
  * interface.
+ * TODO: 此类一般用于测试
  *
  * <p>Useful in conjunction with a {@link MockMultipartHttpServletRequest}
  * for testing application controllers that access multipart uploads.
@@ -66,6 +67,7 @@ public class MockMultipartFile implements MultipartFile {
 	 * @throws IOException if reading from the stream failed
 	 */
 	public MockMultipartFile(String name, InputStream contentStream) throws IOException {
+		// TODO: 将inputStream里面的内容，拷贝到字节数组里面 byte[]
 		this(name, "", null, FileCopyUtils.copyToByteArray(contentStream));
 	}
 

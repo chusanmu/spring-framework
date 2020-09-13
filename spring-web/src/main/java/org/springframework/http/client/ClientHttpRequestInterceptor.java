@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.springframework.http.HttpRequest;
 
 /**
+ * TODO: 拦截器呀，在发送请求之前可以加点请求头啥的，有点像feign的 RequestInterceptor
  * Intercepts client-side HTTP requests. Implementations of this interface can be
  * {@linkplain org.springframework.web.client.RestTemplate#setInterceptors registered}
  * with the {@link org.springframework.web.client.RestTemplate RestTemplate},

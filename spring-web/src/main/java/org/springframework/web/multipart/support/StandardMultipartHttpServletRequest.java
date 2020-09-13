@@ -90,25 +90,40 @@ public class StandardMultipartHttpServletRequest extends AbstractMultipartHttpSe
 	}
 
 
+	/**
+	 * TODO: 解析请求，把里面的文件相关信息解析出来，封装到MultipartFile中
+	 *
+	 * @param request
+	 */
 	private void parseRequest(HttpServletRequest request) {
 		try {
+			// TODO: 把request中所有的Parts拿出来
 			Collection<Part> parts = request.getParts();
+			// TODO: 初始化 multipartParameterNames
 			this.multipartParameterNames = new LinkedHashSet<>(parts.size());
+			// TODO: 初始化files
 			MultiValueMap<String, MultipartFile> files = new LinkedMultiValueMap<>(parts.size());
+			// TODO: 遍历每一个 parts
 			for (Part part : parts) {
+				// TODO: 这里就开始解析每一部分的数据了，将内容配置取出来
 				String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
 				ContentDisposition disposition = ContentDisposition.parse(headerValue);
+				// TODO: 拿到filename
 				String filename = disposition.getFilename();
 				if (filename != null) {
 					if (filename.startsWith("=?") && filename.endsWith("?=")) {
+						// TODO: 进行编码
 						filename = MimeDelegate.decode(filename);
 					}
+					// TODO: 把part信息封装到 StandardMultipartFile中, 参数名，对应 MultipartFile
 					files.add(part.getName(), new StandardMultipartFile(part, filename));
 				}
 				else {
+					// TODO: 如果不是文件上传，就把它的name放进去就ok了
 					this.multipartParameterNames.add(part.getName());
 				}
 			}
+			// TODO: 设置files
 			setMultipartFiles(files);
 		}
 		catch (Throwable ex) {

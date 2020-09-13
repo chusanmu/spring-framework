@@ -34,6 +34,8 @@ import org.springframework.util.MultiValueMap;
 public interface MultipartRequest {
 
 	/**
+	 * TODO: 多文件上传时，拿到所有的文件名
+	 *
 	 * Return an {@link java.util.Iterator} of String objects containing the
 	 * parameter names of the multipart files contained in this request. These
 	 * are the field names of the form (like with normal parameters), not the
@@ -43,6 +45,7 @@ public interface MultipartRequest {
 	Iterator<String> getFileNames();
 
 	/**
+	 * TODO: 这里的name代表 请求时参数名
 	 * Return the contents plus description of an uploaded file in this request,
 	 * or {@code null} if it does not exist.
 	 * @param name a String specifying the parameter name of the multipart file
@@ -52,6 +55,8 @@ public interface MultipartRequest {
 	MultipartFile getFile(String name);
 
 	/**
+	 * TODO: 返回一个参数名称对应多个的 MultipartFile
+	 *
 	 * Return the contents plus description of uploaded files in this request,
 	 * or an empty list if it does not exist.
 	 * @param name a String specifying the parameter name of the multipart file
@@ -61,6 +66,7 @@ public interface MultipartRequest {
 	List<MultipartFile> getFiles(String name);
 
 	/**
+	 * TODO: 做成map
 	 * Return a {@link java.util.Map} of the multipart files contained in this request.
 	 * @return a map containing the parameter names as keys, and the
 	 * {@link MultipartFile} objects as values
@@ -76,6 +82,8 @@ public interface MultipartRequest {
 	MultiValueMap<String, MultipartFile> getMultiFileMap();
 
 	/**
+	 * TODO: 获取请求他的content-type
+	 *
 	 * Determine the content type of the specified request part.
 	 * @param paramOrFileName the name of the part
 	 * @return the associated content type, or {@code null} if not defined

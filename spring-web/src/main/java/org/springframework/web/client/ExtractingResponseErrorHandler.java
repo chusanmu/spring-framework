@@ -59,6 +59,9 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
 
 	private List<HttpMessageConverter<?>> messageConverters = Collections.emptyList();
 
+	/**
+	 * TODO: 对响应码做缓存
+	 */
 	private final Map<HttpStatus, Class<? extends RestClientException>> statusMapping = new LinkedHashMap<>();
 
 	private final Map<HttpStatus.Series, Class<? extends RestClientException>> seriesMapping = new LinkedHashMap<>();
@@ -118,7 +121,11 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
 		}
 	}
 
-
+	/**
+	 * TODO: 增加缓存功能，否则交给父类
+	 * @param statusCode the HTTP status code as enum value
+	 * @return
+	 */
 	@Override
 	protected boolean hasError(HttpStatus statusCode) {
 		if (this.statusMapping.containsKey(statusCode)) {
@@ -145,6 +152,12 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
 		}
 	}
 
+	/**
+	 * TODO: 提取，使用HttpMessageConverterExtractor 返回值提取器，从返回值里面提取内容，这里是提取异常
+	 * @param exceptionClass
+	 * @param response
+	 * @throws IOException
+	 */
 	private void extract(@Nullable Class<? extends RestClientException> exceptionClass,
 			ClientHttpResponse response) throws IOException {
 
@@ -155,6 +168,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
 		HttpMessageConverterExtractor<? extends RestClientException> extractor =
 				new HttpMessageConverterExtractor<>(exceptionClass, this.messageConverters);
 		RestClientException exception = extractor.extractData(response);
+		// TODO: 若提取到了异常，抛出即可
 		if (exception != null) {
 			throw exception;
 		}

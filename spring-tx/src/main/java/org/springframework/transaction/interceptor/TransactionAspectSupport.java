@@ -192,6 +192,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
 	/**
 	 * TODO: 若传入的为Properties，内部是实际使用的是NameMatchTransactionAttributeSource去匹配的，若调用了此方法，transactionAttributeSource就会被覆盖
+	 * TODO: 这地方不建议轻易修改，出现过一个问题 interceptor自己设置的transactionAttributeSource覆盖了 使用注解扫描到的@Transactional的属性值
 	 * Set properties with method names as keys and transaction attribute
 	 * descriptors (parsed via TransactionAttributeEditor) as values:
 	 * e.g. key = "myMethod", value = "PROPAGATION_REQUIRED,readOnly".

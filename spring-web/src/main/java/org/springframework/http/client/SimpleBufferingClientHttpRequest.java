@@ -37,6 +37,9 @@ import org.springframework.util.StringUtils;
  */
 final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttpRequest {
 
+	/**
+	 * 使用java的 httpURLConnection 类
+	 */
 	private final HttpURLConnection connection;
 
 	private final boolean outputStreaming;

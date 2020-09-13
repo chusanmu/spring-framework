@@ -19,6 +19,8 @@ package org.springframework.core.task;
 import java.util.concurrent.Executor;
 
 /**
+ * TODO: 继承了java中的executor
+ *
  * Simple task executor interface that abstracts the execution
  * of a {@link Runnable}.
  *

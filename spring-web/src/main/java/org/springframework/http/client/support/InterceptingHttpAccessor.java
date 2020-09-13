@@ -43,6 +43,9 @@ import org.springframework.util.CollectionUtils;
  */
 public abstract class InterceptingHttpAccessor extends HttpAccessor {
 
+	/**
+	 * TODO: 管理请求的拦截器，装载需要作用在RestTemplate上的拦截器们
+	 */
 	private final List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
 
 	@Nullable
@@ -90,6 +93,7 @@ public abstract class InterceptingHttpAccessor extends HttpAccessor {
 	@Override
 	public ClientHttpRequestFactory getRequestFactory() {
 		List<ClientHttpRequestInterceptor> interceptors = getInterceptors();
+		// TODO: 若配置了拦截器，那么默认使用InterceptingClientHttpRequestFactory,而不再是SimpleClientHttpRequestFactory了
 		if (!CollectionUtils.isEmpty(interceptors)) {
 			ClientHttpRequestFactory factory = this.interceptingRequestFactory;
 			if (factory == null) {

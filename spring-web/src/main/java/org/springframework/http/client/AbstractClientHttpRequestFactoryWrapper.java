@@ -23,6 +23,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 对其他ClientHttpRequestFactory的一个包装抽象类
+ *
  * Abstract base class for {@link ClientHttpRequestFactory} implementations
  * that decorate another request factory.
  *

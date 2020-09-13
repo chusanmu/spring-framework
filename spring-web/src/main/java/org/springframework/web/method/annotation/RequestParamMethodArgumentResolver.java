@@ -185,11 +185,14 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 	@Override
 	@Nullable
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+		// TODO: 把原始类型HttpServletRequest拿到
 		HttpServletRequest servletRequest = request.getNativeRequest(HttpServletRequest.class);
 		// TODO: 这块解析出来的是个multipartFile或者其集合 数组
 		if (servletRequest != null) {
+			// TODO: 依赖他去解析
 			Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, servletRequest);
 			if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {
+				// TODO: 解析出来了，直接返回回去
 				return mpArg;
 			}
 		}
@@ -197,6 +200,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 		Object arg = null;
 		MultipartRequest multipartRequest = request.getNativeRequest(MultipartRequest.class);
 		if (multipartRequest != null) {
+			// TODO: 尝试把这个名字对应的file拿到，如果拿到了就返回回去
 			List<MultipartFile> files = multipartRequest.getFiles(name);
 			if (!files.isEmpty()) {
 				arg = (files.size() == 1 ? files.get(0) : files);

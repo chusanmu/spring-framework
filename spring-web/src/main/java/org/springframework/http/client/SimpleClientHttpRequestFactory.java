@@ -29,6 +29,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: 它是spring内置的默认的实现，使用的是JDK内置的java.net.URLConnection作为client客户端
  * {@link ClientHttpRequestFactory} implementation that uses standard JDK facilities.
  *
  * @author Arjen Poutsma
@@ -142,7 +143,9 @@ public class SimpleClientHttpRequestFactory implements ClientHttpRequestFactory,
 
 	@Override
 	public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
+		// TODO: 打开一个HttpURLConnection
 		HttpURLConnection connection = openConnection(uri.toURL(), this.proxy);
+		// TODO: 设置超时时间，请求方法等一些参数到connection
 		prepareConnection(connection, httpMethod.name());
 
 		if (this.bufferRequestBody) {

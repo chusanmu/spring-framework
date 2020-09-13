@@ -23,6 +23,8 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.HttpRequest;
 
 /**
+ * TODO: ClientHttpRequest它代表请求的客户端，该接口继承自HttpRequest，HttpOutputMessage
+ *
  * Represents a client-side HTTP request.
  * Created via an implementation of the {@link ClientHttpRequestFactory}.
  *
@@ -36,6 +38,7 @@ import org.springframework.http.HttpRequest;
 public interface ClientHttpRequest extends HttpRequest, HttpOutputMessage {
 
 	/**
+	 * TODO: 使用execute() 方法就可以发送请求了
 	 * Execute this request, resulting in a {@link ClientHttpResponse} that can be read.
 	 * @return the response result of the execution
 	 * @throws IOException in case of I/O errors

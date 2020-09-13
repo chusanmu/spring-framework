@@ -23,6 +23,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpResponse;
 
 /**
+ * TODO: 用于确定特定响应是否有错误的策略接口
+ *
  * Strategy interface used by the {@link RestTemplate} to determine
  * whether a particular response has an error or not.
  *
@@ -32,6 +34,7 @@ import org.springframework.http.client.ClientHttpResponse;
 public interface ResponseErrorHandler {
 
 	/**
+	 * TODO: response里是否有错
 	 * Indicate whether the given response has any errors.
 	 * <p>Implementations will typically inspect the
 	 * {@link ClientHttpResponse#getStatusCode() HttpStatus} of the response.

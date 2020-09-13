@@ -47,10 +47,14 @@ public abstract class HttpAccessor {
 	/** Logger available to subclasses. */
 	protected final Log logger = HttpLogging.forLogName(getClass());
 
+	/**
+	 * TODO: RestTemplate默认使用的客户端工厂，基于源生JDK
+	 */
 	private ClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
 
 	/**
+	 * TODO: 若要切换成三方库的底层组件，设置此方法
 	 * Set the request factory that this accessor uses for obtaining client request handles.
 	 * <p>The default is a {@link SimpleClientHttpRequestFactory} based on the JDK's own
 	 * HTTP libraries ({@link java.net.HttpURLConnection}).
@@ -75,6 +79,7 @@ public abstract class HttpAccessor {
 
 
 	/**
+	 * TODO: 提供给子类拿到 ClientHttpRequest
 	 * Create a new {@link ClientHttpRequest} via this template's {@link ClientHttpRequestFactory}.
 	 * @param url the URL to connect to
 	 * @param method the HTTP method to execute (GET, POST, etc)

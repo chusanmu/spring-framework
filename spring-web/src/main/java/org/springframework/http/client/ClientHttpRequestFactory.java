@@ -32,6 +32,7 @@ import org.springframework.http.HttpMethod;
 public interface ClientHttpRequestFactory {
 
 	/**
+	 * TODO: 用于根据URI和HttpMethod创建出一个ClientHttpRequest来发送请求
 	 * Create a new {@link ClientHttpRequest} for the specified URI and HTTP method.
 	 * <p>The returned request can be written to, and then executed by calling
 	 * {@link ClientHttpRequest#execute()}.

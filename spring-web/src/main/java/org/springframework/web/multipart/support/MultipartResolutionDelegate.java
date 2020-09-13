@@ -86,6 +86,15 @@ public abstract class MultipartResolutionDelegate {
 				(Part.class == paramType || isPartCollection(parameter) || isPartArray(parameter)));
 	}
 
+	/**
+	 * TODO: 当解析文件上传时，这个方法可以玩玩
+	 *
+	 * @param name
+	 * @param parameter
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
 	@Nullable
 	public static Object resolveMultipartArgument(String name, MethodParameter parameter, HttpServletRequest request)
 			throws Exception {
@@ -98,14 +107,17 @@ public abstract class MultipartResolutionDelegate {
 			if (multipartRequest == null && isMultipart) {
 				multipartRequest = new StandardMultipartHttpServletRequest(request);
 			}
+			// TODO: 把MultipartFile拿到
 			return (multipartRequest != null ? multipartRequest.getFile(name) : null);
 		}
 		else if (isMultipartFileCollection(parameter)) {
 			if (multipartRequest == null && isMultipart) {
 				multipartRequest = new StandardMultipartHttpServletRequest(request);
 			}
+			// TODO: 如果是多个multipartFile类型的， 那就解析出来一个 List<MultipartFile>
 			return (multipartRequest != null ? multipartRequest.getFiles(name) : null);
 		}
+		// TODO: 如果是个数组类型，那就返回数组喽
 		else if (isMultipartFileArray(parameter)) {
 			if (multipartRequest == null && isMultipart) {
 				multipartRequest = new StandardMultipartHttpServletRequest(request);

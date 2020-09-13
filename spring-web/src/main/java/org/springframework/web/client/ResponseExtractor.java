@@ -23,6 +23,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 响应提取器，从Response中提取数据，RestTemplate请求完成后，都是通过它来从ClientHttpResponse提取出指定内容 比如请求头，请求体等等
  * Generic callback interface used by {@link RestTemplate}'s retrieval methods
  * Implementations of this interface perform the actual work of extracting data
  * from a {@link ClientHttpResponse}, but don't need to worry about exception

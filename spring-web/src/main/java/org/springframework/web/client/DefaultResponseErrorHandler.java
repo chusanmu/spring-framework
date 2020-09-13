@@ -27,6 +27,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.FileCopyUtils;
 
 /**
+ * TODO: Spring对此策略接口的默认实现，RestTemplate默认使用的错误处理器就是它
  * Spring's default implementation of the {@link ResponseErrorHandler} interface.
  *
  * <p>This error handler checks for the status code on the {@link ClientHttpResponse}:
@@ -44,6 +45,7 @@ import org.springframework.util.FileCopyUtils;
 public class DefaultResponseErrorHandler implements ResponseErrorHandler {
 
 	/**
+	 * TODO: 是否有错误，是根据响应码来判断的
 	 * Delegates to {@link #hasError(HttpStatus)} (for a standard status enum value) or
 	 * {@link #hasError(int)} (for an unknown status code) with the response status code.
 	 * @see ClientHttpResponse#getRawStatusCode()
@@ -58,6 +60,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
 	}
 
 	/**
+	 * 处理错误
 	 * Template method called from {@link #hasError(ClientHttpResponse)}.
 	 * <p>The default implementation checks {@link HttpStatus#isError()}.
 	 * Can be overridden in subclasses.
@@ -115,8 +118,10 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
 	protected void handleError(ClientHttpResponse response, HttpStatus statusCode) throws IOException {
 		String statusText = response.getStatusText();
 		HttpHeaders headers = response.getHeaders();
+		// TODO: 拿到body,把InputStream转为字节数组
 		byte[] body = getResponseBody(response);
 		Charset charset = getCharset(response);
+		// TODO: 针对于客户端，服务端错误，包装为HttpClientErrorException 和 HttpServerErrorException 进行抛出
 		switch (statusCode.series()) {
 			case CLIENT_ERROR:
 				throw HttpClientErrorException.create(statusCode, statusText, headers, body, charset);

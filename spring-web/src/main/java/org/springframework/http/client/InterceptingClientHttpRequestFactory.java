@@ -34,6 +34,9 @@ import org.springframework.lang.Nullable;
  */
 public class InterceptingClientHttpRequestFactory extends AbstractClientHttpRequestFactoryWrapper {
 
+	/**
+	 * 持有所有的请求拦截器
+	 */
 	private final List<ClientHttpRequestInterceptor> interceptors;
 
 
@@ -46,10 +49,18 @@ public class InterceptingClientHttpRequestFactory extends AbstractClientHttpRequ
 			@Nullable List<ClientHttpRequestInterceptor> interceptors) {
 
 		super(requestFactory);
+		// TODO: 拦截器只允许通过构造函数设置进来，并且并没有提供get方法
 		this.interceptors = (interceptors != null ? interceptors : Collections.emptyList());
 	}
 
 
+	/**
+	 * TODO: 此处返回的是一个InterceptingClientHttpRequest, 这里肯定是个ClientHttpRequest
+	 * @param uri the URI to create a request for
+	 * @param httpMethod the HTTP method to execute
+	 * @param requestFactory the wrapped request factory
+	 * @return
+	 */
 	@Override
 	protected ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod, ClientHttpRequestFactory requestFactory) {
 		return new InterceptingClientHttpRequest(requestFactory, this.interceptors, uri, httpMethod);
