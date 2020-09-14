@@ -59,16 +59,22 @@ class SimpleCommandLineArgsParser {
 	 */
 	public CommandLineArgs parse(String... args) {
 		CommandLineArgs commandLineArgs = new CommandLineArgs();
+		// TODO: 把所有的参数进行遍历
 		for (String arg : args) {
+			// TODO: 如果有--开头的，就截取一下，比如 --server.port = 8080
 			if (arg.startsWith("--")) {
 				String optionText = arg.substring(2, arg.length());
 				String optionName;
 				String optionValue = null;
+				// TODO: 到这 optionText : server.port = 8080
 				if (optionText.contains("=")) {
+					// 有等号, 进行等号前截取
 					optionName = optionText.substring(0, optionText.indexOf('='));
+					// TODO: 进行等号后的值的提取
 					optionValue = optionText.substring(optionText.indexOf('=')+1, optionText.length());
 				}
 				else {
+					// TODO: 没等号 直接把你传进来的value设置为optionName
 					optionName = optionText;
 				}
 				if (optionName.isEmpty() || (optionValue != null && optionValue.isEmpty())) {

@@ -40,6 +40,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 非常重要的一个类，spring boot使用它来进行加载自动装配文件，用来加载classpath下面所有 META-INF/spring.factories，从而加载所有的自动配置类
  * General purpose factory loading mechanism for internal use within the framework.
  *
  * <p>{@code SpringFactoriesLoader} {@linkplain #loadFactories loads} and instantiates
@@ -92,18 +93,24 @@ public final class SpringFactoriesLoader {
 	public static <T> List<T> loadFactories(Class<T> factoryClass, @Nullable ClassLoader classLoader) {
 		Assert.notNull(factoryClass, "'factoryClass' must not be null");
 		ClassLoader classLoaderToUse = classLoader;
+		// TODO: 如果classLoader为空，就用当前类的classLoader
 		if (classLoaderToUse == null) {
 			classLoaderToUse = SpringFactoriesLoader.class.getClassLoader();
 		}
+		// TODO: 把当前factoryClass对应的配置文件中的所有实现类的className拿到
 		List<String> factoryNames = loadFactoryNames(factoryClass, classLoaderToUse);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Loaded [" + factoryClass.getName() + "] names: " + factoryNames);
 		}
 		List<T> result = new ArrayList<>(factoryNames.size());
+		// TODO: 开始进行实例化
 		for (String factoryName : factoryNames) {
+			// TODO: 开始挨个的进行实例化
 			result.add(instantiateFactory(factoryName, factoryClass, classLoaderToUse));
 		}
+		// TODO: 最后会进行排序
 		AnnotationAwareOrderComparator.sort(result);
+		// TODO: 返回实例化后的结果
 		return result;
 	}
 
@@ -119,32 +126,42 @@ public final class SpringFactoriesLoader {
 	 */
 	public static List<String> loadFactoryNames(Class<?> factoryClass, @Nullable ClassLoader classLoader) {
 		String factoryClassName = factoryClass.getName();
+		// TODO: 这时候就要去加载了，如果加载不到，则返回一个空的list
 		return loadSpringFactories(classLoader).getOrDefault(factoryClassName, Collections.emptyList());
 	}
 
 	private static Map<String, List<String>> loadSpringFactories(@Nullable ClassLoader classLoader) {
+		// TODO: 先从cache里面判断，判断有没有，如果存在，则直接返回
 		MultiValueMap<String, String> result = cache.get(classLoader);
 		if (result != null) {
 			return result;
 		}
 
 		try {
+			// TODO: 从classLoader中加载资源，如果当前classLoad不为空，则使用当前的classLoader来加载，否则使用系统类加载器去加载
 			Enumeration<URL> urls = (classLoader != null ?
 					classLoader.getResources(FACTORIES_RESOURCE_LOCATION) :
 					ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));
 			result = new LinkedMultiValueMap<>();
+			// TODO: 挨个的遍历，取出来
 			while (urls.hasMoreElements()) {
 				URL url = urls.nextElement();
+				// TODO: 构建一个urlResource
 				UrlResource resource = new UrlResource(url);
+				// TODO: 使用PropertiesLoaderUtils去进行加载
 				Properties properties = PropertiesLoaderUtils.loadProperties(resource);
+				// TODO: 进行遍历
 				for (Map.Entry<?, ?> entry : properties.entrySet()) {
 					String factoryClassName = ((String) entry.getKey()).trim();
+					// TODO: 把value以逗号分隔，分隔成字符串数组，然后加到result中
 					for (String factoryName : StringUtils.commaDelimitedListToStringArray((String) entry.getValue())) {
 						result.add(factoryClassName, factoryName.trim());
 					}
 				}
 			}
+			// TODO: 最后放到缓存里
 			cache.put(classLoader, result);
+			// TODO: 返回结果
 			return result;
 		}
 		catch (IOException ex) {
@@ -156,11 +173,15 @@ public final class SpringFactoriesLoader {
 	@SuppressWarnings("unchecked")
 	private static <T> T instantiateFactory(String instanceClassName, Class<T> factoryClass, ClassLoader classLoader) {
 		try {
+			// TODO: 根据name进行加载，加载到类之后进行实例化
 			Class<?> instanceClass = ClassUtils.forName(instanceClassName, classLoader);
+			// TODO: 这里会进行一个判断，判断你写的这个class是否是factoryClass的子类或者实现类
 			if (!factoryClass.isAssignableFrom(instanceClass)) {
+				// TODO: 不是的话 报异常
 				throw new IllegalArgumentException(
 						"Class [" + instanceClassName + "] is not assignable to [" + factoryClass.getName() + "]");
 			}
+			// TODO: 利用工具类进行实例化
 			return (T) ReflectionUtils.accessibleConstructor(instanceClass).newInstance();
 		}
 		catch (Throwable ex) {

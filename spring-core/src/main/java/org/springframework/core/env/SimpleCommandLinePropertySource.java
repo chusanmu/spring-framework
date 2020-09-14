@@ -22,6 +22,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 专门用来解析命令行参数
  * {@link CommandLinePropertySource} implementation backed by a simple String array.
  *
  * <h3>Purpose</h3>
