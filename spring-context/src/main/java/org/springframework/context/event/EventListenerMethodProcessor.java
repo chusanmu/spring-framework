@@ -207,6 +207,7 @@ public class EventListenerMethodProcessor
 								// TODO: init方法是把ApplicationContext注入进去
 								((ApplicationListenerMethodAdapter) applicationListener).init(context, this.evaluator);
 							}
+							// TODO: 把当前listener加到容器里面去
 							context.addApplicationListener(applicationListener);
 							break;
 						}
