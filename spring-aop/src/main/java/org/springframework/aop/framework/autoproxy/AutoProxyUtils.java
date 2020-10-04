@@ -91,13 +91,16 @@ public abstract class AutoProxyUtils {
 		if (beanName == null) {
 			return null;
 		}
+		// TODO: 先尝试从beanDefinition的attribute里面取出来targetClass
 		if (beanFactory.containsBeanDefinition(beanName)) {
 			BeanDefinition bd = beanFactory.getMergedBeanDefinition(beanName);
 			Class<?> targetClass = (Class<?>) bd.getAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE);
+			// TODO: 如果取到了，拿到了，那就直接返回
 			if (targetClass != null) {
 				return targetClass;
 			}
 		}
+		// TODO: 否则直接利用beanFactory去取
 		return beanFactory.getType(beanName);
 	}
 
@@ -111,6 +114,7 @@ public abstract class AutoProxyUtils {
 	static void exposeTargetClass(
 			ConfigurableListableBeanFactory beanFactory, @Nullable String beanName, Class<?> targetClass) {
 
+		// TODO: 暴露目标bean
 		if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
 			beanFactory.getMergedBeanDefinition(beanName).setAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE, targetClass);
 		}

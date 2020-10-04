@@ -56,6 +56,7 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		this.enableAsync = AnnotationAttributes.fromMap(
 				importMetadata.getAnnotationAttributes(EnableAsync.class.getName(), false));
+
 		if (this.enableAsync == null) {
 			throw new IllegalArgumentException(
 					"@EnableAsync is not present on importing class " + importMetadata.getClassName());

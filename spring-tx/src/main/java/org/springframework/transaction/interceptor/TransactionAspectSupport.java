@@ -193,6 +193,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	/**
 	 * TODO: 若传入的为Properties，内部是实际使用的是NameMatchTransactionAttributeSource去匹配的，若调用了此方法，transactionAttributeSource就会被覆盖
 	 * TODO: 这地方不建议轻易修改，出现过一个问题 interceptor自己设置的transactionAttributeSource覆盖了 使用注解扫描到的@Transactional的属性值
+	 *
 	 * Set properties with method names as keys and transaction attribute
 	 * descriptors (parsed via TransactionAttributeEditor) as values:
 	 * e.g. key = "myMethod", value = "PROPAGATION_REQUIRED,readOnly".
@@ -432,11 +433,20 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		}
 	}
 
+	/**
+	 * TODO: 从容器中 根据名称拿到 事务管理器，然后会放到缓存中
+	 *
+	 * @param beanFactory
+	 * @param qualifier
+	 * @return
+	 */
 	private PlatformTransactionManager determineQualifiedTransactionManager(BeanFactory beanFactory, String qualifier) {
 		PlatformTransactionManager txManager = this.transactionManagerCache.get(qualifier);
 		if (txManager == null) {
+			// TODO: 直接从容器中拿到事务管理器
 			txManager = BeanFactoryAnnotationUtils.qualifiedBeanOfType(
 					beanFactory, PlatformTransactionManager.class, qualifier);
+			// TODO: put 到缓存中
 			this.transactionManagerCache.putIfAbsent(qualifier, txManager);
 		}
 		return txManager;

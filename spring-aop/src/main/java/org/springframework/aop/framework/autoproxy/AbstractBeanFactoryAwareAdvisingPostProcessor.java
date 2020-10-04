@@ -24,6 +24,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 此类继承自AbstractAdvisingBeanPostProcessor，把beanFactory组合进来了
+ *
  * Extension of {@link AbstractAutoProxyCreator} which implements {@link BeanFactoryAware},
  * adds exposure of the original target class for each proxied bean
  * ({@link AutoProxyUtils#ORIGINAL_TARGET_CLASS_ATTRIBUTE}),
@@ -44,6 +46,12 @@ public abstract class AbstractBeanFactoryAwareAdvisingPostProcessor extends Abst
 	private ConfigurableListableBeanFactory beanFactory;
 
 
+	/**
+	 * TODO: 将beanFactory设置进来了
+	 *
+	 * @param beanFactory owning BeanFactory (never {@code null}).
+	 * The bean can immediately call methods on the factory.
+	 */
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) {
 		this.beanFactory = (beanFactory instanceof ConfigurableListableBeanFactory ?
@@ -57,6 +65,7 @@ public abstract class AbstractBeanFactoryAwareAdvisingPostProcessor extends Abst
 		}
 
 		ProxyFactory proxyFactory = super.prepareProxyFactory(bean, beanName);
+		// TODO: 重新判断是否进行使用cglib直接代理targetClass
 		if (!proxyFactory.isProxyTargetClass() && this.beanFactory != null &&
 				AutoProxyUtils.shouldProxyTargetClass(this.beanFactory, beanName)) {
 			proxyFactory.setProxyTargetClass(true);
@@ -64,6 +73,13 @@ public abstract class AbstractBeanFactoryAwareAdvisingPostProcessor extends Abst
 		return proxyFactory;
 	}
 
+	/**
+	 * TODO: 判断bean是否合法，需要进行创建代理，
+	 * 		AopProxyUtils.isOriginalInstance会去判断这个bean的名称，如果后缀有 ORIGINAL_INSTANCE_SUFFIX 就表示 我只要原始bean，不要给我进行代理
+	 * @param bean the bean instance
+	 * @param beanName the name of the bean
+	 * @return
+	 */
 	@Override
 	protected boolean isEligible(Object bean, String beanName) {
 		return (!AutoProxyUtils.isOriginalInstance(beanName, bean.getClass()) &&

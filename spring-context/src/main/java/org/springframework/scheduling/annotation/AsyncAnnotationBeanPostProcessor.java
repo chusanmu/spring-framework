@@ -87,7 +87,9 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
 	private Class<? extends Annotation> asyncAnnotationType;
 
 
-
+	/**
+	 * TODO: 会被async增强器放到第一位
+	 */
 	public AsyncAnnotationBeanPostProcessor() {
 		setBeforeExistingAdvisors(true);
 	}

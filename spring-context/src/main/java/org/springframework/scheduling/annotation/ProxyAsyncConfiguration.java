@@ -27,6 +27,7 @@ import org.springframework.scheduling.config.TaskManagementConfigUtils;
 import org.springframework.util.Assert;
 
 /**
+ * TODO: Async 核心配置类
  * {@code @Configuration} class that registers the Spring infrastructure beans necessary
  * to enable proxy-based asynchronous method execution.
  *

@@ -37,8 +37,14 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
 	@Nullable
 	protected Advisor advisor;
 
+	/**
+	 * 在之前是否存在advisors
+	 */
 	protected boolean beforeExistingAdvisors = false;
 
+	/**
+	 * TODO: 缓存 缓存这个 class是否符合增强条件
+	 */
 	private final Map<Class<?>, Boolean> eligibleBeans = new ConcurrentHashMap<>(256);
 
 
@@ -63,36 +69,48 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) {
+		// TODO: 如果没有advisor, 或者是个aop基础组件类 直接把这个bean返回
 		if (this.advisor == null || bean instanceof AopInfrastructureBean) {
 			// Ignore AOP infrastructure such as scoped proxies.
 			return bean;
 		}
 
+		// TODO: 如果这个bean已经被增强过了
 		if (bean instanceof Advised) {
 			Advised advised = (Advised) bean;
+			// TODO: 主要是判断这个bean是否合法，是否应该被增强
 			if (!advised.isFrozen() && isEligible(AopUtils.getTargetClass(bean))) {
 				// Add our local Advisor to the existing proxy's Advisor chain...
+				// TODO: 这个值默认是false, 可以设置为true, 表示直接把advisor增强放到第一个
+				// TODO: 异步async增强的时候，将此值设置为了true, 会把async增强放到第一位，原因是，比如 @Async 和 @Transaction一起使用的时候，肯定是@Async先生效，然后事务再生效，如果事务增强器先生效，然后再开启一个线程的话，显然事务就无效了
 				if (this.beforeExistingAdvisors) {
 					advised.addAdvisor(0, this.advisor);
 				}
 				else {
+					// TODO: 把advisor直接加到尾部
 					advised.addAdvisor(this.advisor);
 				}
 				return bean;
 			}
 		}
-
+		// TODO: 如果这个bean还没有被增强过
 		if (isEligible(bean, beanName)) {
+			// TODO: 准备ProxyFactory，用来产生代理对象
 			ProxyFactory proxyFactory = prepareProxyFactory(bean, beanName);
+			// TODO: 判断是否直接对target class进行代理
 			if (!proxyFactory.isProxyTargetClass()) {
+				// TODO: 如果不是的话，则会尝试使用jdk的动态代理，这时候会去计算代理接口
 				evaluateProxyInterfaces(bean.getClass(), proxyFactory);
 			}
+			// TODO: proxyFactory设置advisor
 			proxyFactory.addAdvisor(this.advisor);
 			customizeProxyFactory(proxyFactory);
+			// TODO: 获取代理对象
 			return proxyFactory.getProxy(getProxyClassLoader());
 		}
 
 		// No proxy needed.
+		// TODO: 不需要代理，直接返回原始bean
 		return bean;
 	}
 
@@ -116,6 +134,8 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
 	}
 
 	/**
+	 * TODO: 检查给定的class 是否应该被增强
+	 *
 	 * Check whether the given class is eligible for advising with this
 	 * post-processor's {@link Advisor}.
 	 * <p>Implements caching of {@code canApply} results per bean target class.
@@ -123,19 +143,26 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
 	 * @see AopUtils#canApply(Advisor, Class)
 	 */
 	protected boolean isEligible(Class<?> targetClass) {
+		// TODO: 如果缓存里缓存了，表示已经检查过了，直接把缓存里的值拿出来返回回去。
 		Boolean eligible = this.eligibleBeans.get(targetClass);
 		if (eligible != null) {
 			return eligible;
 		}
+		// TODO: 如果advisor 为空，也直接返回
 		if (this.advisor == null) {
 			return false;
 		}
+		// TODO: 使用AopUtils.canApply判断这个targetClass是否符合增强条件
 		eligible = AopUtils.canApply(this.advisor, targetClass);
+		// TODO: 然后缓存起来
 		this.eligibleBeans.put(targetClass, eligible);
+		// TODO: 最后直接return
 		return eligible;
 	}
 
 	/**
+	 * TODO: 准备一个ProxyFactory
+	 *
 	 * Prepare a {@link ProxyFactory} for the given bean.
 	 * <p>Subclasses may customize the handling of the target instance and in
 	 * particular the exposure of the target class. The default introspection
