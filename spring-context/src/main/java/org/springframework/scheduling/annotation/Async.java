@@ -54,6 +54,8 @@ import java.lang.annotation.Target;
 public @interface Async {
 
 	/**
+	 * TODO: value用来指定这个方法 想要使用的executor
+	 *
 	 * A qualifier value for the specified asynchronous operation(s).
 	 * <p>May be used to determine the target executor to be used when executing this
 	 * method, matching the qualifier value (or the bean name) of a specific

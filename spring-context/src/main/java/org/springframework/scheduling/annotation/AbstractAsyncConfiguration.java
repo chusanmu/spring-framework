@@ -54,9 +54,11 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		// TODO: 拿到 EnableAsync 注解信息
 		this.enableAsync = AnnotationAttributes.fromMap(
 				importMetadata.getAnnotationAttributes(EnableAsync.class.getName(), false));
 
+		// TODO: 如果等于空，表示没拿到，直接抛出异常
 		if (this.enableAsync == null) {
 			throw new IllegalArgumentException(
 					"@EnableAsync is not present on importing class " + importMetadata.getClassName());
@@ -64,17 +66,21 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
 	}
 
 	/**
+	 * TODO: 将容器中实现了 AsyncConfigurer 接口的类拿到
 	 * Collect any {@link AsyncConfigurer} beans through autowiring.
 	 */
 	@Autowired(required = false)
 	void setConfigurers(Collection<AsyncConfigurer> configurers) {
+		// TODO: 如果没有 就直接返回了
 		if (CollectionUtils.isEmpty(configurers)) {
 			return;
 		}
+		// TODO: 这里注意，它的个数 如果存在的话 ，必须只能有一个
 		if (configurers.size() > 1) {
 			throw new IllegalStateException("Only one AsyncConfigurer may exist");
 		}
 		AsyncConfigurer configurer = configurers.iterator().next();
+		// TODO: 设置executor, exceptionHandler
 		this.executor = configurer::getAsyncExecutor;
 		this.exceptionHandler = configurer::getAsyncUncaughtExceptionHandler;
 	}

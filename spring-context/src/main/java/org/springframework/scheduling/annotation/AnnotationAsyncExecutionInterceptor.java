@@ -80,10 +80,13 @@ public class AnnotationAsyncExecutionInterceptor extends AsyncExecutionIntercept
 	protected String getExecutorQualifier(Method method) {
 		// Maintainer's note: changes made here should also be made in
 		// AnnotationAsyncExecutionAspect#getExecutorQualifier
+		// TODO: 首先在方法上取Async
 		Async async = AnnotatedElementUtils.findMergedAnnotation(method, Async.class);
+		// TODO: 如果取不到的话，再去类上面去取
 		if (async == null) {
 			async = AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), Async.class);
 		}
+		// TODO: 如果不为空，则把value返回，否则返回null
 		return (async != null ? async.value() : null);
 	}
 

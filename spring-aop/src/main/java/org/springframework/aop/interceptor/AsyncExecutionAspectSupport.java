@@ -72,6 +72,9 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * TODO: 这里可以看到，每个方法其实是对应一个executor的
+	 */
 	private final Map<Method, AsyncTaskExecutor> executors = new ConcurrentHashMap<>(16);
 
 	private SingletonSupplier<Executor> defaultExecutor;
@@ -161,23 +164,31 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 	 */
 	@Nullable
 	protected AsyncTaskExecutor determineAsyncExecutor(Method method) {
+		// TODO: 先从缓存里拿出来这个方法的executor
 		AsyncTaskExecutor executor = this.executors.get(method);
+		// TODO: 如果为空
 		if (executor == null) {
 			Executor targetExecutor;
+			// TODO: 获取这个方法想要指定的executor
 			String qualifier = getExecutorQualifier(method);
+			// TODO: 这里 如果用户 @Async() value不设置值的话，一把就会走默认的
 			if (StringUtils.hasLength(qualifier)) {
 				targetExecutor = findQualifiedExecutor(this.beanFactory, qualifier);
 			}
 			else {
+				// TODO: 一般会走到这里
 				targetExecutor = this.defaultExecutor.get();
 			}
+			// TODO: 如果没找到executor,那就返回Null
 			if (targetExecutor == null) {
 				return null;
 			}
+			// TODO: 对executor进行适配，适配成 AsyncListenableTaskExecutor
 			executor = (targetExecutor instanceof AsyncListenableTaskExecutor ?
 					(AsyncListenableTaskExecutor) targetExecutor : new TaskExecutorAdapter(targetExecutor));
 			this.executors.put(method, executor);
 		}
+		// TODO: 返回executor
 		return executor;
 	}
 
@@ -230,11 +241,13 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 				// Search for TaskExecutor bean... not plain Executor since that would
 				// match with ScheduledExecutorService as well, which is unusable for
 				// our purposes here. TaskExecutor is more clearly designed for it.
+				// TODO: 直接从容器中找类型是TaskExecutor的bean
 				return beanFactory.getBean(TaskExecutor.class);
 			}
 			catch (NoUniqueBeanDefinitionException ex) {
 				logger.debug("Could not find unique TaskExecutor bean", ex);
 				try {
+					// TODO: 如果找到了多个，就以名字为taskExecutor的为准
 					return beanFactory.getBean(DEFAULT_TASK_EXECUTOR_BEAN_NAME, Executor.class);
 				}
 				catch (NoSuchBeanDefinitionException ex2) {
@@ -245,9 +258,11 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 					}
 				}
 			}
+			// TODO: 如果根据类型没找到
 			catch (NoSuchBeanDefinitionException ex) {
 				logger.debug("Could not find default TaskExecutor bean", ex);
 				try {
+					// TODO: 根据名称继续找
 					return beanFactory.getBean(DEFAULT_TASK_EXECUTOR_BEAN_NAME, Executor.class);
 				}
 				catch (NoSuchBeanDefinitionException ex2) {
@@ -257,6 +272,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 				// Giving up -> either using local default executor or none at all...
 			}
 		}
+		// TODO: 最后如果找不到就返回null
 		return null;
 	}
 
@@ -270,6 +286,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 	 */
 	@Nullable
 	protected Object doSubmit(Callable<Object> task, AsyncTaskExecutor executor, Class<?> returnType) {
+		// TODO: 对不同的方法返回值，进行不同的处理
 		if (CompletableFuture.class.isAssignableFrom(returnType)) {
 			return CompletableFuture.supplyAsync(() -> {
 				try {
@@ -280,13 +297,16 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 				}
 			}, executor);
 		}
+		// TODO: 对返回值是ListenableFuture进行适配
 		else if (ListenableFuture.class.isAssignableFrom(returnType)) {
 			return ((AsyncListenableTaskExecutor) executor).submitListenable(task);
 		}
+		// TODO: 对返回值是 future 进行适配
 		else if (Future.class.isAssignableFrom(returnType)) {
 			return executor.submit(task);
 		}
 		else {
+			// TODO: 对于返回值是其他情况的，直接就返回了null
 			executor.submit(task);
 			return null;
 		}
@@ -309,6 +329,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 			ReflectionUtils.rethrowException(ex);
 		}
 		else {
+			// TODO: 使用异常处理器去做处理
 			// Could not transmit the exception to the caller with default executor
 			try {
 				this.exceptionHandler.obtain().handleUncaughtException(ex, method, params);

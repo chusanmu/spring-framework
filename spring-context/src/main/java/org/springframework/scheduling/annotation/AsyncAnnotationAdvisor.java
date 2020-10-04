@@ -46,6 +46,7 @@ import org.springframework.util.function.SingletonSupplier;
  * annotation as well, treating it exactly like Spring's own {@code Async}.
  * Furthermore, a custom async annotation type may get specified through the
  * {@link #setAsyncAnnotationType "asyncAnnotationType"} property.
+ * TODO: Async 核心 advisor
  *
  * @author Juergen Hoeller
  * @since 3.0
@@ -95,16 +96,22 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
 	public AsyncAnnotationAdvisor(
 			@Nullable Supplier<Executor> executor, @Nullable Supplier<AsyncUncaughtExceptionHandler> exceptionHandler) {
 
+		// TODO: 设置要拦截增强的Async注解
+
 		Set<Class<? extends Annotation>> asyncAnnotationTypes = new LinkedHashSet<>(2);
+		// TODO: 添加Async注解
 		asyncAnnotationTypes.add(Async.class);
 		try {
+			// TODO: 添加 Asynchronous 注解
 			asyncAnnotationTypes.add((Class<? extends Annotation>)
 					ClassUtils.forName("javax.ejb.Asynchronous", AsyncAnnotationAdvisor.class.getClassLoader()));
 		}
 		catch (ClassNotFoundException ex) {
 			// If EJB 3.1 API not present, simply ignore.
 		}
+		// TODO: 设置advice
 		this.advice = buildAdvice(executor, exceptionHandler);
+		// TODO: 设置 pointcut
 		this.pointcut = buildPointcut(asyncAnnotationTypes);
 	}
 
@@ -147,32 +154,48 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
 	}
 
 
+	/**
+	 * TODO: 创建async interceptor
+	 *
+	 * @param executor
+	 * @param exceptionHandler
+	 * @return
+	 */
 	protected Advice buildAdvice(
 			@Nullable Supplier<Executor> executor, @Nullable Supplier<AsyncUncaughtExceptionHandler> exceptionHandler) {
-
+		// TODO: 拦截 Async 注解, 核心类
 		AnnotationAsyncExecutionInterceptor interceptor = new AnnotationAsyncExecutionInterceptor(null);
+		// TODO: 配置executor和exceptionHandler
 		interceptor.configure(executor, exceptionHandler);
 		return interceptor;
 	}
 
 	/**
+	 * TODO: 创建Pointcut切面
+	 *
 	 * Calculate a pointcut for the given async annotation types, if any.
 	 * @param asyncAnnotationTypes the async annotation types to introspect
 	 * @return the applicable Pointcut object, or {@code null} if none
 	 */
 	protected Pointcut buildPointcut(Set<Class<? extends Annotation>> asyncAnnotationTypes) {
+		// TODO: 这里搞了个组合 注解式切面
 		ComposablePointcut result = null;
 		for (Class<? extends Annotation> asyncAnnotationType : asyncAnnotationTypes) {
+			// TODO: 切类上存在 @Async 的情况
 			Pointcut cpc = new AnnotationMatchingPointcut(asyncAnnotationType, true);
+			// TODO: 切方法上存在 @Async 的情况
 			Pointcut mpc = new AnnotationMatchingPointcut(null, asyncAnnotationType, true);
+			// TODO: 如果result == null, 就创建一个ComposablePointcut,然后把切类的pointcut设置进去
 			if (result == null) {
 				result = new ComposablePointcut(cpc);
 			}
 			else {
 				result.union(cpc);
 			}
+			// TODO: union上方法的pointcut
 			result = result.union(mpc);
 		}
+		// TODO: 将pointcut返回
 		return (result != null ? result : Pointcut.TRUE);
 	}
 

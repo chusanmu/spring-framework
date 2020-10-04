@@ -47,6 +47,9 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
 
 	private final Executor concurrentExecutor;
 
+	/**
+	 * 装饰者模式，进行包装task
+	 */
 	@Nullable
 	private TaskDecorator taskDecorator;
 

@@ -91,6 +91,8 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
 
 
 	/**
+	 * TODO: 异步方法执行拦截器入口
+	 *
 	 * Intercept the given method invocation, submit the actual calling of the method to
 	 * the correct task executor and return immediately to the caller.
 	 * @param invocation the method to intercept and make asynchronous
@@ -100,16 +102,20 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
 	@Override
 	@Nullable
 	public Object invoke(final MethodInvocation invocation) throws Throwable {
+		// TODO: 获取targetClass 和 method
 		Class<?> targetClass = (invocation.getThis() != null ? AopUtils.getTargetClass(invocation.getThis()) : null);
 		Method specificMethod = ClassUtils.getMostSpecificMethod(invocation.getMethod(), targetClass);
 		final Method userDeclaredMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
 
+		// TODO: 得到executor
 		AsyncTaskExecutor executor = determineAsyncExecutor(userDeclaredMethod);
+		// TODO: 如果executor为空，那么直接抛出异常
 		if (executor == null) {
 			throw new IllegalStateException(
 					"No executor specified and no default executor set on AsyncExecutionInterceptor either");
 		}
 
+		// TODO: 封成一个task进行异步执行了
 		Callable<Object> task = () -> {
 			try {
 				Object result = invocation.proceed();
@@ -125,7 +131,7 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
 			}
 			return null;
 		};
-
+		// TODO: 提交任务
 		return doSubmit(task, executor, invocation.getMethod().getReturnType());
 	}
 
@@ -155,6 +161,7 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
 	@Nullable
 	protected Executor getDefaultExecutor(@Nullable BeanFactory beanFactory) {
 		Executor defaultExecutor = super.getDefaultExecutor(beanFactory);
+		// TODO: 这里注意，如果容器中找到了 executor，那么直接返回就行了，否则直接 new 一个新的SimpleAsyncTaskExecutor， 这个SimpleAsyncTaskExecutor 是来一个任务就启动一个线程去处理
 		return (defaultExecutor != null ? defaultExecutor : new SimpleAsyncTaskExecutor());
 	}
 
