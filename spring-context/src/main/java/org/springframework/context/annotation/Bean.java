@@ -273,6 +273,7 @@ public @interface Bean {
 	String initMethod() default "";
 
 	/**
+	 * TODO: 默认就是 infer_method, 意味着会自动推断你bean里面的两个方法，close方法，还有shutdown方法
 	 * The optional name of a method to call on the bean instance upon closing the
 	 * application context, for example a {@code close()} method on a JDBC
 	 * {@code DataSource} implementation, or a Hibernate {@code SessionFactory} object.

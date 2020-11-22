@@ -680,6 +680,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Register bean as disposable.
+		// TODO: 如果需要就 注册销毁bean, 那么什么情况下需要销毁bean呢，这个bean实现了DisposableBean，然后里面有destroy方法，或者存在DestructionAwareBeanPostProcessor，进行销毁前拦截
 		try {
 			registerDisposableBeanIfNecessary(beanName, bean, mbd);
 		}

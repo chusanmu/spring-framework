@@ -662,7 +662,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			if (!binderMethods.isEmpty()) {
 				this.initBinderAdviceCache.put(adviceBean, binderMethods);
 			}
-			// TODO: z这两个接口是spring 4.1之后提供的，实现了这两个接口的
+			// TODO: 这两个接口是spring 4.1之后提供的，实现了这两个接口的
 			// TODO: 此处先放在requestResponseAdviceBeans里面装着，最后放进全局缓存requestResponseBodyAdvice里面去
 			if (RequestBodyAdvice.class.isAssignableFrom(beanType) || ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
 				requestResponseBodyAdviceBeans.add(adviceBean);

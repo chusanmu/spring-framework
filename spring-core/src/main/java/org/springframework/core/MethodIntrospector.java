@@ -60,17 +60,24 @@ public final class MethodIntrospector {
 		Set<Class<?>> handlerTypes = new LinkedHashSet<>();
 		Class<?> specificHandlerType = null;
 
+		// TODO: 如果targetType不是基于JDK动态代理产生的对象
 		if (!Proxy.isProxyClass(targetType)) {
+			// TODO: 尝试看看是否是cglib代理，如果是，则把它的父类拿到 放进去
 			specificHandlerType = ClassUtils.getUserClass(targetType);
 			handlerTypes.add(specificHandlerType);
 		}
+		// TODO: 将targetType所有的接口拿过来
 		handlerTypes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetType));
 
+		// TODO: 遍历所有的handlerTypes
 		for (Class<?> currentHandlerType : handlerTypes) {
+			// TODO: 如果是cglib代理 specificHandlerType 这个值肯定是不为空的
 			final Class<?> targetClass = (specificHandlerType != null ? specificHandlerType : currentHandlerType);
 
 			ReflectionUtils.doWithMethods(currentHandlerType, method -> {
+				// TODO: 得到真正执行的那个方法
 				Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
+				// TODO: 可以对每个method做处理
 				T result = metadataLookup.inspect(specificMethod);
 				if (result != null) {
 					Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);

@@ -123,6 +123,7 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
 					return ((Future<?>) result).get();
 				}
 			}
+			// TODO: 如果出现异常了，就去处理异常
 			catch (ExecutionException ex) {
 				handleError(ex.getCause(), userDeclaredMethod, invocation.getArguments());
 			}

@@ -1785,7 +1785,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @see org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor
 	 */
 	protected boolean requiresDestruction(Object bean, RootBeanDefinition mbd) {
+		// TODO: 是否需要进行销毁
 		return (bean.getClass() != NullBean.class &&
+				// TODO: 当前bean不是NullBean, 并且如果有destroy方法，就需要销毁  或者，有DestructionAwareBeanPostProcessors并且存在注解标注的destroy，才会去返回true
 				(DisposableBeanAdapter.hasDestroyMethod(bean, mbd) || (hasDestructionAwareBeanPostProcessors() &&
 						DisposableBeanAdapter.hasApplicableProcessors(bean, getBeanPostProcessors()))));
 	}
@@ -1804,11 +1806,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected void registerDisposableBeanIfNecessary(String beanName, Object bean, RootBeanDefinition mbd) {
 		AccessControlContext acc = (System.getSecurityManager() != null ? getAccessControlContext() : null);
+		// TODO: 如果当前bean不是多例的，并且 需要进行销毁
 		if (!mbd.isPrototype() && requiresDestruction(bean, mbd)) {
+			// TODO: 如果这个bean是单例的，就注册一个DisposableBean
 			if (mbd.isSingleton()) {
 				// Register a DisposableBean implementation that performs all destruction
 				// work for the given bean: DestructionAwareBeanPostProcessors,
 				// DisposableBean interface, custom destroy method.
+				// TODO: 这里直接注册了一个适配器类，把beanPostProcessors全传进去了
+				// TODO: 其实就是把这个bean包成了一个DisposableBeanAdapter这个类，适配器模式
 				registerDisposableBean(beanName,
 						new DisposableBeanAdapter(bean, beanName, mbd, getBeanPostProcessors(), acc));
 			}

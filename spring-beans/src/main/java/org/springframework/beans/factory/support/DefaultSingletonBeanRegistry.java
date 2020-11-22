@@ -121,9 +121,24 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/** Map between containing bean names: bean name to Set of bean names that the bean contains. */
 	private final Map<String, Set<String>> containedBeanMap = new ConcurrentHashMap<>(16);
 
+	/* ---------------- 下面两个Map用于存放依赖 -------------- */
+
+	/**
+	 * class A {
+	 *   @Autowired
+	 *   private B b;
+	 * }
+	 *
+	 */
+	/**
+	 * TODO: 上面这种情况，这个Map里存放的是  B --> [A]
+	 */
 	/** Map between dependent bean names: bean name to Set of dependent bean names. */
 	private final Map<String, Set<String>> dependentBeanMap = new ConcurrentHashMap<>(64);
 
+	/**
+	 * TODO: 而这个Map里存放的是  A --> [B]， 根据注释 说是存放bean的依赖项，很显然就是存放的 a->b, a这个bean,依赖于b。
+	 */
 	/** Map between depending bean names: bean name to Set of bean names for the bean's dependencies. */
 	private final Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<>(64);
 
@@ -336,6 +351,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	}
 
 	/**
+	 * TODO:根据名称 移除一级二级三级缓存中的所有的bean
+	 *
 	 * Remove the bean with the given name from the singleton cache of this factory,
 	 * to be able to clean up eager registration of a singleton if creation failed.
 	 * @param beanName the name of the bean
@@ -567,13 +584,16 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		}
 
 		String[] disposableBeanNames;
+		// TODO: 把disposableBeans 中所有的beanName拿到
 		synchronized (this.disposableBeans) {
 			disposableBeanNames = StringUtils.toStringArray(this.disposableBeans.keySet());
 		}
+		// TODO: 根据beanName一个一个的进行销毁
 		for (int i = disposableBeanNames.length - 1; i >= 0; i--) {
 			destroySingleton(disposableBeanNames[i]);
 		}
 
+		// TODO: 销毁所有的bean后开始将一些缓存给清空
 		this.containedBeanMap.clear();
 		this.dependentBeanMap.clear();
 		this.dependenciesForBeanMap.clear();
@@ -603,13 +623,16 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public void destroySingleton(String beanName) {
 		// Remove a registered singleton of the given name, if any.
+		// TODO: 根据名称移除singleton
 		removeSingleton(beanName);
 
 		// Destroy the corresponding DisposableBean instance.
 		DisposableBean disposableBean;
+		// TODO: 根据beanName把disposableBean拿出来
 		synchronized (this.disposableBeans) {
 			disposableBean = (DisposableBean) this.disposableBeans.remove(beanName);
 		}
+		// TODO: 销毁bean
 		destroyBean(beanName, disposableBean);
 	}
 
@@ -622,20 +645,25 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	protected void destroyBean(String beanName, @Nullable DisposableBean bean) {
 		// Trigger destruction of dependent beans first...
 		Set<String> dependencies;
+		// TODO: 首先触发的是依赖bean的销毁
 		synchronized (this.dependentBeanMap) {
 			// Within full synchronization in order to guarantee a disconnected Set
+			// TODO: 加同步锁，确保在操作的时候，不会有其它线程进行添加，断开连接集
 			dependencies = this.dependentBeanMap.remove(beanName);
 		}
+		// TODO: 找到了依赖它的bean不为空，然后进行挨个销毁
 		if (dependencies != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Retrieved dependent beans for bean '" + beanName + "': " + dependencies);
 			}
+			// TODO: 进行挨个销毁
 			for (String dependentBeanName : dependencies) {
 				destroySingleton(dependentBeanName);
 			}
 		}
 
 		// Actually destroy the bean now...
+		// TODO: 开始销毁当前的这个bean
 		if (bean != null) {
 			try {
 				// TODO: 调用DisposableBean的destroy()方法
@@ -649,6 +677,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		}
 
 		// Trigger destruction of contained beans...
+		// TODO: 获取这个bean所包含的一些bean，然后进行销毁
 		Set<String> containedBeans;
 		synchronized (this.containedBeanMap) {
 			// Within full synchronization in order to guarantee a disconnected Set
@@ -661,18 +690,21 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		}
 
 		// Remove destroyed bean from other beans' dependencies.
+		// TODO: 把当前这个bean从依赖中移除，从依赖集合中给移除掉
 		synchronized (this.dependentBeanMap) {
 			for (Iterator<Map.Entry<String, Set<String>>> it = this.dependentBeanMap.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<String, Set<String>> entry = it.next();
 				Set<String> dependenciesToClean = entry.getValue();
 				dependenciesToClean.remove(beanName);
 				if (dependenciesToClean.isEmpty()) {
+					// TODO: 如果没有任何dependencies去移除，就直接remove掉
 					it.remove();
 				}
 			}
 		}
 
 		// Remove destroyed bean's prepared dependency information.
+		// TODO: dependenciesForBeanMap 这个map里面维护了 当前这个bean依赖了哪些bean，这个bean既然已经销毁了，就直接把它给移除掉了
 		this.dependenciesForBeanMap.remove(beanName);
 	}
 

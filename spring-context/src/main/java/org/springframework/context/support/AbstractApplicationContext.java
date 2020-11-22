@@ -1093,6 +1093,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void doClose() {
 		// Check whether an actual close attempt is necessary...
+		// TODO: 当前容器是活跃状态，并且没有被关闭过，才能进行关闭
 		if (this.active.get() && this.closed.compareAndSet(false, true)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Closing " + this);
@@ -1102,6 +1103,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			try {
 				// Publish shutdown event.
+				// TODO: 发布容器关闭事件
 				publishEvent(new ContextClosedEvent(this));
 			}
 			catch (Throwable ex) {
@@ -1119,9 +1121,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 
 			// Destroy all cached singletons in the context's BeanFactory.
+			// TODO: 销毁所有的beans
 			destroyBeans();
 
 			// Close the state of this context itself.
+			// TODO: 关闭beanFactory
 			closeBeanFactory();
 
 			// Let subclasses do some final clean-up if they wish...
