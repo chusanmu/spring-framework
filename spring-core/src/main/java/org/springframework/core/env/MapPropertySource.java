@@ -22,6 +22,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 使用map 来承载key value的存储
  * {@link PropertySource} that reads keys and values from a {@code Map} object.
  * The underlying map should not contain any {@code null} values in order to
  * comply with {@link #getProperty} and {@link #containsProperty} semantics.

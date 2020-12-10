@@ -135,6 +135,7 @@ public class PropertyPlaceholderHelper {
 			String value, PlaceholderResolver placeholderResolver, @Nullable Set<String> visitedPlaceholders) {
 
 		int startIndex = value.indexOf(this.placeholderPrefix);
+		// TODO: 如果不存在${ 开头的标识符，那就直接把value给返回了
 		if (startIndex == -1) {
 			return value;
 		}
@@ -155,13 +156,18 @@ public class PropertyPlaceholderHelper {
 				// Recursive invocation, parsing placeholders contained in the placeholder key.
 				placeholder = parseStringValue(placeholder, placeholderResolver, visitedPlaceholders);
 				// Now obtain the value for the fully resolved key...
+				// TODO: 这里会拿着你整个key去环境里面找, 例如 my.name:chusen, 会携带这整个key去环境里面查找
 				String propVal = placeholderResolver.resolvePlaceholder(placeholder);
 				if (propVal == null && this.valueSeparator != null) {
 					int separatorIndex = placeholder.indexOf(this.valueSeparator);
 					if (separatorIndex != -1) {
+						// TODO: 把实际的Key解析出来, my.name
 						String actualPlaceholder = placeholder.substring(0, separatorIndex);
+						// TODO: 解析出来的defaultValue 为 chusen
 						String defaultValue = placeholder.substring(separatorIndex + this.valueSeparator.length());
+						// TODO: 然后接着去环境里面查找
 						propVal = placeholderResolver.resolvePlaceholder(actualPlaceholder);
+						// TODO: 如果找不到，就直接把默认值给它
 						if (propVal == null) {
 							propVal = defaultValue;
 						}

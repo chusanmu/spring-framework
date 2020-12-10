@@ -944,6 +944,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// at this point, primarily for resolution in annotation attribute values.
 		// TODO: 设置一个内置的值处理器(若没有的话), 该处理器作用有点像一个PropertyPlaceholderConfigurer bean
 		if (!beanFactory.hasEmbeddedValueResolver()) {
+			// TODO: 添加了一个默认的 用于拖地的 ${} 解析器，如果容器中仅有这一种策略，那么当 ${value} 注入的时候 是不会报错的，会原样输出
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
 		}
 

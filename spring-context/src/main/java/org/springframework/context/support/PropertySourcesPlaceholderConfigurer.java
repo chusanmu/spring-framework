@@ -126,9 +126,11 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 	 */
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		// TODO: 如果 propertySources 为空，就创建一个MutablePropertySources
 		if (this.propertySources == null) {
 			this.propertySources = new MutablePropertySources();
 			if (this.environment != null) {
+				// TODO: 添加了一个propertySource，把environment当做source传了进去
 				this.propertySources.addLast(
 					new PropertySource<Environment>(ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME, this.environment) {
 						@Override
@@ -140,12 +142,16 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 				);
 			}
 			try {
+				// TODO: 本地的配置文件
 				PropertySource<?> localPropertySource =
 						new PropertiesPropertySource(LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME, mergeProperties());
+				// TODO: 是否允许本地文件覆盖
 				if (this.localOverride) {
+					// TODO: 如果允许 就把本地文件放在第一个
 					this.propertySources.addFirst(localPropertySource);
 				}
 				else {
+					// TODO: 否则放在最后
 					this.propertySources.addLast(localPropertySource);
 				}
 			}
@@ -165,20 +171,25 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 	protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess,
 			final ConfigurablePropertyResolver propertyResolver) throws BeansException {
 
+		// TODO: 指定前缀和后缀
 		propertyResolver.setPlaceholderPrefix(this.placeholderPrefix);
 		propertyResolver.setPlaceholderSuffix(this.placeholderSuffix);
+		// TODO: 指定默认的分隔符，默认是:
 		propertyResolver.setValueSeparator(this.valueSeparator);
 
 		StringValueResolver valueResolver = strVal -> {
+			// TODO: ignoreUnresolvablePlaceholders 默认false
 			String resolved = (this.ignoreUnresolvablePlaceholders ?
 					propertyResolver.resolvePlaceholders(strVal) :
+					// TODO: 解析的时候，需要占位符
 					propertyResolver.resolveRequiredPlaceholders(strVal));
+			// TODO: 是否进行trim
 			if (this.trimValues) {
 				resolved = resolved.trim();
 			}
 			return (resolved.equals(this.nullValue) ? null : resolved);
 		};
-
+		// TODO: 去处理beanDefinition中存在的一系列的占位符
 		doProcessProperties(beanFactoryToProcess, valueResolver);
 	}
 

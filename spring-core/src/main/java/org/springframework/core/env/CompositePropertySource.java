@@ -27,6 +27,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
+ * TODO: 一个组合的propertySource
+ *
  * Composite {@link PropertySource} implementation that iterates over a set of
  * {@link PropertySource} instances. Necessary in cases where multiple property sources
  * share the same name, e.g. when multiple values are supplied to {@code @PropertySource}.
@@ -42,6 +44,9 @@ import org.springframework.util.StringUtils;
  */
 public class CompositePropertySource extends EnumerablePropertySource<Object> {
 
+	/**
+	 * TODO: 组合进来的propertySource
+	 */
 	private final Set<PropertySource<?>> propertySources = new LinkedHashSet<>();
 
 
@@ -54,6 +59,11 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
 	}
 
 
+	/**
+	 * TODO: getProperty的时候，遍历所有的propertySource，从propertySource中加载值
+	 * @param name the property to find
+	 * @return
+	 */
 	@Override
 	@Nullable
 	public Object getProperty(String name) {

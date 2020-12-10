@@ -19,7 +19,7 @@ package org.springframework.core.env;
 import org.springframework.lang.Nullable;
 
 /**
- * TODO: 它主要是提供数据源
+ * TODO: 它主要是提供数据源，数据源解析
  * {@link PropertyResolver} implementation that resolves property values against
  * an underlying set of {@link PropertySources}.
  *
@@ -73,6 +73,11 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 		return getProperty(key, targetValueType, true);
 	}
 
+	/**
+	 * TODO: 通过字符串来查找property value的值
+	 * @param key the property name to resolve
+	 * @return
+	 */
 	@Override
 	@Nullable
 	protected String getPropertyAsRawString(String key) {
@@ -91,6 +96,7 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 	protected <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
 		if (this.propertySources != null) {
 			// TODO: 由此可见，propertySources的顺序很重要，并且还能处理占位符，resolveNestedPlaceholders 支持内嵌占位符
+			// TODO: 分布式配置中心 一般都是位于第一个，优先从配置中心加载
 			for (PropertySource<?> propertySource : this.propertySources) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Searching for key '" + key + "' in PropertySource '" +
