@@ -218,6 +218,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 		if (this.nonStrictHelper == null) {
 			this.nonStrictHelper = createPlaceholderHelper(true);
 		}
+		// TODO: 去解析处理 占位符
 		return doResolvePlaceholders(text, this.nonStrictHelper);
 	}
 
@@ -276,18 +277,24 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected <T> T convertValueIfNecessary(Object value, @Nullable Class<T> targetType) {
+		// TODO: 不需要转换，直接强转返回
 		if (targetType == null) {
 			return (T) value;
 		}
+		// TODO: 拿到conversionService
 		ConversionService conversionServiceToUse = this.conversionService;
+		// TODO: 如果没有可用的conversionService时
 		if (conversionServiceToUse == null) {
 			// Avoid initialization of shared DefaultConversionService if
 			// no standard type conversion is needed in the first place...
+			// TODO: 判断当前类型是否不需要进行转换，如果不需要转换 就直接进行强转了
 			if (ClassUtils.isAssignableValue(targetType, value)) {
 				return (T) value;
 			}
+			// TODO: 单例，拿到一个ConversionService
 			conversionServiceToUse = DefaultConversionService.getSharedInstance();
 		}
+		// TODO: 使用conversionService去转换
 		return conversionServiceToUse.convert(value, targetType);
 	}
 

@@ -157,6 +157,7 @@ public class PropertyPlaceholderHelper {
 				placeholder = parseStringValue(placeholder, placeholderResolver, visitedPlaceholders);
 				// Now obtain the value for the fully resolved key...
 				// TODO: 这里会拿着你整个key去环境里面找, 例如 my.name:chusen, 会携带这整个key去环境里面查找
+				// TODO: 去环境里面去查找
 				String propVal = placeholderResolver.resolvePlaceholder(placeholder);
 				if (propVal == null && this.valueSeparator != null) {
 					int separatorIndex = placeholder.indexOf(this.valueSeparator);
