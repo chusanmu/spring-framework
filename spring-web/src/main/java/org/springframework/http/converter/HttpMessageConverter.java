@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,8 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 
 /**
- * TODO: http消息转换器接口 httpMessageConverter他对请求，响应都起到了非常关键的作用，用来处理请求和响应里面的数据的，请求和响应都有对应的body, 而这个body就是我们需要的数据
- * Strategy interface that specifies a converter that can convert from and to HTTP requests and responses.
- * TODO: 它负责将请求信息转换为一个对象，类型为T，并将对象类型为T，绑定到请求方法的参数中，或者把一个java对象输出为一个响应
+ *  * TODO: http消息转换器接口 httpMessageConverter他对请求，响应都起到了非常关键的作用，用来处理请求和响应里面的数据的，请求和响应都有对应的body, 而这个body就是我们需要的数据
+ * Strategy interface for converting from and to HTTP requests and responses.
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
@@ -59,7 +58,7 @@ public interface HttpMessageConverter<T> {
 	/**
 	 * TODO: 返回当前转换器支持的媒体类型
 	 * Return the list of {@link MediaType} objects supported by this converter.
-	 * @return the list of supported media types
+	 * @return the list of supported media types, potentially an immutable copy
 	 */
 	List<MediaType> getSupportedMediaTypes();
 

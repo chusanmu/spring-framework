@@ -91,7 +91,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * 二级缓存，提前曝光的单例对象的cache，存放原始的bean对象，尚未填补属性，用于解决循环依赖问题
 	 */
 	/** Cache of early singleton objects: bean name to bean instance. */
-	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
+	private final Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(16);
 
 	/** Set of registered singletons, containing the bean names in registration order. */
 	// TODO: 缓存着所有已经注册的单例的名称，注意，这里是有序的
@@ -225,26 +225,31 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
-		// TODO: 此处是先从已经缓存好了的 singletonObjects的Map中，查看有没有,先从一级缓存 singletonObjects中去获取，如果获取到了 就直接return
+		// Quick check for existing instance without full singleton lock
 		Object singletonObject = this.singletonObjects.get(beanName);
 		// TODO: 若缓存里面没有，并且并且，这个bean必须在创建中，才会进来，singletonsCurrentlyInCreation 会缓存下来所有的正在创建中的bean，如果有bean是循环引用的，会把这种bean先放进去，这里才会有值
 		// TODO: 如果获取不到，或者对象正在创建中，isSingletonCurrentlyInCreation， 那就再从二级缓存earlySingletonObjects中获取，如果获取到就直接return
 		// TODO: 只有isSingletonCurrentlyInCreation(beanName)为true, 才表示这个bean正在被创建啊，才表示正在被循环依赖嘛
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
-			// TODO: 如果还是获取不到，且允许singletonFactories，通过getObject获取，就从三级缓存singletonFactory.getObject()获取，如果获取到了就从singletonFactories中移除，并且放进earlySingletonObjects，其实就是从
-			// TODO: 三级缓存 移动 到了二级缓存
-			synchronized (this.singletonObjects) {
-				// TODO: 从二级缓存中 earlySingletonObjects 尝试获取bean
-				singletonObject = this.earlySingletonObjects.get(beanName);
-				// TODO: 如果还是为null，同时如果开启了循环依赖，这时候才去三级缓存里面把bean拿出来，然后放到二级缓存里面，最后把三级缓存移除
-				if (singletonObject == null && allowEarlyReference) {
-					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
-					if (singletonFactory != null) {
-						singletonObject = singletonFactory.getObject();
-						// TODO: 把通过三级缓存获取到的bean 添加到二级缓存中
-						this.earlySingletonObjects.put(beanName, singletonObject);
-						// TODO: 移除三级缓存，不需要了嘛，当然移除了啊
-						this.singletonFactories.remove(beanName);
+			singletonObject = this.earlySingletonObjects.get(beanName);
+			// TODO: 如果还是为null，同时如果开启了循环依赖，这时候才去三级缓存里面把bean拿出来，然后放到二级缓存里面，最后把三级缓存移除
+			if (singletonObject == null && allowEarlyReference) {
+				synchronized (this.singletonObjects) {
+					// Consistent creation of early reference within full singleton lock
+					// TODO: 从二级缓存中 earlySingletonObjects 尝试获取bean
+					singletonObject = this.singletonObjects.get(beanName);
+					if (singletonObject == null) {
+						singletonObject = this.earlySingletonObjects.get(beanName);
+						if (singletonObject == null) {
+							ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+							if (singletonFactory != null) {
+								singletonObject = singletonFactory.getObject();
+								// TODO: 把通过三级缓存获取到的bean 添加到二级缓存中
+								this.earlySingletonObjects.put(beanName, singletonObject);
+								// TODO: 移除三级缓存，不需要了嘛，当然移除了啊
+								this.singletonFactories.remove(beanName);
+							}
+						}
 					}
 				}
 			}

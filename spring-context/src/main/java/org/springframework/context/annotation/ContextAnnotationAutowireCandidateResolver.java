@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import org.springframework.beans.factory.config.DependencyDescriptor;
@@ -93,11 +95,11 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 	 * @return
 	 */
 	protected Object buildLazyResolutionProxy(final DependencyDescriptor descriptor, final @Nullable String beanName) {
-		Assert.state(getBeanFactory() instanceof DefaultListableBeanFactory,
+		BeanFactory beanFactory = getBeanFactory();
+		Assert.state(beanFactory instanceof DefaultListableBeanFactory,
 				"BeanFactory needs to be a DefaultListableBeanFactory");
-		// TODO: 面向实现类编程，使用了DefaultListableBeanFactory.doResolverDependency()方法
-		final DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) getBeanFactory();
-		// TODO: TargetSource是它实现懒加载的核心原因
+		final DefaultListableBeanFactory dlbf = (DefaultListableBeanFactory) beanFactory;
+
 		TargetSource ts = new TargetSource() {
 			@Override
 			public Class<?> getTargetClass() {
@@ -114,8 +116,8 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 			 */
 			@Override
 			public Object getTarget() {
-				// TODO: 到这里 才真正的去解析依赖
-				Object target = beanFactory.doResolveDependency(descriptor, beanName, null, null);
+				Set<String> autowiredBeanNames = (beanName != null ? new LinkedHashSet<>(1) : null);
+				Object target = dlbf.doResolveDependency(descriptor, beanName, autowiredBeanNames, null);
 				if (target == null) {
 					Class<?> type = getTargetClass();
 					// TODO: 对多值注入的空值的友好处理
@@ -131,14 +133,20 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 					throw new NoSuchBeanDefinitionException(descriptor.getResolvableType(),
 							"Optional dependency not present for lazy injection point");
 				}
+				if (autowiredBeanNames != null) {
+					for (String autowiredBeanName : autowiredBeanNames) {
+						if (dlbf.containsBean(autowiredBeanName)) {
+							dlbf.registerDependentBean(autowiredBeanName, beanName);
+						}
+					}
+				}
 				return target;
 			}
 			@Override
 			public void releaseTarget(Object target) {
 			}
 		};
-		// TODO: 使用ProxyFactory 给 ts 生成一个代理
-		// TODO: 由此可见，最终生成的代理对象的目标对象其实是targetSource, 而targetSource的目标才是我们业务的对象
+
 		ProxyFactory pf = new ProxyFactory();
 		pf.setTargetSource(ts);
 		Class<?> dependencyType = descriptor.getDependencyType();
@@ -146,7 +154,7 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 		if (dependencyType.isInterface()) {
 			pf.addInterface(dependencyType);
 		}
-		return pf.getProxy(beanFactory.getBeanClassLoader());
+		return pf.getProxy(dlbf.getBeanClassLoader());
 	}
 
 }

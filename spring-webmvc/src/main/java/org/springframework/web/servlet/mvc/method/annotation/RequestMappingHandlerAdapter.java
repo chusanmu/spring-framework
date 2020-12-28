@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,10 +165,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 */
 	private List<HttpMessageConverter<?>> messageConverters;
 
-	/**
-	 * TODO: 装载RequestBodyAdvice和ResponseBodyAdvice的实现类们
-	 */
-	private List<Object> requestResponseBodyAdvice = new ArrayList<>();
+	private final List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
 	/**
 	 * TODO: 在数据绑定初始化的时候会被使用，调用其initBinder方法 只不过现在一般用@InitBinder注解了
@@ -211,7 +208,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 	@Nullable
 	private ConfigurableBeanFactory beanFactory;
-
 
 	private final Map<Class<?>, SessionAttributesHandler> sessionAttributesHandlerCache = new ConcurrentHashMap<>(64);
 
@@ -459,7 +455,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 * processing thread has exited and ends when the request is dispatched again
 	 * for further processing of the concurrently produced result.
 	 * <p>If this value is not set, the default timeout of the underlying
-	 * implementation is used, e.g. 10 seconds on Tomcat with Servlet 3.
+	 * implementation is used.
 	 * @param timeout the timeout value in milliseconds
 	 */
 	public void setAsyncRequestTimeout(long timeout) {
@@ -704,8 +700,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 * and custom resolvers provided via {@link #setCustomArgumentResolvers}.
 	 */
 	private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
-		// TODO: 这里使用的是ArrayList保存的，所以处理器都是有序的，最终会放进HandlerMethodArgumentResolverComposite使用Composite模式统一管理和使用
-		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
+		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>(30);
 
 		// Annotation-based argument resolution
 		// TODO: 基于注解的
@@ -757,7 +752,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 * methods including built-in and custom resolvers.
 	 */
 	private List<HandlerMethodArgumentResolver> getDefaultInitBinderArgumentResolvers() {
-		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
+		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>(20);
 
 		// Annotation-based argument resolution
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
@@ -790,7 +785,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 * custom handlers provided via {@link #setReturnValueHandlers}.
 	 */
 	private List<HandlerMethodReturnValueHandler> getDefaultReturnValueHandlers() {
-		List<HandlerMethodReturnValueHandler> handlers = new ArrayList<>();
+		List<HandlerMethodReturnValueHandler> handlers = new ArrayList<>(20);
 
 		// Single-purpose return value types
 		handlers.add(new ModelAndViewMethodReturnValueHandler());
@@ -1064,13 +1059,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		}
 		// TODO: Method最终都会被包装成了InvocableHanlderMethod，从而具有执行的能力
 		List<InvocableHandlerMethod> initBinderMethods = new ArrayList<>();
-		// TODO:  Global methods first 先把全局的放进去，再放个性化的，有覆盖的效果哦
-		// TODO: 上面是找了本类的，现在看看全局里有没有@InitBinder, initBinderAdviceCache它是一个缓存LinkedHashMap，缓存着作用于全局的类，如 @ControllerAdvice, methodSet说明一个类里面可以定义N多个标注有@InitBinder的方法
-		this.initBinderAdviceCache.forEach((clazz, methodSet) -> {
-			// TODO: @RestControllerAdvice 可以指定basePackages之类的属性，看本类是否能被扫描到吧
-			if (clazz.isApplicableToBeanType(handlerType)) {
-				// TODO: 它持有的bean若是个BeanName的话，会getBean()一下的
-				Object bean = clazz.resolveBean();
+		// Global methods first
+		this.initBinderAdviceCache.forEach((controllerAdviceBean, methodSet) -> {
+			if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
+				Object bean = controllerAdviceBean.resolveBean();
 				for (Method method : methodSet) {
 					// TODO: 把method适配为可执行的InvocableHandlerMethod
 					initBinderMethods.add(createInitBinderMethod(bean, method));

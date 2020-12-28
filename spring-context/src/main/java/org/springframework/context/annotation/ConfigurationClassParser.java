@@ -19,6 +19,7 @@ package org.springframework.context.annotation;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -526,7 +527,7 @@ class ConfigurationClassParser {
 				// TODO: 然后把当前resource加到 environment中
 				addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
 			}
-			catch (IllegalArgumentException | FileNotFoundException | UnknownHostException ex) {
+			catch (IllegalArgumentException | FileNotFoundException | UnknownHostException | SocketException ex) {
 				// Placeholders not resolvable or resource not found when trying to open it
 				if (ignoreResourceNotFound) {
 					if (logger.isInfoEnabled()) {
@@ -761,7 +762,7 @@ class ConfigurationClassParser {
 	}
 
 	/**
-	 * Factory method to obtain {@link SourceClass SourceClasss} from class names.
+	 * Factory method to obtain a {@link SourceClass} collection from class names.
 	 */
 	private Collection<SourceClass> asSourceClasses(String... classNames) throws IOException {
 		List<SourceClass> annotatedClasses = new ArrayList<>(classNames.length);

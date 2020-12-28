@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 	private boolean extractOldValueForEditor = false;
 
 	private boolean autoGrowNestedPaths = false;
+
+	boolean suppressNotWritablePropertyException = false;
 
 
 	@Override
@@ -104,34 +106,41 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 		// TODO: 大部分情况都是MutablePropertyValues 直接拿就可以了
 		List<PropertyValue> propertyValues = (pvs instanceof MutablePropertyValues ?
 				((MutablePropertyValues) pvs).getPropertyValueList() : Arrays.asList(pvs.getPropertyValues()));
-		// TODO: 遍历一个一个的执行，批量设置值最终也还是调用的单个的，这里ignoreUnknown，ignoreInvalid 两个字段会生效
-		for (PropertyValue pv : propertyValues) {
-			try {
-				// This method may throw any BeansException, which won't be caught
+
+		if (ignoreUnknown) {
+			this.suppressNotWritablePropertyException = true;
+		}
+		try {
+			for (PropertyValue pv : propertyValues) {
+				// setPropertyValue may throw any BeansException, which won't be caught
 				// here, if there is a critical failure such as no matching field.
 				// We can attempt to deal only with less serious exceptions.
-				setPropertyValue(pv);
-			}
-			catch (NotWritablePropertyException ex) {
-				// TODO: 如果不忽略字段，直接抛出异常
-				if (!ignoreUnknown) {
-					throw ex;
+				try {
+					setPropertyValue(pv);
 				}
-				// Otherwise, just ignore it and continue...
-			}
-			catch (NullValueInNestedPathException ex) {
-				if (!ignoreInvalid) {
-					throw ex;
+				catch (NotWritablePropertyException ex) {
+					if (!ignoreUnknown) {
+						throw ex;
+					}
+					// Otherwise, just ignore it and continue...
 				}
-				// Otherwise, just ignore it and continue...
-			}
-			catch (PropertyAccessException ex) {
-				// TODO: 放到catch里面 如果为空，再来初始化，延迟初始化嘛
-				if (propertyAccessExceptions == null) {
-					propertyAccessExceptions = new ArrayList<>();
+				catch (NullValueInNestedPathException ex) {
+					if (!ignoreInvalid) {
+						throw ex;
+					}
+					// Otherwise, just ignore it and continue...
 				}
-				// TODO: 收集异常，最终一次性抛出
-				propertyAccessExceptions.add(ex);
+				catch (PropertyAccessException ex) {
+					if (propertyAccessExceptions == null) {
+						propertyAccessExceptions = new ArrayList<>();
+					}
+					propertyAccessExceptions.add(ex);
+				}
+			}
+		}
+		finally {
+			if (ignoreUnknown) {
+				this.suppressNotWritablePropertyException = false;
 			}
 		}
 

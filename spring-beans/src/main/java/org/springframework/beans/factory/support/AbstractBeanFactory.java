@@ -147,7 +147,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/** String resolvers to apply e.g. to annotation attribute values. */
 	private final List<StringValueResolver> embeddedValueResolvers = new CopyOnWriteArrayList<>();
 
-	/** BeanPostProcessors to apply in createBean. */
+	/** BeanPostProcessors to apply. */
 	private final List<BeanPostProcessor> beanPostProcessors = new CopyOnWriteArrayList<>();
 
 	/** Indicates whether any InstantiationAwareBeanPostProcessors have been registered. */
@@ -236,7 +236,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @throws BeansException if the bean could not be created
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredType,
+	protected <T> T doGetBean(String name, @Nullable  Class<T> requiredType,
 			@Nullable final Object[] args, boolean typeCheckOnly) throws BeansException {
 		// TODO: 1.如果是FactoryBean, 会去掉bean开头的 & 符号，2.能存在传入别名且别名存在多重映射的情况，这里会返回最终的名字
 		final String beanName = transformedBeanName(name);
@@ -298,8 +298,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 			try {
 				// TODO: 根据名字获取合并过的对应的RootBeanDefinition
-				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				// TODO: 检查mbd是否为抽象的活mbd为单例，但存在args的情况，args只有初始化原型对象才允许存在
+				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
@@ -361,7 +361,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// TODO: 其他作用域的情况
 				else {
 					String scopeName = mbd.getScope();
-					final Scope scope = this.scopes.get(scopeName);
+					if (!StringUtils.hasLength(scopeName)) {
+						throw new IllegalStateException("No scope name defined for bean ´" + beanName + "'");
+					}
+					Scope scope = this.scopes.get(scopeName);
 					if (scope == null) {
 						throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
 					}
@@ -486,10 +489,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			return false;
 		}
 		if (isFactoryBean(beanName, mbd)) {
-			final FactoryBean<?> fb = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
+			FactoryBean<?> fb = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
 			if (System.getSecurityManager() != null) {
-				return AccessController.doPrivileged((PrivilegedAction<Boolean>) () ->
-						((fb instanceof SmartFactoryBean && ((SmartFactoryBean<?>) fb).isPrototype()) || !fb.isSingleton()),
+				return AccessController.doPrivileged(
+						(PrivilegedAction<Boolean>) () ->
+								((fb instanceof SmartFactoryBean && ((SmartFactoryBean<?>) fb).isPrototype()) ||
+										!fb.isSingleton()),
 						getAccessControlContext());
 			}
 			else {
@@ -1442,7 +1447,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @throws CannotLoadBeanClassException if we failed to load the class
 	 */
 	@Nullable
-	protected Class<?> resolveBeanClass(final RootBeanDefinition mbd, String beanName, final Class<?>... typesToMatch)
+	protected Class<?> resolveBeanClass(RootBeanDefinition mbd, String beanName, Class<?>... typesToMatch)
 			throws CannotLoadBeanClassException {
 
 		try {
@@ -1450,8 +1455,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				return mbd.getBeanClass();
 			}
 			if (System.getSecurityManager() != null) {
-				return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>) () ->
-					doResolveBeanClass(mbd, typesToMatch), getAccessControlContext());
+				return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)
+						() -> doResolveBeanClass(mbd, typesToMatch), getAccessControlContext());
 			}
 			else {
 				return doResolveBeanClass(mbd, typesToMatch);
