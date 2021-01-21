@@ -258,6 +258,8 @@ public class ContextLoader {
 
 
 	/**
+	 * TODO: spring mvc初始化根容器，在ContextLoaderListener初始化的时候，会去调用此方法
+	 * TODO: 主要做了两件事，刷新根容器，将根容器作为属性 设置到servletContext中
 	 * Initialize Spring's web application context for the given servlet context,
 	 * using the application context provided at construction time, or creating a new one
 	 * according to the "{@link #CONTEXT_CLASS_PARAM contextClass}" and
@@ -270,6 +272,7 @@ public class ContextLoader {
 	 */
 	public WebApplicationContext initWebApplicationContext(ServletContext servletContext) {
 		// TODO: 这里判断 虽然注解驱动传进来的监听器容器对象持有的WebApplicationContext的引用，但是并没有放进去ServletContext容器
+		// TODO: 这里判断，如果从servletContext中拿到了根容器，说明已经初始化完了啊，抛出异常
 		if (servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) {
 			// TODO: 这里检查嘛，如果已经有了，表示初始化完了
 			throw new IllegalStateException(
@@ -425,6 +428,7 @@ public class ContextLoader {
 		// TODO: 注意这里会生成ConfigurableEnvironment. StandardServletEnvironment符合条件，因此会执行initPropertySources方法
 		ConfigurableEnvironment env = wac.getEnvironment();
 		if (env instanceof ConfigurableWebEnvironment) {
+			// TODO: 向环境中(PropertySource)中添加servletContext相关的属性
 			((ConfigurableWebEnvironment) env).initPropertySources(sc, null);
 		}
 		// TODO: 检查web.xml是否有一些其余初始化类的配置，极大多数情况都不需要

@@ -74,7 +74,7 @@ public class OpenEntityManagerInViewInterceptor extends EntityManagerFactoryAcce
 		if (asyncManager.hasConcurrentResult() && applyEntityManagerBindingInterceptor(asyncManager, key)) {
 			return;
 		}
-
+		// TODO: 获取entityManagerFactory
 		EntityManagerFactory emf = obtainEntityManagerFactory();
 		if (TransactionSynchronizationManager.hasResource(emf)) {
 			// Do not modify the EntityManager: just mark the request accordingly.
@@ -85,6 +85,7 @@ public class OpenEntityManagerInViewInterceptor extends EntityManagerFactoryAcce
 		else {
 			logger.debug("Opening JPA EntityManager in OpenEntityManagerInViewInterceptor");
 			try {
+				// TODO: 请求过来的时候 直接创建了一个entityManager，然后进行绑定到事务管理器中
 				EntityManager em = createEntityManager();
 				EntityManagerHolder emHolder = new EntityManagerHolder(em);
 				TransactionSynchronizationManager.bindResource(emf, emHolder);

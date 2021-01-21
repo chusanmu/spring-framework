@@ -199,7 +199,7 @@ public abstract class EntityManagerFactoryUtils {
 			throws PersistenceException {
 
 		Assert.notNull(emf, "No EntityManagerFactory specified");
-
+		// TODO: 根据entityManagerFactory拿到 EntityManagerHolder
 		EntityManagerHolder emHolder =
 				(EntityManagerHolder) TransactionSynchronizationManager.getResource(emf);
 		if (emHolder != null) {
@@ -225,6 +225,7 @@ public abstract class EntityManagerFactoryUtils {
 				// Use holder's reference count to track synchronizedWithTransaction access.
 				// isOpen() check used below to find out about it.
 				emHolder.requested();
+				// TODO: 返回entityManager
 				return emHolder.getEntityManager();
 			}
 			else {

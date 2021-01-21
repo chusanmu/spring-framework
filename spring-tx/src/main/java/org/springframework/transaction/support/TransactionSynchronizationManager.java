@@ -295,10 +295,12 @@ public abstract class TransactionSynchronizationManager {
 	 * @throws IllegalStateException if synchronization is already active
 	 */
 	public static void initSynchronization() throws IllegalStateException {
+		// TODO: 如果当前事务已经初始化过了， 直接就报异常了
 		if (isSynchronizationActive()) {
 			throw new IllegalStateException("Cannot activate transaction synchronization - already active");
 		}
 		logger.trace("Initializing transaction synchronization");
+		// TODO: 往里面塞了个LinkedHashSet.
 		synchronizations.set(new LinkedHashSet<>());
 	}
 

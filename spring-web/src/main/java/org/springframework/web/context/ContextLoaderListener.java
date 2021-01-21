@@ -20,6 +20,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 /**
+ * TODO: 它其实是一个Listener，当tomcat启动时，会进行初始化listener
  * Bootstrap listener to start up and shut down Spring's root {@link WebApplicationContext}.
  * Simply delegates to {@link ContextLoader} as well as to {@link ContextCleanupListener}.
  *

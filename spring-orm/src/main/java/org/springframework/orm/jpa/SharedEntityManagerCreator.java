@@ -75,6 +75,7 @@ public abstract class SharedEntityManagerCreator {
 	private static final Set<String> queryTerminatingMethods = new HashSet<>(8);
 
 	static {
+		// TODO: 指定需要事务的方法
 		transactionRequiringMethods.add("joinTransaction");
 		transactionRequiringMethods.add("flush");
 		transactionRequiringMethods.add("persist");
@@ -146,6 +147,8 @@ public abstract class SharedEntityManagerCreator {
 	}
 
 	/**
+	 * TODO: 创建entityManager, 创建一个带有事务的EntityManager代理，通过给定的entityManagerFactory
+	 *
 	 * Create a transactional EntityManager proxy for the given EntityManagerFactory.
 	 * @param emf the EntityManagerFactory to obtain EntityManagers from as needed
 	 * @param properties the properties to be passed into the
@@ -167,6 +170,7 @@ public abstract class SharedEntityManagerCreator {
 		Class<?>[] ifcs = new Class<?>[entityManagerInterfaces.length + 1];
 		System.arraycopy(entityManagerInterfaces, 0, ifcs, 0, entityManagerInterfaces.length);
 		ifcs[entityManagerInterfaces.length] = EntityManagerProxy.class;
+		// TODO: 创建代理，将EntityManager 传了进去，会使用传进去的 EntityManagerFactory 来创建EntityManager
 		return (EntityManager) Proxy.newProxyInstance(
 				(cl != null ? cl : SharedEntityManagerCreator.class.getClassLoader()),
 				ifcs, new SharedEntityManagerInvocationHandler(emf, properties, synchronizedWithTransaction));
@@ -256,6 +260,7 @@ public abstract class SharedEntityManagerCreator {
 				// Handle close method: suppress, not valid.
 				return null;
 			}
+			// TODO: 当调用EntityManager的getTransaction方法时，会报错.
 			else if (method.getName().equals("getTransaction")) {
 				throw new IllegalStateException(
 						"Not allowed to create transaction on shared EntityManager - " +
@@ -264,6 +269,7 @@ public abstract class SharedEntityManagerCreator {
 
 			// Determine current EntityManager: either the transactional one
 			// managed by the factory or a temporary one for the given invocation.
+			// TODO: 使用entityManagerFactory来获取EntityManager
 			EntityManager target = EntityManagerFactoryUtils.doGetTransactionalEntityManager(
 					this.targetFactory, this.properties, this.synchronizedWithTransaction);
 
@@ -285,9 +291,11 @@ public abstract class SharedEntityManagerCreator {
 				}
 				// Still perform unwrap call on target EntityManager.
 			}
+			// TODO: 需要事务的方法，必须带有事务，否则报错
 			else if (transactionRequiringMethods.contains(method.getName())) {
 				// We need a transactional target now, according to the JPA spec.
 				// Otherwise, the operation would get accepted but remain unflushed...
+				// TODO: 不存在事务 则会直接报错
 				if (target == null || (!TransactionSynchronizationManager.isActualTransactionActive() &&
 						!target.getTransaction().isActive())) {
 					throw new TransactionRequiredException("No EntityManager with actual transaction available " +
@@ -307,6 +315,7 @@ public abstract class SharedEntityManagerCreator {
 
 			// Invoke method on current EntityManager.
 			try {
+				// TODO: 执行当前entityManager中的方法
 				Object result = method.invoke(target, args);
 				if (result instanceof Query) {
 					Query query = (Query) result;

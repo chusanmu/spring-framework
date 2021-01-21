@@ -61,7 +61,7 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	/**
 	 * TODO: 这里主要分了两步:
 	 * 		1. super.onStartup(servletContext) 注册ContextLoaderListener监听器，让它去初始化Spring父容器
-	 * 		2. 	registerDispatcherServlet 注册DispatcherServlet，让它去初始化Spring mvc的子容器
+	 * 		2. 	registerDispatcherServlet 注册DispatcherServlet
 	 * @param servletContext
 	 * @throws ServletException
 	 */
@@ -69,6 +69,8 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	public void onStartup(ServletContext servletContext) throws ServletException {
 		super.onStartup(servletContext);
 		// TODO: 注册dispatcherServlet
+		// TODO: 创建webApplicationContext, 创建DispatcherServlet，然后将disPatcherServlet添加至servletContext中
+		// TODO: 在servlet初始化的时候 会去初始化子容器
 		registerDispatcherServlet(servletContext);
 	}
 
@@ -91,11 +93,13 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 		WebApplicationContext servletAppContext = createServletApplicationContext();
 		Assert.notNull(servletAppContext, "createServletApplicationContext() must not return null");
 		// TODO: 创建DispatchServlet，并且把子容器传进去，其实就是new一个出来，最后加到容器里面，就能够执行一些init初始化方法了
+		// TODO: 引用了我们的web子容器
 		FrameworkServlet dispatcherServlet = createDispatcherServlet(servletAppContext);
 		Assert.notNull(dispatcherServlet, "createDispatcherServlet(WebApplicationContext) must not return null");
 		// TODO: 这里这个getServletApplicationContextInitializers 一般也为null
 		dispatcherServlet.setContextInitializers(getServletApplicationContextInitializers());
 		// TODO: 注册servlet到web容器里面，这样就可以接受请求了，添加servlet到servletContext中
+		// TODO: 将dispatchServlet添加到容器中
 		ServletRegistration.Dynamic registration = servletContext.addServlet(servletName, dispatcherServlet);
 		if (registration == null) {
 			throw new IllegalStateException("Failed to register servlet with name '" + servletName + "'. " +

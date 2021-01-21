@@ -76,7 +76,9 @@ public class BeanDefinitionVisitor {
 	 * @see #resolveStringValue(String)
 	 */
 	public void visitBeanDefinition(BeanDefinition beanDefinition) {
+		// TODO: 处理beanDefinition中的父类名字
 		visitParentName(beanDefinition);
+		// TODO: beanClassName ， 以及factoryBeanName, factoryMethodName scope等
 		visitBeanClassName(beanDefinition);
 		visitFactoryBeanName(beanDefinition);
 		visitFactoryMethodName(beanDefinition);

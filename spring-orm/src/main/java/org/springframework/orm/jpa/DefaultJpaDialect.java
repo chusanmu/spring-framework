@@ -67,6 +67,7 @@ public class DefaultJpaDialect implements JpaDialect, Serializable {
 					" does not support custom isolation levels due to limitations in standard JPA. " +
 					"Specific arrangements may be implemented in custom JpaDialect variants.");
 		}
+		// TODO: 利用entityManager去开启事务
 		entityManager.getTransaction().begin();
 		return null;
 	}

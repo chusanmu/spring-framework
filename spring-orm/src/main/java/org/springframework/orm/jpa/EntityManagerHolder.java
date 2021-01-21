@@ -40,9 +40,15 @@ import org.springframework.util.Assert;
  */
 public class EntityManagerHolder extends ResourceHolderSupport {
 
+	/**
+	 * TODO: 维护了一个entityManager
+	 */
 	@Nullable
 	private final EntityManager entityManager;
 
+	/**
+	 * TODO: 标识事务是否激活
+	 */
 	private boolean transactionActive;
 
 	@Nullable

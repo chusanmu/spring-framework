@@ -45,6 +45,13 @@ public abstract class AbstractContextLoaderInitializer implements WebApplication
 	protected final Log logger = LogFactory.getLog(getClass());
 
 
+	/**
+	 * 1. 创建root applicationContext
+	 * 2. 添加ContextLoaderListener，当tomcat容器启动的时候，初始化listener，会刷新root application context,
+	 *    然后将其作为一个key放入servletContext中
+	 * @param servletContext the {@code ServletContext} to initialize
+	 * @throws ServletException
+	 */
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
 		registerContextLoaderListener(servletContext);

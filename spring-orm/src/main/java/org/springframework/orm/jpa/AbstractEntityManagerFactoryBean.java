@@ -382,6 +382,7 @@ public abstract class AbstractEntityManagerFactoryBean implements
 		// This allows interception of createEntityManager methods to return an
 		// application-managed EntityManager proxy that automatically joins
 		// existing transactions.
+		// TODO: 使用代理创建entityManagerFactory
 		this.entityManagerFactory = createEntityManagerFactoryProxy(this.nativeEntityManagerFactory);
 	}
 
@@ -461,6 +462,7 @@ public abstract class AbstractEntityManagerFactoryBean implements
 	}
 
 	/**
+	 * TODO: 使用代理 去创建 entityManager
 	 * Delegate an incoming invocation from the proxy, dispatching to EntityManagerFactoryInfo
 	 * or the native EntityManagerFactory accordingly.
 	 */

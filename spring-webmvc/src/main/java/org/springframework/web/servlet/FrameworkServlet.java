@@ -213,6 +213,9 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	/** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
 	private boolean enableLoggingRequestDetails = false;
 
+	/**
+	 * TODO: 在创建dispatcherServlet的时候 会指定webApplicatoinContext
+	 */
 	/** WebApplicationContext for this servlet. */
 	@Nullable
 	private WebApplicationContext webApplicationContext;
@@ -560,13 +563,14 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see #setContextConfigLocation
 	 */
 	protected WebApplicationContext initWebApplicationContext() {
-		// TODO: 从servletContext中把上面已经 创建好了的跟容器拿到手
+		// TODO: 从servletContext中把上面已经 创建好了的根容器拿到手，取出来根容器
 		WebApplicationContext rootContext =
 				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 		WebApplicationContext wac = null;
 		// TODO: 这里注意，因为我们是注解版开发，创建DispatcherServlet的时候会把web子容器放进来，所以此处肯定不为null了，那么就会继续进行 初始化，刷新容器，和父容器一样的
 		if (this.webApplicationContext != null) {
 			// A context instance was injected at construction time -> use it
+			// TODO: 将指定的webApplicationContext拿过来
 			wac = this.webApplicationContext;
 			if (wac instanceof ConfigurableWebApplicationContext) {
 				ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) wac;
@@ -579,7 +583,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 						// the root application context (if any; may be null) as the parent
 						cwac.setParent(rootContext);
 					}
-					// TODO: 根据绑定的配置，初始化，刷新容器
+					// TODO: 根据绑定的配置，初始化，刷新web-mvc子容器
 					configureAndRefreshWebApplicationContext(cwac);
 				}
 			}
@@ -677,6 +681,10 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		return wac;
 	}
 
+	/**
+	 * TODO: 初始化servlet中绑定的mvc子容器
+	 * @param wac
+	 */
 	protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicationContext wac) {
 		if (ObjectUtils.identityToString(wac).equals(wac.getId())) {
 			// The application context id is still set to its original default value
@@ -690,15 +698,18 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 						ObjectUtils.getDisplayString(getServletContext().getContextPath()) + '/' + getServletName());
 			}
 		}
-
+		// TODO: 配置mvc applicationContext的一些属性，servletContext, servletConfig等
 		wac.setServletContext(getServletContext());
 		wac.setServletConfig(getServletConfig());
 		wac.setNamespace(getNamespace());
+		// TODO: 添加了一个listener监听,这个listener监听很重要，它监听的事件是ContextRefreshListener，意味着
+		// TODO: 当web mvc子容器refresh成功之后，会触发此监听器来初始化dispatcherServlet中的九大组件
 		wac.addApplicationListener(new SourceFilteringListener(wac, new ContextRefreshListener()));
 
 		// The wac environment's #initPropertySources will be called in any case when the context
 		// is refreshed; do it eagerly here to ensure servlet property sources are in place for
 		// use in any post-processing or initialization that occurs below prior to #refresh
+		// TODO: 提早的设置servlet属性源，防止容器在刷新和初始化的时候使用到servlet属性源
 		ConfigurableEnvironment env = wac.getEnvironment();
 		if (env instanceof ConfigurableWebEnvironment) {
 			((ConfigurableWebEnvironment) env).initPropertySources(getServletContext(), getServletConfig());
@@ -706,7 +717,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		postProcessWebApplicationContext(wac);
 		applyInitializers(wac);
-		// TODO: 初始化方法啊
+		// TODO: 初始化方法啊，初始化web子容器
 		wac.refresh();
 	}
 
@@ -1197,6 +1208,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		@Override
 		public void onApplicationEvent(ContextRefreshedEvent event) {
+			// TODO: 初始化servlet中的九大组件
 			FrameworkServlet.this.onApplicationEvent(event);
 		}
 	}

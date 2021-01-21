@@ -45,6 +45,7 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 		extends AbstractDispatcherServletInitializer {
 
 	/**
+	 * TODO: 创建根容器
 	 * {@inheritDoc}
 	 * <p>This implementation creates an {@link AnnotationConfigWebApplicationContext},
 	 * providing it the annotated classes returned by {@link #getRootConfigClasses()}.
@@ -53,8 +54,10 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 	@Override
 	@Nullable
 	protected WebApplicationContext createRootApplicationContext() {
+		// TODO: 拿到你配置的rootConfig
 		Class<?>[] configClasses = getRootConfigClasses();
 		if (!ObjectUtils.isEmpty(configClasses)) {
+			// TODO: 创建AnnotationConfigWebApplicationContext
 			AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 			// TODO: 并且把留给子类 设置的配置文件注册了进去，配置文件可能有多个，这里会以累加的方式添加进去
 			context.register(configClasses);
@@ -73,9 +76,11 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 	 */
 	@Override
 	protected WebApplicationContext createServletApplicationContext() {
+		// TODO: 创建子 application context
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 		// TODO: 这里也是拿到我们配置的配置文件，然后进行注册
 		Class<?>[] configClasses = getServletConfigClasses();
+		// TODO: 如果我们配置的servletConfigClasses不为空，然后就进行注册
 		if (!ObjectUtils.isEmpty(configClasses)) {
 			context.register(configClasses);
 		}

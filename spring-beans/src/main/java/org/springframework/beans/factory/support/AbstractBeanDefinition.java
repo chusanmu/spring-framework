@@ -73,13 +73,20 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 */
 	public static final int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;
 
+
+	/* ---------------- 这几个常量和属性注入有关 -------------- */
+
 	/**
+	 * TODO: 通过属性名称进行注入,注意 如果你配置了这个属性，那么是可以不用@Autowired进行注入的，
+	 * TODO: 因为在初始化过程中，会根据内省拿到你的属性信息，然后还会判断是否有set方法，如果存在，才是一个合法的属性，然后才会通过这种方式来进行注入，不需要写@Autowired
+	 * TODO: 默认是采用的 AUTOWIRE_CONSTRUCTOR 这个模式
 	 * Constant that indicates autowiring bean properties by name.
 	 * @see #setAutowireMode
 	 */
 	public static final int AUTOWIRE_BY_NAME = AutowireCapableBeanFactory.AUTOWIRE_BY_NAME;
 
 	/**
+	 * TODO: 根据类型进行注入
 	 * Constant that indicates autowiring bean properties by type.
 	 * @see #setAutowireMode
 	 */

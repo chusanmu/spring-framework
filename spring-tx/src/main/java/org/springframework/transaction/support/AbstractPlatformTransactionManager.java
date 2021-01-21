@@ -563,24 +563,31 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 		// TODO: 这地方需要注意，newSynchronization 为true,并且事务状态非激活状态，actualNewSynchronization 这个才为true
 		boolean actualNewSynchronization = newSynchronization &&
 				!TransactionSynchronizationManager.isSynchronizationActive();
+		// TODO: 然后创建了一个默认的事务状态
 		return new DefaultTransactionStatus(
 				transaction, newTransaction, actualNewSynchronization,
 				definition.isReadOnly(), debug, suspendedResources);
 	}
 
 	/**
+	 * TODO: 准备同步
 	 * Initialize transaction synchronization as appropriate.
 	 */
 	protected void prepareSynchronization(DefaultTransactionStatus status, TransactionDefinition definition) {
 		// TODO: 如果是新的事务同步，进行同步最新的, 第一次开启事务的时候会设置，之后一旦事务激活之后，那么这段代码就不会走了
+		// TODO: 除非开启新的事务
 		if (status.isNewSynchronization()) {
 			// TODO: 相当于表示事务为开，设置事务实际激活
 			TransactionSynchronizationManager.setActualTransactionActive(status.hasTransaction());
+			// TODO: 设置当前事务的隔离级别
 			TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(
 					definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT ?
 							definition.getIsolationLevel() : null);
+			// TODO: 标记当前事务是否是只读的
 			TransactionSynchronizationManager.setCurrentTransactionReadOnly(definition.isReadOnly());
+			// TODO: 标记当前事务名称
 			TransactionSynchronizationManager.setCurrentTransactionName(definition.getName());
+			// TODO: 初始化当前事务同步
 			TransactionSynchronizationManager.initSynchronization();
 		}
 	}
