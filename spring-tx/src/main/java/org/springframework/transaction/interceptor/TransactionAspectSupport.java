@@ -324,7 +324,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				throw ex;
 			}
 			finally {
-				// TODO: 清除信息
+				// TODO: 清除信息, 解绑事务,transactionInfoHolder.set(this.oldTransactionInfo); 干了这一件事
 				cleanupTransactionInfo(txInfo);
 			}
 			// TODO: 目标方法完成执行完成后，提交事务
@@ -570,12 +570,13 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	}
 
 	/**
-	 * TODO: 提交事务，比较简单，只用用事务管理器提交事务即可，具体的实现逻辑在事务管理器的conmmit实现里
+	 * TODO: 提交事务，比较简单，只用用事务管理器提交事务即可，具体的实现逻辑在事务管理器的commit实现里
 	 * Execute after successful completion of call, but not after an exception was handled.
 	 * Do nothing if we didn't create a transaction.
 	 * @param txInfo information about the current transaction
 	 */
 	protected void commitTransactionAfterReturning(@Nullable TransactionInfo txInfo) {
+		// TODO: 开始提交事务
 		if (txInfo != null && txInfo.getTransactionStatus() != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() + "]");
@@ -586,6 +587,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
 	/**
 	 * TODO: 回滚事务
+	 *
 	 * Handle a throwable, completing the transaction.
 	 * We may commit or roll back, depending on the configuration.
 	 * @param txInfo information about the current transaction
@@ -600,6 +602,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			// TODO: 如果有事务属性，就调用rollbackOn，看看是否需要回滚这个异常
 			if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
 				try {
+					// TODO: 调用transactionManager的rollback方法进行回滚
 					txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
 				}
 				catch (TransactionSystemException ex2) {

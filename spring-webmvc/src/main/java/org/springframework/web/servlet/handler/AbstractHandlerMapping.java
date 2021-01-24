@@ -446,6 +446,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 			handler = obtainApplicationContext().getBean(handlerName);
 		}
 		// TODO: 关键步骤，根据handler和request构造一个请求处理链
+		// TODO: 每一个请求对应了一个handlerExcutionChain
 		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
 
 		if (logger.isTraceEnabled()) {
@@ -512,6 +513,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 				(HandlerExecutionChain) handler : new HandlerExecutionChain(handler));
 		// TODO: 此处就用到了urlPathHelper来解析request
 		String lookupPath = this.urlPathHelper.getLookupPathForRequest(request);
+		// TODO: 所有的interceptors
 		for (HandlerInterceptor interceptor : this.adaptedInterceptors) {
 			// TODO: 判断如果是MappedInterceptor
 			if (interceptor instanceof MappedInterceptor) {

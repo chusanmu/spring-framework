@@ -30,6 +30,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * TODO: 责任链设计模式
+ *
  * Handler execution chain, consisting of handler object and any handler interceptors.
  * Returned by HandlerMapping's {@link HandlerMapping#getHandler} method.
  *
@@ -41,14 +43,23 @@ public class HandlerExecutionChain {
 
 	private static final Log logger = LogFactory.getLog(HandlerExecutionChain.class);
 
+	/**
+	 * handler处理器
+	 */
 	private final Object handler;
 
+	/**
+	 * 所有的interceptors
+	 */
 	@Nullable
 	private HandlerInterceptor[] interceptors;
 
 	@Nullable
 	private List<HandlerInterceptor> interceptorList;
 
+	/**
+	 * 角标为 -1 开始
+	 */
 	private int interceptorIndex = -1;
 
 
@@ -130,20 +141,27 @@ public class HandlerExecutionChain {
 
 
 	/**
+	 * TODO: 应用 所有拦截器的preHandler 方法
+	 *
 	 * Apply preHandle methods of registered interceptors.
 	 * @return {@code true} if the execution chain should proceed with the
 	 * next interceptor or the handler itself. Else, DispatcherServlet assumes
 	 * that this interceptor has already dealt with the response itself.
 	 */
 	boolean applyPreHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// TODO: 获取所有的handlerInterceptor
 		HandlerInterceptor[] interceptors = getInterceptors();
+		// TODO: 如果不为空，然后开始遍历 移除执行preHandle 方法，如果preHandler方法返回了false， 那么就执行 triggerAfterCompletion 方法了
 		if (!ObjectUtils.isEmpty(interceptors)) {
 			for (int i = 0; i < interceptors.length; i++) {
 				HandlerInterceptor interceptor = interceptors[i];
+				// TODO: 执行preHandle方法
 				if (!interceptor.preHandle(request, response, this.handler)) {
+					// TODO: 执行 triggerAfterCompletion
 					triggerAfterCompletion(request, response, null);
 					return false;
 				}
+				// TODO: interceptorIndex 往上加
 				this.interceptorIndex = i;
 			}
 		}
@@ -155,11 +173,13 @@ public class HandlerExecutionChain {
 	 */
 	void applyPostHandle(HttpServletRequest request, HttpServletResponse response, @Nullable ModelAndView mv)
 			throws Exception {
-
+		// TODO: 拿到所有的interceptor，如果不为空，开始遍历
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {
+			// TODO: 注意，这时候开始倒着调用了，刚才的interceptorIndex加上去了，这时候倒着遍历 调用
 			for (int i = interceptors.length - 1; i >= 0; i--) {
 				HandlerInterceptor interceptor = interceptors[i];
+				// TODO: 执行postHandle方法
 				interceptor.postHandle(request, response, this.handler, mv);
 			}
 		}
@@ -172,9 +192,10 @@ public class HandlerExecutionChain {
 	 */
 	void triggerAfterCompletion(HttpServletRequest request, HttpServletResponse response, @Nullable Exception ex)
 			throws Exception {
-
+		// TODO: 拿到所有的interceptor
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {
+			// TODO: 执行interceptor 的 afterCompletion
 			for (int i = this.interceptorIndex; i >= 0; i--) {
 				HandlerInterceptor interceptor = interceptors[i];
 				try {

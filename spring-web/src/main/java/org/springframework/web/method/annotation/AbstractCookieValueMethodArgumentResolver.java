@@ -55,6 +55,7 @@ public abstract class AbstractCookieValueMethodArgumentResolver extends Abstract
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// TODO: 参数上有 CookieValue注解
 		return parameter.hasParameterAnnotation(CookieValue.class);
 	}
 

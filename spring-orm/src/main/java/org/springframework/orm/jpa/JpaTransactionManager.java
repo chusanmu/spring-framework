@@ -577,7 +577,9 @@ public class JpaTransactionManager extends AbstractPlatformTransactionManager
 		}
 		try {
 			EntityTransaction tx = txObject.getEntityManagerHolder().getEntityManager().getTransaction();
+			// TODO: 使用entityManager的 EntityTransaction 去进行回滚
 			if (tx.isActive()) {
+				// TODO: 回滚 进行rollback.
 				tx.rollback();
 			}
 		}

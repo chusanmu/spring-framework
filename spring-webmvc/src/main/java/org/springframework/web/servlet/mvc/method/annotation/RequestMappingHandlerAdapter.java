@@ -882,6 +882,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		}
 		else {
 			// No synchronization on session demanded at all...
+			// TODO: 执行handlerMethod
 			mav = invokeHandlerMethod(request, response, handlerMethod);
 		}
 		// TODO: 处理cache-control这个请求头

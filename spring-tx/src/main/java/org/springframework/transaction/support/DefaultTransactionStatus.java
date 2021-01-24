@@ -73,6 +73,9 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
 	private final boolean debug;
 
+	/**
+	 * TODO: 事务挂起资源
+	 */
 	@Nullable
 	private final Object suspendedResources;
 

@@ -53,6 +53,17 @@ public class RequestHeaderMapMethodArgumentResolver implements HandlerMethodArgu
 				Map.class.isAssignableFrom(parameter.getParameterType()));
 	}
 
+	/**
+	 * 解析请求头，一次性把所有的请求头都拿到
+	 * @param parameter the method parameter to resolve. This parameter must
+	 * have previously been passed to {@link #supportsParameter} which must
+	 * have returned {@code true}.
+	 * @param mavContainer the ModelAndViewContainer for the current request
+	 * @param webRequest the current request
+	 * @param binderFactory a factory for creating {@link WebDataBinder} instances
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {

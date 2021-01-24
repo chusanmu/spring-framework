@@ -66,9 +66,16 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueMetho
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return (parameter.hasParameterAnnotation(RequestHeader.class) &&
+				// TODO: 不能是map类型的参数
 				!Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType()));
 	}
 
+	/**
+	 * TODO: 构建注解信息
+	 *
+	 * @param parameter the method parameter
+	 * @return
+	 */
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
 		RequestHeader ann = parameter.getParameterAnnotation(RequestHeader.class);
@@ -88,7 +95,9 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueMetho
 	@Override
 	@Nullable
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+		// TODO: 从请求头里拿值
 		String[] headerValues = request.getHeaderValues(name);
+		// TODO: 拿到值了 就直接返回吧
 		if (headerValues != null) {
 			return (headerValues.length == 1 ? headerValues[0] : headerValues);
 		}

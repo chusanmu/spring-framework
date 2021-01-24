@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.MethodParameter;
@@ -135,25 +136,32 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// TODO: 参数上存在 RequestParam注解
 		if (parameter.hasParameterAnnotation(RequestParam.class)) {
+			// TODO: 如果是map类型，并且requestParam指定了名称，那么也是支持解析的，但是需要自己写一个convert，spring默认不支持string -> map的转换
 			if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
 				RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
 				return (requestParam != null && StringUtils.hasText(requestParam.name()));
 			}
+			// TODO: 如果存在@RequestParam那么就支持进行处理
 			else {
 				return true;
 			}
 		}
+		// TODO: 没有@RequestParam注解，它也支持处理的
 		else {
+			// TODO: 如果 存在 RequestPart 注解，那么直接返回false吧
 			if (parameter.hasParameterAnnotation(RequestPart.class)) {
 				return false;
 			}
 			parameter = parameter.nestedIfOptional();
+			// TODO: 接着看入参类型，如果入参类型是 MultipartFile 这种类型 那么它也支持处理的
 			if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
 				return true;
 			}
-			// TODO: 查看基本类型
+			// TODO: 查看基本类型 是否使用基本类型解析
 			else if (this.useDefaultResolution) {
+				// TODO: 如果是基本类型，那么也支持处理
 				return BeanUtils.isSimpleProperty(parameter.getNestedParameterType());
 			}
 			else {
@@ -175,6 +183,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 
 	/**
 	 * 根据Name获取值，普通/文件上传，并且还有集合，数组等情况
+	 *
 	 * @param name the name of the value being resolved
 	 * @param parameter the method parameter to resolve to an argument value
 	 * (pre-nested in case of a {@link java.util.Optional} declaration)
@@ -189,7 +198,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 		HttpServletRequest servletRequest = request.getNativeRequest(HttpServletRequest.class);
 		// TODO: 这块解析出来的是个multipartFile或者其集合 数组
 		if (servletRequest != null) {
-			// TODO: 依赖他去解析
+			// TODO: 依赖它去解析 尝试去解析MultipartFile，如果解析出来了MultipartFile，那就肯定不是 UNRESOLVABLE
 			Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, servletRequest);
 			if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {
 				// TODO: 解析出来了，直接返回回去
@@ -208,7 +217,9 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 		}
 		// TODO: 若解析出来仍是null, 就去参数里取，文件上传的优先级是高于请求参数的
 		if (arg == null) {
+			// TODO: 从参数里 取出来name对应的value
 			String[] paramValues = request.getParameterValues(name);
+			// TODO: 返回value
 			if (paramValues != null) {
 				arg = (paramValues.length == 1 ? paramValues[0] : paramValues);
 			}

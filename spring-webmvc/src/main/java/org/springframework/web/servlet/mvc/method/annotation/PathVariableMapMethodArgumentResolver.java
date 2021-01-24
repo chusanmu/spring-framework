@@ -51,6 +51,7 @@ public class PathVariableMapMethodArgumentResolver implements HandlerMethodArgum
 	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+
 		PathVariable ann = parameter.getParameterAnnotation(PathVariable.class);
 		return (ann != null && Map.class.isAssignableFrom(parameter.getParameterType()) &&
 				!StringUtils.hasText(ann.value()));
@@ -63,11 +64,12 @@ public class PathVariableMapMethodArgumentResolver implements HandlerMethodArgum
 	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
+		// TODO: 直接从request域中拿出来保存的 参数信息
 		@SuppressWarnings("unchecked")
 		Map<String, String> uriTemplateVars =
 				(Map<String, String>) webRequest.getAttribute(
 						HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
-
+		// TODO: 如果不为空的话，直接包成一个LinkedHashMap返回了
 		if (!CollectionUtils.isEmpty(uriTemplateVars)) {
 			return new LinkedHashMap<>(uriTemplateVars);
 		}

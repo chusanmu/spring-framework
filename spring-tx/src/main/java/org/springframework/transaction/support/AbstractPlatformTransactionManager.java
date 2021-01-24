@@ -404,12 +404,14 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			try {
 				// TODO: 此处开始创建事务
 				boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
-				// TODO: 创建一个新的事务状态，就是new DefaultTransactionStatus() 把各个属性都赋值上
+				// TODO: 创建一个新的事务状态，就是new DefaultTransactionStatus() 把各个属性都赋值上，
+				// TODO: suspendedResources 挂起资源 也给到
 				DefaultTransactionStatus status = newTransactionStatus(
 						definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
 				// TODO: 开始事务，抽象方法，由子类去实现
 				doBegin(transaction, definition);
 				// TODO: 初始化和同步事务状态，是TransactionSynchronizationManager这个类，它内部维护了很多的ThreadLocal
+				// TODO: 开始往 TransactionSynchronizationManager 里面塞值
 				prepareSynchronization(status, definition);
 				return status;
 			}
@@ -555,6 +557,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	}
 
 	/**
+	 * TODO: 创建一个事务状态
+	 *
 	 * Create a TransactionStatus instance for the given arguments.
 	 */
 	protected DefaultTransactionStatus newTransactionStatus(
@@ -610,6 +614,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 
 	/**
+	 * TODO: 挂起当前的事务，会调模板方法 doSuspend
 	 * Suspend the given transaction. Suspends transaction synchronization first,
 	 * then delegates to the {@code doSuspend} template method.
 	 * @param transaction the current transaction object
@@ -621,32 +626,43 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	@Nullable
 	protected final SuspendedResourcesHolder suspend(@Nullable Object transaction) throws TransactionException {
+		// TODO: 判断同步器是否是激活状态
 		if (TransactionSynchronizationManager.isSynchronizationActive()) {
+			// TODO: 会返回当前所有的同步器
 			List<TransactionSynchronization> suspendedSynchronizations = doSuspendSynchronization();
 			try {
 				Object suspendedResources = null;
 				if (transaction != null) {
+					// TODO: 核心方法，进行挂起事务, 模板方法, 其实就是进行一个清空操作
 					suspendedResources = doSuspend(transaction);
 				}
+				// TODO: 当前事务名称
 				String name = TransactionSynchronizationManager.getCurrentTransactionName();
+				// TODO: 清空当前事务名称
 				TransactionSynchronizationManager.setCurrentTransactionName(null);
+				// TODO: 当前事务是否是只读的，然后也进行清空，设置为了false
 				boolean readOnly = TransactionSynchronizationManager.isCurrentTransactionReadOnly();
 				TransactionSynchronizationManager.setCurrentTransactionReadOnly(false);
+				// TODO: 当前事务的隔离级别，也进行了设置null
 				Integer isolationLevel = TransactionSynchronizationManager.getCurrentTransactionIsolationLevel();
 				TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(null);
+				// TODO: 当前事务是否开启，也进行设置为了false
 				boolean wasActive = TransactionSynchronizationManager.isActualTransactionActive();
 				TransactionSynchronizationManager.setActualTransactionActive(false);
 				// TODO: 返回一个SuspendedResourcesHolder ，里面封装了事务的一些信息
 				return new SuspendedResourcesHolder(
 						suspendedResources, suspendedSynchronizations, name, readOnly, isolationLevel, wasActive);
 			}
+			// TODO: 如果中间任何一个过程 出了异常，那么就进行恢复事务同步
 			catch (RuntimeException | Error ex) {
 				// doSuspend failed - original transaction is still active...
 				doResumeSynchronization(suspendedSynchronizations);
 				throw ex;
 			}
 		}
+		// TODO: 当前事务同步器未激活，那就直接进行挂起了
 		else if (transaction != null) {
+			// TODO: 事务存在，但是没有 激活事务同步
 			// Transaction active but no synchronization active.
 			Object suspendedResources = doSuspend(transaction);
 			return new SuspendedResourcesHolder(suspendedResources);
@@ -669,18 +685,21 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	protected final void resume(@Nullable Object transaction, @Nullable SuspendedResourcesHolder resourcesHolder)
 			throws TransactionException {
-
+		// TODO: 如果当前resourceHolder不为空，开始进行恢复事务
 		if (resourcesHolder != null) {
 			Object suspendedResources = resourcesHolder.suspendedResources;
 			if (suspendedResources != null) {
+				// TODO: 进行恢复，绑定资源等
 				doResume(transaction, suspendedResources);
 			}
+			// TODO: 进行恢复 TransactionSynchronizationManager 中的各个值
 			List<TransactionSynchronization> suspendedSynchronizations = resourcesHolder.suspendedSynchronizations;
 			if (suspendedSynchronizations != null) {
 				TransactionSynchronizationManager.setActualTransactionActive(resourcesHolder.wasActive);
 				TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(resourcesHolder.isolationLevel);
 				TransactionSynchronizationManager.setCurrentTransactionReadOnly(resourcesHolder.readOnly);
 				TransactionSynchronizationManager.setCurrentTransactionName(resourcesHolder.name);
+				// TODO: 恢复事务同步器
 				doResumeSynchronization(suspendedSynchronizations);
 			}
 		}
@@ -708,24 +727,32 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * @return the List of suspended TransactionSynchronization objects
 	 */
 	private List<TransactionSynchronization> doSuspendSynchronization() {
+		// TODO: 拿到所有的同步器，然后一个个的进行调用 suspend 方法，其实就是一个回调
 		List<TransactionSynchronization> suspendedSynchronizations =
 				TransactionSynchronizationManager.getSynchronizations();
 		for (TransactionSynchronization synchronization : suspendedSynchronizations) {
 			synchronization.suspend();
 		}
+		// TODO: 清空当前的同步器
 		TransactionSynchronizationManager.clearSynchronization();
+		// TODO: 返回当前的同步器
 		return suspendedSynchronizations;
 	}
 
 	/**
+	 * TODO: 恢复事务同步
+	 *
 	 * Reactivate transaction synchronization for the current thread
 	 * and resume all given synchronizations.
 	 * @param suspendedSynchronizations a List of TransactionSynchronization objects
 	 */
 	private void doResumeSynchronization(List<TransactionSynchronization> suspendedSynchronizations) {
+		// TODO: 初始化 事务同步器
 		TransactionSynchronizationManager.initSynchronization();
+		// TODO: 遍历所有的同步器，然后调 resume 这个方法
 		for (TransactionSynchronization synchronization : suspendedSynchronizations) {
 			synchronization.resume();
+			// TODO: 然后将每个同步器 再注册到 TransactionSynchronizationManager 中
 			TransactionSynchronizationManager.registerSynchronization(synchronization);
 		}
 	}
@@ -763,6 +790,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			if (defStatus.isDebug()) {
 				logger.debug("Global transaction is marked as rollback-only but transactional code requested commit");
 			}
+			// TODO: 到这时候 处理回滚事务
 			processRollback(defStatus, true);
 			return;
 		}
@@ -784,6 +812,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			try {
 				boolean unexpectedRollback = false;
 				prepareForCommit(status);
+				// TODO: 调事务同步器 beforeCommit 方法
 				triggerBeforeCommit(status);
 				triggerBeforeCompletion(status);
 				beforeCompletionInvoked = true;
@@ -801,6 +830,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 					}
 					unexpectedRollback = status.isGlobalRollbackOnly();
 					// TODO: 事务提交之后
+					// TODO: 进行事务提交
 					doCommit(status);
 				}
 				else if (isFailEarlyOnGlobalRollbackOnly()) {
@@ -868,8 +898,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			throw new IllegalTransactionStateException(
 					"Transaction is already completed - do not call commit or rollback more than once per transaction");
 		}
-
+		// TODO: 进行处理回滚 rollback
 		DefaultTransactionStatus defStatus = (DefaultTransactionStatus) status;
+		// TODO: 处理回滚 核心 方法， false，主动回滚
 		processRollback(defStatus, false);
 	}
 
@@ -884,27 +915,34 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			boolean unexpectedRollback = unexpected;
 
 			try {
+				// TODO: 触发 TransactionSynchronization beforeCompletion 方法
 				triggerBeforeCompletion(status);
 
 				if (status.hasSavepoint()) {
 					if (status.isDebug()) {
 						logger.debug("Rolling back transaction to savepoint");
 					}
+					// TODO: 回滚到保存点
 					status.rollbackToHeldSavepoint();
 				}
+				// TODO: 如果是一个新事务
 				else if (status.isNewTransaction()) {
 					if (status.isDebug()) {
 						logger.debug("Initiating transaction rollback");
 					}
+					// TODO: 开始回滚
 					doRollback(status);
 				}
 				else {
 					// Participating in larger transaction
+					// TODO: 这地方有意思了，这地方表示 有一个长的事务，它是嵌套事务里面进行回滚的
 					if (status.hasTransaction()) {
+						// TODO: 标记当前事务为回滚状态
 						if (status.isLocalRollbackOnly() || isGlobalRollbackOnParticipationFailure()) {
 							if (status.isDebug()) {
 								logger.debug("Participating transaction failed - marking existing transaction as rollback-only");
 							}
+							// TODO: 设置回滚状态
 							doSetRollbackOnly(status);
 						}
 						else {
@@ -917,6 +955,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 						logger.debug("Should roll back transaction but cannot - no transaction available");
 					}
 					// Unexpected rollback only matters here if we're asked to fail early
+					// TODO: failEarlyOnGlobalRollbackOnly 默认 false.
 					if (!isFailEarlyOnGlobalRollbackOnly()) {
 						unexpectedRollback = false;
 					}
@@ -927,9 +966,11 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				throw ex;
 			}
 
+			// TODO: 调用同步器的 afterCompletion.
 			triggerAfterCompletion(status, TransactionSynchronization.STATUS_ROLLED_BACK);
 
 			// Raise UnexpectedRollbackException if we had a global rollback-only marker
+			// TODO: 如果为true， 抛出异常
 			if (unexpectedRollback) {
 				throw new UnexpectedRollbackException(
 						"Transaction rolled back because it has been marked as rollback-only");
@@ -993,6 +1034,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			if (status.isDebug()) {
 				logger.trace("Triggering beforeCompletion synchronization");
 			}
+			// TODO: 调用synchronization的beforeComplection方法
 			TransactionSynchronizationUtils.triggerBeforeCompletion();
 		}
 	}
@@ -1018,7 +1060,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	private void triggerAfterCompletion(DefaultTransactionStatus status, int completionStatus) {
 		if (status.isNewSynchronization()) {
 			List<TransactionSynchronization> synchronizations = TransactionSynchronizationManager.getSynchronizations();
+			// TODO: 清空当前的事务同步
 			TransactionSynchronizationManager.clearSynchronization();
+			// TODO: 调用 afterCompletion 方法
 			if (!status.hasTransaction() || status.isNewTransaction()) {
 				if (status.isDebug()) {
 					logger.trace("Triggering afterCompletion synchronization");
@@ -1060,18 +1104,23 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * @see #doCleanupAfterCompletion
 	 */
 	private void cleanupAfterCompletion(DefaultTransactionStatus status) {
+		// TODO: 设置状态为完成状态
 		status.setCompleted();
+		// TODO: 清空同步器
 		if (status.isNewSynchronization()) {
 			TransactionSynchronizationManager.clear();
 		}
+
 		if (status.isNewTransaction()) {
 			doCleanupAfterCompletion(status.getTransaction());
 		}
+		// TODO: 恢复上一个事务
 		if (status.getSuspendedResources() != null) {
 			if (status.isDebug()) {
 				logger.debug("Resuming suspended transaction after completion of inner transaction");
 			}
 			Object transaction = (status.hasTransaction() ? status.getTransaction() : null);
+			// TODO: 进行恢复事务
 			resume(transaction, (SuspendedResourcesHolder) status.getSuspendedResources());
 		}
 	}
@@ -1333,7 +1382,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 
 	/**
-	 * TODO: 负责事务挂起的时候，保存事务属性的对象，用于恢复外层事务，当恢复外层事务时，根据SuspendedResourcesHolder对象，调用底层事务框架恢复事务属性，并恢复TransactionSynchronizationManager
+	 * TODO: 负责事务挂起的时候，保存事务属性的对象，用于恢复外层事务，当恢复外层事务时，
+	 * 	根据SuspendedResourcesHolder对象，调用底层事务框架恢复事务属性，并恢复TransactionSynchronizationManager
 	 * Holder for suspended resources.
 	 * Used internally by {@code suspend} and {@code resume}.
 	 */
@@ -1342,17 +1392,32 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 		@Nullable
 		private final Object suspendedResources;
 
+		/**
+		 * TODO: 事务同步器信息
+		 */
 		@Nullable
 		private List<TransactionSynchronization> suspendedSynchronizations;
 
+		/**
+		 * 事务名称
+		 */
 		@Nullable
 		private String name;
 
+		/**
+		 * 是否只读
+		 */
 		private boolean readOnly;
 
+		/**
+		 * 事务的隔离级别
+		 */
 		@Nullable
 		private Integer isolationLevel;
 
+		/**
+		 * 事务是否激活
+		 */
 		private boolean wasActive;
 
 		private SuspendedResourcesHolder(Object suspendedResources) {

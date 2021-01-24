@@ -91,7 +91,7 @@ public class StandardServletMultipartResolver implements MultipartResolver {
 	}
 
 	/**
-	 * 转成 MultipartHttpServletRequest
+	 * 转成 MultipartHttpServletRequest，注意 这里返回了一个新的Request, StandardMultipartHttpServletRequest 会去解析请求
 	 * @param request the servlet request to wrap (must be of a multipart content type)
 	 * @return
 	 * @throws MultipartException

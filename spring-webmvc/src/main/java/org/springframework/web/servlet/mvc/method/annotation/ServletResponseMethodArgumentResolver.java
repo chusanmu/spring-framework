@@ -95,6 +95,7 @@ public class ServletResponseMethodArgumentResolver implements HandlerMethodArgum
 	}
 
 	private Object resolveArgument(Class<?> paramType, ServletResponse response) throws IOException {
+		// TODO: 根据入参类型，拿到相应的类型的值
 		if (OutputStream.class.isAssignableFrom(paramType)) {
 			return response.getOutputStream();
 		}
