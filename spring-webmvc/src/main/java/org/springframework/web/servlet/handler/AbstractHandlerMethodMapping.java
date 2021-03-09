@@ -512,6 +512,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				return AbstractHandlerMethodMapping.ALLOW_CORS_CONFIG;
 			}
 			else {
+				// TODO: 拿到mapping中注册的跨域配置..., 可能使用了 注解的方式 配置跨域.
 				CorsConfiguration corsConfigFromMethod = this.mappingRegistry.getCorsConfiguration(handlerMethod);
 				corsConfig = (corsConfig != null ? corsConfig.combine(corsConfigFromMethod) : corsConfigFromMethod);
 			}
@@ -672,8 +673,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 					addMappingName(name, handlerMethod);
 				}
 
+				// TODO: initCorsConfiguration这里就是解析handler上面的注解
+				// TODO: 此init方法只有RequestMappingHandlerMapping子类重写了
 				CorsConfiguration corsConfig = initCorsConfiguration(handler, method, mapping);
 				if (corsConfig != null) {
+					// TODO: 若不为null，有注解配置，就缓存起来
 					this.corsLookup.put(handlerMethod, corsConfig);
 				}
 				// TODO: 注册mapping和MappingRegistration的关系

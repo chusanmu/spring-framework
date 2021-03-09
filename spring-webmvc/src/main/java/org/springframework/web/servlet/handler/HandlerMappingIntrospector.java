@@ -153,6 +153,8 @@ public class HandlerMappingIntrospector
 			if (handler == null) {
 				continue;
 			}
+			// TODO: 拿到作用于此handler上的所有的拦截器 HandlerInterceptor
+			// TODO: 若有拦截器实现了CorsConfigurationSource接口，那就返回此拦截器上的CORS配置源
 			if (handler.getInterceptors() != null) {
 				for (HandlerInterceptor interceptor : handler.getInterceptors()) {
 					if (interceptor instanceof CorsConfigurationSource) {
@@ -160,6 +162,8 @@ public class HandlerMappingIntrospector
 					}
 				}
 			}
+			// TODO: 若这个handler本身，并不是所有的handler都是一个方法，也可能是一个类，所以也有可能是会实现接口的
+			// TODO: 就是个CorsConfigurationSource那就以它的为准
 			if (handler.getHandler() instanceof CorsConfigurationSource) {
 				return ((CorsConfigurationSource) handler.getHandler()).getCorsConfiguration(wrapper);
 			}
@@ -169,6 +173,7 @@ public class HandlerMappingIntrospector
 
 
 	private static List<HandlerMapping> initHandlerMappings(ApplicationContext applicationContext) {
+		// TODO: 如果第一步获取到了Beans, sort()排序一下
 		Map<String, HandlerMapping> beans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
 				applicationContext, HandlerMapping.class, true, false);
 		if (!beans.isEmpty()) {
@@ -176,6 +181,7 @@ public class HandlerMappingIntrospector
 			AnnotationAwareOrderComparator.sort(mappings);
 			return Collections.unmodifiableList(mappings);
 		}
+		// TODO: 若没找到，就回退到DispatcherServlet.properties，这个配置文件里去找.
 		return Collections.unmodifiableList(initFallback(applicationContext));
 	}
 

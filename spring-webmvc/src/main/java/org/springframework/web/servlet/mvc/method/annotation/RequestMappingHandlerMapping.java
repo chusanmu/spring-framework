@@ -377,22 +377,29 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	protected CorsConfiguration initCorsConfiguration(Object handler, Method method, RequestMappingInfo mappingInfo) {
 		HandlerMethod handlerMethod = createHandlerMethod(handler, method);
 		Class<?> beanType = handlerMethod.getBeanType();
+		// TODO: 找到类上和方法上的注解，若都为null就返回null，此注解可以标注在父类，接口上.
 		CrossOrigin typeAnnotation = AnnotatedElementUtils.findMergedAnnotation(beanType, CrossOrigin.class);
 		CrossOrigin methodAnnotation = AnnotatedElementUtils.findMergedAnnotation(method, CrossOrigin.class);
 
+		// TODO: 如果类上和方法上都没有，那就直接返回null了
 		if (typeAnnotation == null && methodAnnotation == null) {
 			return null;
 		}
 
+		// TODO: 创建一个跨域配置
 		CorsConfiguration config = new CorsConfiguration();
+		// TODO: 根据类上和方法上的注解的信息，去设置跨域配置
 		updateCorsConfig(config, typeAnnotation);
 		updateCorsConfig(config, methodAnnotation);
 
+
 		if (CollectionUtils.isEmpty(config.getAllowedMethods())) {
+			// TODO: 看当前handler支持什么请求方法，设置到跨域配置中
 			for (RequestMethod allowedMethod : mappingInfo.getMethodsCondition().getMethods()) {
 				config.addAllowedMethod(allowedMethod.name());
 			}
 		}
+		// TODO: 开始初始化喽
 		return config.applyPermitDefaultValues();
 	}
 

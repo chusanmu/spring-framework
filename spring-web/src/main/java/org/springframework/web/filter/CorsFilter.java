@@ -55,6 +55,9 @@ public class CorsFilter extends OncePerRequestFilter {
 
 	private final CorsConfigurationSource configSource;
 
+	/**
+	 * 默认使用到的DefaultCorsProcessor, 自己也可以指定
+	 */
 	private CorsProcessor processor = new DefaultCorsProcessor();
 
 
@@ -83,10 +86,11 @@ public class CorsFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 			FilterChain filterChain) throws ServletException, IOException {
-
+		// TODO: 只处理跨域请求
 		if (CorsUtils.isCorsRequest(request)) {
 			CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(request);
 			if (corsConfiguration != null) {
+				// TODO: 使用CorsProcessor去处理
 				boolean isValid = this.processor.processRequest(corsConfiguration, request, response);
 				if (!isValid || CorsUtils.isPreFlightRequest(request)) {
 					return;

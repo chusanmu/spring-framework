@@ -414,6 +414,8 @@ public class CorsConfiguration {
 	}
 
 	/**
+	 * TODO: 根据配置的允许来源 检查请求的来源. 返回值不是boolean， 返回可用的origin， 若是null 表示请求的origin不被支持
+	 *
 	 * Check the origin of the request against the configured allowed origins.
 	 * @param requestOrigin the origin to check
 	 * @return the origin to use for the response, or {@code null} which
@@ -446,6 +448,8 @@ public class CorsConfiguration {
 	}
 
 	/**
+	 * TODO: 检查预检请求的Access-Control-Request-Method这个请求头
+	 *
 	 * Check the HTTP request method (or the method from the
 	 * {@code Access-Control-Request-Method} header on a pre-flight request)
 	 * against the configured allowed methods.
@@ -465,6 +469,7 @@ public class CorsConfiguration {
 	}
 
 	/**
+	 * 检查预检请求的Access-Control-Request-Headers
 	 * Check the supplied request headers (or the headers listed in the
 	 * {@code Access-Control-Request-Headers} of a pre-flight request) against
 	 * the configured allowed headers.

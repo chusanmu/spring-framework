@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
 
 /**
+ * TODO: 它表示一个源，该接口主要是为请求提供一个CorsConfiguration
  * Interface to be implemented by classes (usually HTTP request handlers) that
  * provides a {@link CorsConfiguration} instance based on the provided request.
  *
@@ -30,6 +31,7 @@ import org.springframework.lang.Nullable;
 public interface CorsConfigurationSource {
 
 	/**
+	 * TODO: 找到此request的一个CORS配置
 	 * Return a {@link CorsConfiguration} based on the incoming request.
 	 * @return the associated {@link CorsConfiguration}, or {@code null} if none
 	 */

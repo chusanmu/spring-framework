@@ -115,6 +115,11 @@ public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource 
 	}
 
 
+	/**
+	 * TODO: 这里的Path匹配用到的是 AntPathMatcher.match()，默认是按照ant风格进行匹配的
+	 * @param request
+	 * @return
+	 */
 	@Override
 	@Nullable
 	public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {

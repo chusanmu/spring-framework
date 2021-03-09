@@ -34,10 +34,14 @@ import org.springframework.web.cors.CorsConfiguration;
  */
 public class CorsRegistry {
 
+	/**
+	 * 保存着全局的配置，每个CorsRegistration 就是 URL pattern和CorsConfiguration配置
+	 */
 	private final List<CorsRegistration> registrations = new ArrayList<>();
 
 
 	/**
+	 * TODO: 向上面list添加一个全局的配置，和pathPattern绑定
 	 * Enable cross-origin request handling for the specified path pattern.
 	 * <p>Exact path mapping URIs (such as {@code "/admin"}) are supported as
 	 * well as Ant-style path patterns (such as {@code "/admin/**"}).
@@ -46,12 +50,14 @@ public class CorsRegistry {
 	 * {@link CorsConfiguration#applyPermitDefaultValues()}.
 	 */
 	public CorsRegistration addMapping(String pathPattern) {
+		// TODO: 可见使用的就是new CorsRegistration(pathPattern), 使用的默认的 applyPermitDefaultValues()
 		CorsRegistration registration = new CorsRegistration(pathPattern);
 		this.registrations.add(registration);
 		return registration;
 	}
 
 	/**
+	 * TODO: 把当前的list转成Map, key就是PathPattern.
 	 * Return the registered {@link CorsConfiguration} objects,
 	 * keyed by path pattern.
 	 */

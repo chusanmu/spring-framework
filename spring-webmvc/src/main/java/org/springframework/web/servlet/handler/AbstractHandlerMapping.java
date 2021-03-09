@@ -455,11 +455,17 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		else if (logger.isDebugEnabled() && !request.getDispatcherType().equals(DispatcherType.ASYNC)) {
 			logger.debug("Mapped to " + executionChain.getHandler());
 		}
-		// TODO: 对跨域的支持
+		// TODO: 对跨域的支持, 如果是跨域请求, 这里就继续处理
 		if (CorsUtils.isCorsRequest(request)) {
+			// TODO: 1. 全局配置，从UrlBasedCorsConfigurationSource找到一个属于这个请求的配置
+			// TODO: 若三种方式都没有配置，这里返回的就是null
 			CorsConfiguration globalConfig = this.corsConfigurationSource.getCorsConfiguration(request);
+			// TODO: 2. 从handler自己里找，若Handler自己实现了CorsConfigurationSource接口，那就从这拿呗
+			// TODO: 其实对于@RequestMapping情况，这个值大部分情况都是null
 			CorsConfiguration handlerConfig = getCorsConfiguration(handler, request);
+			// TODO: 把全局配置和Handler配置combine组合合并
 			CorsConfiguration config = (globalConfig != null ? globalConfig.combine(handlerConfig) : handlerConfig);
+			// TODO: 这个方法很重要
 			executionChain = getCorsHandlerExecutionChain(request, executionChain, config);
 		}
 
@@ -563,12 +569,15 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 */
 	protected HandlerExecutionChain getCorsHandlerExecutionChain(HttpServletRequest request,
 			HandlerExecutionChain chain, @Nullable CorsConfiguration config) {
-
+		// TODO: 若是预检请求，就new一个新的HandlerExecutionChain
+		// TODO: PreFlightHandler 是一个HttpRequestHandler 并且实现了接口CorsConfigurationSource
 		if (CorsUtils.isPreFlightRequest(request)) {
 			HandlerInterceptor[] interceptors = chain.getInterceptors();
 			return new HandlerExecutionChain(new PreFlightHandler(config), interceptors);
 		}
 		else {
+			// TODO: 若不是预检请求，就添加一个拦截器CorsInterceptor
+			// TODO: 注意，这个拦截器只会作用于这个chain的，也就是这个Handler，能进来这里是简单请求，或者是真是请求
 			chain.addInterceptor(new CorsInterceptor(config));
 			return chain;
 		}
@@ -597,6 +606,9 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	}
 
 
+	/**
+	 * TODO: Cors拦截器，它最终会被放到处理器链 HandlerExecutionChain里，用于拦截处理
+	 */
 	private class CorsInterceptor extends HandlerInterceptorAdapter implements CorsConfigurationSource {
 
 		@Nullable
@@ -606,6 +618,14 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 			this.config = config;
 		}
 
+		/**
+		 * TODO: 拦截操作，最终是委托给了CorsProcessor 也就是 DefaultCorsProcessor 去完成处理的
+		 * @param request
+		 * @param response
+		 * @param handler
+		 * @return
+		 * @throws Exception
+		 */
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 				throws Exception {

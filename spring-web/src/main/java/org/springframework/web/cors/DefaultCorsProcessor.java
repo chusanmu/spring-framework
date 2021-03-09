@@ -63,33 +63,43 @@ public class DefaultCorsProcessor implements CorsProcessor {
 	public boolean processRequest(@Nullable CorsConfiguration config, HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
 
+		// TODO: 如果不是跨域请求，不处理, 看请求头里有没有 origin
+		// TODO: 如果有这个头就是跨域请求
 		if (!CorsUtils.isCorsRequest(request)) {
 			return true;
 		}
 
+		// TODO: 若响应头里已经设置好了 Access-Control-Allow-Origin这个响应头，此处理器就不管了
 		ServletServerHttpResponse serverResponse = new ServletServerHttpResponse(response);
 		if (responseHasCors(serverResponse)) {
 			logger.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
 			return true;
 		}
 
+		// TODO: 即使你有origin请求头，但是是同源的请求，那也不处理了
 		ServletServerHttpRequest serverRequest = new ServletServerHttpRequest(request);
 		if (WebUtils.isSameOrigin(serverRequest)) {
 			logger.trace("Skip: request is from same origin");
 			return true;
 		}
 
+		// TODO: 是否是预检请求，判断标准如下:
+		// TODO: 是跨域请求 && 是`Options`请求，有 Access-Control-Request-Method这个请求头
 		boolean preFlightRequest = CorsUtils.isPreFlightRequest(request);
+		// TODO: 若config == null, 分两种case：是预检请求 但是没有给config, 那就拒绝，给出状态码 403
 		if (config == null) {
 			if (preFlightRequest) {
 				rejectRequest(serverResponse);
+				// TODO: 告诉后面的处理器不用再处理了
 				return false;
 			}
 			else {
+				// TODO: 虽然没给config，但是不是预检请求，是真实的请求，返回true
 				return true;
 			}
 		}
-
+		// TODO: 真正的跨域处理逻辑
+		// TODO: 它的处理逻辑比较简单
 		return handleInternal(serverRequest, serverResponse, config, preFlightRequest);
 	}
 
